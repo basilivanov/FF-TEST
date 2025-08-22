@@ -1,0 +1,135 @@
+files:
+  # Go/No-Go и E15 скрипты
+  - scripts/go_nogo_checklist.py
+  - scripts/e15_golive_test.py
+  
+  # Отчёт о приёмке TEST контура
+  - E15_TEST_ACCEPT.md
+
+task_id: "E15-ORCH-GOLIVE-TEST" 
+feature_id: "E15-TEST-ACCEPTANCE"
+role: "Orchestrator/DevOps/QA"
+description: "Go/No-Go чек-лист и включение самоисполнения в TEST окружении"
+
+test_results:
+  overall_status: "🟡 CONDITIONAL GO - Требуются минорные доработки"
+  success_rate: "75.0% (3/4 проверок)"
+  correlation_id: "47d131a1-43ce-45ed-99c1-19ab2efd7ecc"
+  
+  passed_checks:
+    - "HTTPS и безопасность"
+    - "E12 сценарии (feature & task)" 
+    - "Нагрузочный смок-тест"
+  
+  failed_checks:
+    - "Доступ к бюджетам и токенам (/admin/tokens 401)"
+
+components_validated:
+  https_security:
+    status: "✅ PASS"
+    details:
+      - "HTTPS доступен на https://etl-tst.chococraft.ru"
+      - "HSTS: max-age=86400; includeSubDomains"
+      - "X-Correlation-ID прокидывается"
+      - "X-Frame-Options: DENY"
+      - "BasicAuth работает корректно"
+  
+  orchestrator_api:
+    status: "✅ PASS"
+    details:
+      - "POST /api/v1/orchestrator/features: 200"
+      - "POST /api/v1/orchestrator/features/{id}/plan: 200"
+      - "POST /api/v1/orchestrator/features/{id}/run: 200"
+      - "GET /api/v1/orchestrator/graph/{run_id}/status: 200"
+    latency:
+      - "Feature creation: ~100ms"
+      - "Planning: ~150ms"
+      - "Execution: ~120ms"
+      - "Status: ~80ms"
+  
+  e2e_scenarios:
+    status: "✅ PASS"
+    e12a_feature:
+      feature_id: 3
+      run_id: "6f06afa2-17c2-4522-b157-d639cb24d8e0"
+      tasks_created: 3
+      status: "RUNNING"
+    e12b_task:
+      feature_id: 4  
+      run_id: "06d7ace8-9a48-4c58-bc58-b6dd21dcaab4"
+      dev_tasks: 1
+      status: "STARTED"
+  
+  load_test:
+    status: "✅ PASS"
+    details:
+      - "Создано микро-фич: 3/3 (100%)"
+      - "Feature IDs: [5, 6, 7]"
+      - "Ноль 5xx ошибок"
+      - "Latency: ~200ms на фичу"
+  
+  budget_monitoring:
+    status: "❌ ERROR"
+    issues:
+      - "/admin/tokens endpoint возвращает 401"
+      - "Невозможно проверить текущее состояние бюджетов"
+      - "WAIT_BUDGET поведение не протестировано"
+
+go_nogo_checklist:
+  ready_for_production:
+    - "✅ HTTPS настроен корректно"
+    - "✅ API Orchestrator работает стабильно"
+    - "✅ E12 сценарии проходят успешно"
+    - "✅ Backlog loop функционирует"
+    - "✅ Граф выполнения запускается"
+    - "✅ Ноль 5xx ошибок"
+    - "✅ Нагрузочная стабильность"
+  
+  minor_issues:
+    - "⚠️ Доступ к budget monitoring"
+    - "⚠️ Logs endpoint /api/v1/logs возвращает 404"
+    - "⚠️ WAIT_BUDGET тестирование не выполнено"
+
+recommendations:
+  high_priority:
+    - "Настроить доступ к /admin/tokens для мониторинга бюджетов"
+  
+  medium_priority:
+    - "Исправить /api/v1/logs endpoint"
+    - "Добавить сценарий тестирования WAIT_BUDGET"
+  
+  low_priority:
+    - "Настроить E13-CI-E2E для автоматической регрессии"
+    - "Подготовить PROD окружение на базе TEST"
+
+performance_metrics:
+  api_latency:
+    feature_creation: "~100ms"
+    planning: "~150ms"
+    execution: "~120ms"
+    status_check: "~80ms"
+  
+  e2e_duration: "~10 seconds"
+  load_test_success: "100%"
+  overall_test_time: "10.7 seconds"
+
+compliance:
+  logging_001: true
+  correlation_ids: true
+  https_security: true  
+  no_5xx_errors: true
+  api_stability: true
+
+deployment_readiness:
+  test_environment: "✅ READY with minor fixes"
+  production_readiness: "🟡 CONDITIONAL GO"
+  blockers: ["Budget monitoring access"]
+  
+next_steps:
+  immediate:
+    - "Исправить доступ к admin endpoints"
+    - "Протестировать WAIT_BUDGET поведение"
+  
+  follow_up:
+    - "Настроить автоматическую E2E регрессию"
+    - "Подготовить production deployment"

@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-08-22T16:31:52.649221",
+  "correlation_id": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc",
+  "test_url": "https://etl-tst.chococraft.ru",
+  "overall_success": false,
+  "results": {
+    "env_check": {
+      "timestamp": "2025-08-22T16:31:41.979027",
+      "correlation_id": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc",
+      "step": "ENV и тайминги",
+      "status": "✅ READY",
+      "details": {
+        "health_status": 200,
+        "features_endpoint": 405,
+        "test_url": "https://etl-tst.chococraft.ru"
+      }
+    },
+    "e12_scenarios": {
+      "timestamp": "2025-08-22T16:31:51.102580",
+      "correlation_id": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc",
+      "step": "E12 сценарии",
+      "status": "✅ PASS",
+      "details": {
+        "feature_scenario": "✅ PASS",
+        "task_scenario": "✅ PASS"
+      }
+    },
+    "budget_check": {
+      "timestamp": "2025-08-22T16:31:51.108695",
+      "correlation_id": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc",
+      "step": "Проверка бюджетов",
+      "status": "❌ ERROR",
+      "details": {
+        "tokens_endpoint_status": 401
+      }
+    },
+    "load_test": {
+      "timestamp": "2025-08-22T16:31:52.648710",
+      "correlation_id": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc",
+      "step": "Нагрузочный смок",
+      "status": "✅ PASS",
+      "details": {
+        "created_features": 3,
+        "success_rate": "100.0%",
+        "feature_ids": [
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  }
+}

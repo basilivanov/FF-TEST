@@ -1,0 +1,103 @@
+{
+  "timestamp": "2025-08-22T16:30:09.032568",
+  "correlation_id": "bdf41b99-37b3-4ae1-96af-c07c7c38c913",
+  "test_url": "https://etl-tst.chococraft.ru",
+  "overall_success": false,
+  "results": {
+    "https": {
+      "status": "❌ FAIL",
+      "checks": {
+        "status_200": true,
+        "https_enabled": true,
+        "hsts_header": true,
+        "correlation_id": true,
+        "x_frame_options": true,
+        "auth_required": false
+      },
+      "details": {
+        "url": "https://etl-tst.chococraft.ru",
+        "health_status": 200,
+        "hsts_value": "max-age=86400; includeSubDomains",
+        "correlation_id": "1571d764-df4b-43ca-a104-323e2d712b54"
+      }
+    },
+    "api_endpoints": {
+      "status": "❌ FAIL",
+      "endpoints": {
+        "/api/v1/health": {
+          "status_code": 200,
+          "success": true,
+          "correlation_id": "b8667301-b8f9-4e72-b06c-7cccfd803b03"
+        },
+        "/api/v1/orchestrator/features": {
+          "status_code": 405,
+          "success": true,
+          "correlation_id": "a698ba7f-4706-4f96-bdda-76ee373fa513"
+        },
+        "/api/v1/logs": {
+          "status_code": 404,
+          "success": false,
+          "correlation_id": "ebcc4b99-e8da-4017-ba10-6ea0a13364fb"
+        }
+      }
+    },
+    "orchestrator_api": {
+      "status": "✅ PASS",
+      "feature_id": 2,
+      "run_id": "b8ac27f3-80c1-4dd0-b34b-32e96b645991",
+      "operations": {
+        "create": {
+          "status_code": 200,
+          "success": true
+        },
+        "plan": {
+          "status_code": 200,
+          "tasks": 3
+        },
+        "run": {
+          "status_code": 200,
+          "state": "STARTED"
+        },
+        "status_checks": [
+          {
+            "attempt": 1,
+            "status": "RUNNING",
+            "response": {
+              "run_id": "b8ac27f3-80c1-4dd0-b34b-32e96b645991",
+              "graph": "G1",
+              "status": "RUNNING",
+              "feature_status": "RUNNING",
+              "last_checkpoint": "2025-08-22 16:30:02"
+            }
+          },
+          {
+            "attempt": 2,
+            "status": "RUNNING",
+            "response": {
+              "run_id": "b8ac27f3-80c1-4dd0-b34b-32e96b645991",
+              "graph": "G1",
+              "status": "RUNNING",
+              "feature_status": "RUNNING",
+              "last_checkpoint": "2025-08-22 16:30:02"
+            }
+          },
+          {
+            "attempt": 3,
+            "status": "RUNNING",
+            "response": {
+              "run_id": "b8ac27f3-80c1-4dd0-b34b-32e96b645991",
+              "graph": "G1",
+              "status": "RUNNING",
+              "feature_status": "RUNNING",
+              "last_checkpoint": "2025-08-22 16:30:02"
+            }
+          }
+        ]
+      }
+    },
+    "logging": {
+      "status": "❌ FAIL",
+      "error": "Logs endpoint failed: 404"
+    }
+  }
+}
