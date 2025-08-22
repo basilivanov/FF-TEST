@@ -1,0 +1,109 @@
+files:
+  # GitHub Actions CI/CD
+  - .github/workflows/e2e-regression.yml
+  - .github/branch-protection.md
+  
+  # E2E Test Scripts
+  - scripts/e2e_feature_test.py
+  - scripts/e2e_task_test.py
+  - scripts/generate_e2e_report.py
+  - scripts/generate_nightly_report.py
+  - scripts/log_e2e_event.py
+  - scripts/setup_branch_protection.py
+  
+  # Documentation
+  - docs/E13-CI-E2E-Implementation-Guide.md
+
+task_id: "E13-CI-E2E"
+feature_id: "E13-CI-E2E-Automation"
+role: "DevOps"
+description: "Автоматизация E2E регрессионного тестирования в CI/CD pipeline"
+
+capabilities:
+  - "Автоматический запуск E2E тестов на merge в main"
+  - "Блокирование merge при падении тестов"
+  - "Nightly регрессия с консолидированными отчётами"
+  - "Уведомления в Slack при падении тестов" 
+  - "Branch protection rules с required status checks"
+  - "Артефакты отчётов в CI с retention 30 дней"
+
+compliance:
+  logging_001: true
+  strict_checks: true  # только 200/4xx и JSON schema validation
+  no_soft_checks: true
+  commit_history: true
+  correlation_ids: true
+
+deployment:
+  requirements:
+    - "GitHub repository с Actions enabled"
+    - "TEST окружение с HTTPS доступом"
+    - "GITHUB_TOKEN с repo permissions"
+    - "Опционально: SLACK_WEBHOOK_URL для уведомлений"
+  
+  setup_steps:
+    - "Копировать файлы в репозиторий"
+    - "Настроить GitHub Secrets (TEST_URL, auth credentials)"
+    - "Запустить scripts/setup_branch_protection.py"
+    - "Создать тестовый PR для проверки workflow"
+
+testing:
+  e2e_scenarios:
+    feature_e2e:
+      description: "Полный прогон фичи через систему (E12-A)"
+      max_duration: "10 минут"
+      required_endpoints:
+        - "POST /api/v1/orchestrator/features"
+        - "POST /api/v1/orchestrator/features/{id}/plan"
+        - "POST /api/v1/orchestrator/features/{id}/run"  
+        - "GET /api/v1/orchestrator/graph/{run_id}/status"
+        - "GET /api/v1/orchestrator/features/{id}"
+    
+    task_e2e:
+      description: "Выполнение задачи через граф узлов (E12-B)"
+      max_duration: "7 минут"
+      required_nodes: ["Dev", "Gate", "QA", "Scribe", "Apply"]
+      required_endpoints:
+        - "GET /api/v1/orchestrator/tasks/{id}"
+
+metrics:
+  performance:
+    feature_e2e_avg_duration: "5-10 минут"
+    task_e2e_avg_duration: "3-7 минут"
+    total_regression_duration: "10-20 минут"
+  
+  reliability:
+    false_positive_rate: "<5%"
+    timeout_rate: "<2%"
+    api_error_detection: "100% для 5xx"
+
+integration:
+  triggers:
+    - "push to main branch"
+    - "pull_request to main branch"
+    - "schedule: 0 23 * * * (nightly at 2AM MSK)"
+    - "workflow_dispatch (manual)"
+  
+  outputs:
+    artifacts:
+      - "feature-e2e-report (retention: 30 days)"
+      - "task-e2e-report (retention: 30 days)"
+    
+    reports:
+      - "docs/_bundle/nightly_e2e_report_YYYY-MM-DD.md"
+    
+    events:
+      - "e2e_regression_started"
+      - "e2e_regression_finished"
+      - "e2e_regression_nightly"
+
+maintenance:
+  monitoring:
+    - "Еженедельная проверка nightly отчётов"
+    - "Анализ трендов производительности"
+    - "Мониторинг false positive rate"
+  
+  updates:
+    - "Обновление dependencies в scripts/"
+    - "Расширение E2E сценариев при необходимости" 
+    - "Настройка дополнительных каналов уведомлений"
