@@ -1,0 +1,16 @@
+```yaml
+# artifact_manifest для задачи E9-DB-AUDIT-QA
+- tests/test_db_paths.py:
+    version: "1.0"
+    changes:
+      - "Создан тест для проверки запрещенных путей к БД"
+      - "Проверка, что app и index читают разные URL"
+- tests/test_orchestrator_api_v2.py:
+    version: "1.2"
+    changes:
+      - "Добавлен smoke-тест для API эндпоинтов"
+- qa_report_db_paths.md:
+    version: "1.0"
+    changes:
+      - "Создан отчет о результатах аудита"
+```

@@ -1,0 +1,22 @@
+{
+  "feature_id": "RPS-E2E-PROMPTS-COMPLIANCE",
+  "run_id": "manual_run_20250825_1",
+  "timestamp": "2025-08-25T20:35:00Z",
+  "fallback_events": [],
+  "summary": {
+    "total_fallbacks": 0,
+    "fallback_rate": 0.0,
+    "providers_used": {
+      "claude": 2,
+      "qwen": 3
+    },
+    "models_used": {
+      "claude-3-opus": 2,
+      "qwen-max": 3
+    }
+  },
+  "validation": {
+    "status": "SUCCESS",
+    "no_unexpected_fallbacks": true
+  }
+}

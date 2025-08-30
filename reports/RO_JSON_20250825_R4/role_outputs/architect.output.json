@@ -1,0 +1,19 @@
+{
+  "dag": {
+    "nodes": [
+      { "id": "dev_node", "role": "Dev", "name": "Develop Feature" },
+      { "id": "qa_node", "role": "QA", "name": "Test Feature" }
+    ],
+    "edges": [
+      { "from": "dev_node", "to": "qa_node" }
+    ]
+  },
+  "budgets": {
+    "Dev": 1000,
+    "QA": 500
+  },
+  "dod": [
+    "Feature developed",
+    "Tests passed"
+  ]
+}

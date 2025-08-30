@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scribe.changelog.schema.json",
+  "type": "object",
+  "required": ["version","entries"],
+  "properties": {
+    "version": {"type": "string"},
+    "summary": {"type": "string"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type","path","message"],
+        "properties": {
+          "type": {"type": "string", "enum": ["ADD","FIX","CHANGE","DOCS","CHORE"]},
+          "path": {"type": "string"},
+          "message": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+```yaml
+# artifact_manifest для задачи E7-QA-HARDEN
+- docs/QA-Policy-001.md:
+    version: "1.1"
+    changes:
+      - "Добавлен запрет на response.json() без валидации по JSON-схеме"
+- tests/test_orchestrator_api_v2.py:
+    version: "1.1"
+    changes:
+      - "Добавлена валидация JSON-схем для всех ответов API"
+      - "Добавлена проверка заголовков error_code для ошибок"
+      - "Добавлена валидация ErrorResponse по схеме"
+- app/api/schemas/orchestrator/E0-Error.json:
+    version: "1.0"
+    changes:
+      - "Создана схема для ErrorResponse"
+```

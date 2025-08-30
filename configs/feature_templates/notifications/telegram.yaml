@@ -1,0 +1,80 @@
+name: "Telegram уведомления"
+description: "Система отправки уведомлений через Telegram бот"
+category: "notifications"
+keywords: 
+  - "telegram"
+  - "телеграм" 
+  - "бот"
+  - "уведомления"
+  - "notifications"
+  - "сообщения"
+
+# Обязательные поля для создания фичи
+required_slots:
+  bot_token:
+    description: "Токен Telegram бота"
+    type: "string"
+    prompt: "Какой токен у вашего Telegram бота? (Если бота еще нет, получите токен у @BotFather)"
+    example: "1234567890:AAF7tM68DgVKM1s3B5I-5kuobSB7YIxVIEg"
+  
+  recipient:
+    description: "Получатель уведомлений"
+    type: "string" 
+    prompt: "Кому отправлять уведомления? (username, chat_id или @channel)"
+    example: "@username или 123456789"
+  
+  events:
+    description: "Типы событий для уведомлений"
+    type: "array"
+    prompt: "О каких событиях уведомлять? (статусы фич, ошибки, завершение задач и т.д.)"
+    default: ["feature_status_change", "task_completion", "errors"]
+    
+  message_template:
+    description: "Шаблон сообщения"
+    type: "string"
+    prompt: "Какой формат сообщений вы хотите? (можно оставить по умолчанию)"
+    default: "🔔 {event_type}: {title}\nСтатус: {status}\nВремя: {timestamp}"
+
+# Опциональные поля
+optional_slots:
+  chat_type:
+    description: "Тип чата (private/group/channel)"
+    type: "string"
+    default: "private"
+    prompt: "Тип чата: личные сообщения, группа или канал?"
+    
+  schedule:
+    description: "Расписание отправки"
+    type: "string"
+    default: "immediate"
+    prompt: "Когда отправлять: сразу, раз в час, раз в день?"
+    
+  quiet_hours:
+    description: "Тихие часы (не беспокоить)"
+    type: "object"
+    default: 
+      enabled: false
+      start: "22:00"
+      end: "08:00"
+    prompt: "Нужны ли тихие часы? (например, не беспокоить с 22:00 до 08:00)"
+
+# Технические детали реализации
+technical_spec:
+  intent: "telegram_notifications"
+  dependencies:
+    - "python-telegram-bot"
+    - "asyncio"
+  files_to_create:
+    - "app/integrations/telegram_bot.py"
+    - "app/handlers/notification_handler.py"
+  api_endpoints:
+    - "POST /api/v1/notifications/telegram/send"
+  env_variables:
+    - "TELEGRAM_BOT_TOKEN"
+
+# Вопросы для уточнения при неполной информации
+clarification_questions:
+  - "Как часто нужно отправлять уведомления?"
+  - "Нужны ли кнопки в сообщениях для управления?"
+  - "Должны ли уведомления содержать ссылки на объекты?"
+  - "Нужно ли группировать уведомления по времени?"

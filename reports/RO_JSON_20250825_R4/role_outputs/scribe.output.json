@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "summary": "Initial release with core features.",
+  "entries": [
+    {
+      "type": "ADD",
+      "path": "src/main.py",
+      "message": "Added main application logic."
+    },
+    {
+      "type": "FIX",
+      "path": "src/utils.py",
+      "message": "Fixed a bug in utility function."
+    }
+  ]
+}

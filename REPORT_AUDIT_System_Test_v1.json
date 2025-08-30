@@ -1,0 +1,58 @@
+{
+  "env": "test",
+  "context_proofs": {
+    "url": "https://etl-tst.chococraft.ru/api/v1/context?task_description=AUDIT_System_Test_v1",
+    "status": 200,
+    "latency_ms": 60,
+    "x_correlation_id": "71e56f65-9aa8-4e2f-be82-cdd6a8204e09",
+    "body_head": "{\"context_pack\":\"# ДОКТРИНА И ПРАВИЛА РАБОТЫ\n\n# ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА И АНТИ-ПАТТЕРНЫ\n\n## 🚨 КРИТИЧЕСКИЕ ЗАПРЕТЫ\n\n### О"
+  },
+  "health": {
+    "live": {"status": 404, "latency_ms": 47},
+    "ready": {"status": 404, "latency_ms": 88}
+  },
+  "api_catalog": {
+    "openapi_paths_total": 0,
+    "probes": [
+      {"url": "/api/v1/context?task_description=audit-ping", "method":"GET", "status":200, "latency_ms":49, "content_type":"application/json", "body_head":"{\"context_pack\":\"# ДОКТРИНА И ПРАВИЛА РАБОТЫ\n\n# ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА И АНТИ-ПАТТЕРНЫ\n\n## 🚨 КРИТИЧЕСКИЕ ЗАПРЕТЫ\n\n### О"},
+      {"url": "/api/v1/index/calls?limit=1", "method":"GET", "status":500, "latency_ms":57, "content_type":"text/plain; charset=utf-8", "body_head":"Internal Server Error"},
+      {"url": "/api/v1/logs?limit=1", "method":"GET", "status":500, "latency_ms":57, "content_type":"text/plain; charset=utf-8", "body_head":"Internal Server Error"},
+      {"url": "/api/v1/logs/tail?limit=1", "method":"GET", "status":500, "latency_ms":65, "content_type":"text/plain; charset=utf-8", "body_head":"Internal Server Error"},
+      {"url": "/api/v1/agents/status?fresh=0", "method":"GET", "status":200, "latency_ms":123, "content_type":"application/json", "body_head":"{\"as_of\":\"2025-08-30T11:23:19.570563\",\"stale\":false,\"items\":[{\"model\":\"claude\",\"provider\":\"claude\",\"status\":\"error\",\"oauth_ok\":false,\"tokens_used\":null,\"latency_ms\":39,\"binary_path\":\"/usr/local/bin/cl"}"},
+      {"url": "/api/v1/agents/status?fresh=1", "method":"GET", "status":200, "latency_ms":82, "content_type":"application/json", "body_head":"{\"as_of\":\"2025-08-30T11:23:26.902251\",\"stale\":false,\"items\":[{\"model\":\"claude\",\"provider\":\"claude\",\"status\":\"error\",\"oauth_ok\":false,\"tokens_used\":null,\"latency_ms\":20,\"binary_path\":\"/usr/local/bin/cl"}"},
+      {"url": "/api/v1/agents/refresh", "method":"POST", "status":200, "latency_ms":63, "content_type":"application/json", "body_head":"{\"job_id\":\"refresh_1756553022\",\"accepted\":true}"},
+      {"url": "/api/v1/tasks/task_timeline_demo/trace?limit=1", "method":"GET", "status":404, "latency_ms":54, "content_type":"application/json", "body_head":"{\"detail\":\"Not Found\"}"}
+    ]
+  },
+  "ui": {
+    "admin_root": {"status": 401, "note":"Basic Auth"},
+    "agents": {"status": 401, "note":"Basic Auth"},
+    "logs": {"status": 401, "note":"Basic Auth"}
+  },
+  "wrappers": {
+    "found": ["claude", "codex", "ff-cli-wrapper.sh", "ff-context", "ff-free-8081", "ff-logs-read", "ff-netdiag-8081", "ff-nginx-reload-safe", "ff-ops-acceptance", "ff-orch-restart-safe", "ff-orch-start-safe", "ff-orch-status-safe", "ff-orch-stop-safe", "ff-ui-deploy-safe", "ff-ui-deploy-safe-nosudo", "gemini", "qwen"]
+  },
+  "db": {
+    "probe": "skipped",
+    "counts": {}
+  },
+  "deltas": [
+    {"area":"health_endpoints", "expected":"available", "fact":"404 Not Found", "action":"investigate"},
+    {"area":"openapi_spec", "expected":"available", "fact":"404 Not Found", "action":"investigate"},
+    {"area":"api_endpoints", "expected":"functional", "fact":"500 Internal Server Error on /index/calls, /logs, /logs/tail", "action":"debug"},
+    {"area":"x_correlation_id", "expected":"present in all responses", "fact":"missing in 500 responses", "action":"implement"},
+    {"area":"ui_access", "expected":"accessible with provided auth", "fact":"401 Unauthorized without credentials", "action":"provide_credentials_or_fix_auth"},
+    {"area":"database_tables", "expected":"present and queryable", "fact":"tables not found in test_concurrency.db", "action":"investigate_db_config"},
+    {"area":"trace_api", "expected":"404 Not Found (as per doc)", "fact":"404 Not Found", "action":"needs_implementation"}
+  ],
+  "status": "yellow",
+  "next_steps": [
+    "INVESTIGATE_HEALTH_ENDPOINTS",
+    "INVESTIGATE_OPENAPI_SPEC",
+    "DEBUG_API_500_ERRORS",
+    "IMPLEMENT_X_CORRELATION_ID_FOR_ERRORS",
+    "ADDRESS_UI_AUTH",
+    "INVESTIGATE_DB_CONFIGURATION",
+    "IMPLEMENT_TRACE_API"
+  ]
+}

@@ -22,7 +22,7 @@ structlog.configure(
         structlog.stdlib.PositionalArgumentsFormatter(),
         structlog.processors.JSONRenderer()
     ],
-    wrapper_class=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
     logger_factory=structlog.stdlib.LoggerFactory(),
     context_class=dict,
     cache_logger_on_first_use=True,
@@ -44,13 +44,13 @@ class E2ETaskTest:
         self.feature_id = None
         self.dev_task_id = None
         self.run_id = None
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now()
         self.node_timings = {}
         
     def log_event(self, event, **kwargs):
         """Логирование событий согласно стандарту Logging-001"""
         logger.info(event, 
-                   ts=datetime.utcnow().isoformat(),
+                   ts=datetime.now().isoformat(),
                    env="TEST",
                    component="e2e_test",
                    agent_role="QA",
@@ -84,7 +84,7 @@ class E2ETaskTest:
         
         # Создание фичи
         payload = {
-            "title": f"E2E CI Task Test {datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+            "title": f"E2E CI Task Test {datetime.now().strftime('%Y%m%d_%H%M%S')}",
             "intent": {
                 "action": "test_task_ci",
                 "params": {
@@ -220,6 +220,34 @@ class E2ETaskTest:
         assert status == 'DONE', f"Expected task status DONE, got {status}"
         return True
     
+    def test_admin_tokens_endpoint(self):
+        """Проверка доступности /admin/tokens endpoint"""
+        self.log_event("admin_tokens_check_started")
+        
+        response = self.make_request('GET', '/admin/tokens')
+        
+        # Проверим, что endpoint доступен (не 5xx ошибка)
+        if response.status_code >= 500:
+            raise Exception(f"Admin tokens endpoint failed with 5xx error: {response.status_code}")
+            
+        self.log_event("admin_tokens_check_completed",
+                      status_code=response.status_code)
+        return True
+    
+    def test_logs_endpoint(self):
+        """Проверка доступности /api/v1/logs endpoint"""
+        self.log_event("logs_endpoint_check_started")
+        
+        response = self.make_request('GET', '/api/v1/logs')
+        
+        # Проверим, что endpoint доступен (не 5xx ошибка)
+        if response.status_code >= 500:
+            raise Exception(f"Logs endpoint failed with 5xx error: {response.status_code}")
+            
+        self.log_event("logs_endpoint_check_completed",
+                      status_code=response.status_code)
+        return True
+    
     def generate_node_summary(self):
         """Генерация сводной таблицы узлов"""
         # Упрощённая версия для CI - будем использовать приблизительные данные
@@ -227,7 +255,7 @@ class E2ETaskTest:
         expected_nodes = ['Dev', 'Gate', 'QA', 'Scribe', 'Apply']
         
         summary = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now()
         
         for i, node in enumerate(expected_nodes):
             # Примерное время выполнения для каждого узла
@@ -261,9 +289,14 @@ class E2ETaskTest:
             self.start_graph_execution()
             self.monitor_node_execution()
             self.verify_task_completion()
+            
+            # Новые проверки
+            self.test_admin_tokens_endpoint()
+            self.test_logs_endpoint()
+            
             node_summary = self.generate_node_summary()
             
-            total_time = (datetime.utcnow() - self.start_time).total_seconds()
+            total_time = (datetime.now() - self.start_time).total_seconds()
             
             self.log_event("e2e_task_test_completed",
                           feature_id=self.feature_id,
@@ -282,7 +315,7 @@ class E2ETaskTest:
             return True
             
         except Exception as e:
-            total_time = (datetime.utcnow() - self.start_time).total_seconds()
+            total_time = (datetime.now() - self.start_time).total_seconds()
             
             self.log_event("e2e_task_test_failed",
                           feature_id=self.feature_id,

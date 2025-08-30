@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+unit="feature-factory-test.service"
+/bin/systemctl daemon-reload >/dev/null || true
+if /bin/systemctl is-active --quiet "$unit"; then
+  /bin/systemctl restart "$unit"
+else
+  /bin/systemctl start "$unit"
+fi
+/bin/systemctl is-active --quiet "$unit"
+/bin/systemctl status "$unit" --no-pager -l | tail -n 30 || true

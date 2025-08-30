@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+PORT="${1:-8081}"
+echo "=== ss (LISTEN) on :${PORT} ==="; ss -ltnp "sport = :${PORT}" || true; echo
+echo "=== lsof :${PORT} (LISTEN) ==="; lsof -nP -iTCP:${PORT} -sTCP:LISTEN || true; echo
+echo "=== fuser :${PORT} ===";        fuser -n tcp -v ${PORT} || true

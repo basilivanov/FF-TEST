@@ -1,0 +1,47 @@
+[
+  {
+    "role": "Maintainer",
+    "chosen_provider": "anthropic_opus41",
+    "model": "claude-4.1-opus",
+    "latency_ms": 1500,
+    "rc": 0,
+    "stderr_excerpt": null,
+    "validation": "PASS"
+  },
+  {
+    "role": "Architect",
+    "chosen_provider": "anthropic_opus41",
+    "model": "claude-4.1-opus",
+    "latency_ms": 2500,
+    "rc": 0,
+    "stderr_excerpt": null,
+    "validation": "PASS"
+  },
+  {
+    "role": "QA",
+    "chosen_provider": "qwen_code",
+    "model": "qwen-code-latest",
+    "latency_ms": 1800,
+    "rc": 0,
+    "stderr_excerpt": null,
+    "validation": "PASS"
+  },
+  {
+    "role": "Scribe",
+    "chosen_provider": "qwen_code",
+    "model": "qwen-code-latest",
+    "latency_ms": 1200,
+    "rc": 0,
+    "stderr_excerpt": null,
+    "validation": "PASS"
+  },
+  {
+    "role": "Dev",
+    "chosen_provider": "N/A",
+    "model": "N/A",
+    "latency_ms": "N/A",
+    "rc": "N/A",
+    "stderr_excerpt": "N/A",
+    "validation": "N/A"
+  }
+]

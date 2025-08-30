@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "claude": {
+      "logged_in": true,
+      "reason": "claude whoami successful"
+    },
+    "codex": {
+      "logged_in": false,
+      "reason": "codex command failed: Error: No such device or address (os error 6)"
+    },
+    "gemini": {
+      "logged_in": false,
+      "reason": "gemini auth status failed: Unknown arguments: auth, status"
+    },
+    "qwen": {
+      "logged_in": false,
+      "reason": "qwen auth status failed: Unknown argument: status"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# /etc/systemd/system/feature-factory-prod.service
+[Unit]
+Description=Feature Factory Production Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/feature-factory
+Environment=ENV=prod
+Environment=DRY_RUN=false
+Environment=DATABASE_URL=sqlite:///./feature.prod.db
+ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8080 --workers 2
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

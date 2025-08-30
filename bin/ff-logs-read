@@ -1,0 +1,5 @@
+#!/bin/bash
+# Безопасный скрипт для чтения логов сервиса feature-factory
+set -euo pipefail
+LINES=${1:-100}
+/usr/bin/journalctl -u feature-factory-test.service -n "$LINES" --no-pager

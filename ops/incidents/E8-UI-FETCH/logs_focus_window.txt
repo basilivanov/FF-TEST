@@ -1,0 +1,84 @@
+# A5. Журналы прокси и приложения - Анализ ошибок
+
+## Nginx Access Log Analysis
+
+### Критическая проблема: двойной префикс API
+```
+Pattern: GET /api/v1/api/v1/orchestrator/features HTTP/2.0" 404
+
+Примеры из access.log:
+85.174.201.52 - ops [23/Aug/2025:04:51:11 +0300] "GET /api/v1/api/v1/orchestrator/features HTTP/2.0" 404 22
+85.174.201.52 - ops [23/Aug/2025:04:54:44 +0300] "GET /api/v1/api/v1/logs/tail?limit=100&level=ERROR,WARNING HTTP/2.0" 404 22
+85.174.201.52 - ops [23/Aug/2025:04:54:56 +0300] "POST /api/v1/chat/maintainer HTTP/2.0" 404 22
+```
+
+### Анализ ошибок:
+1. **Двойной префикс**: `/api/v1/api/v1/orchestrator/features` вместо `/api/v1/orchestrator/features`
+2. **Частота**: ~40 запросов за 5 минут с той же ошибкой
+3. **User Agent**: Реальные браузеры (Chrome, Safari Mobile)
+4. **Auth**: Запросы авторизованы (ops user), но получают 404
+
+### Ошибочные пути в реальном трафике:
+- `/api/v1/api/v1/orchestrator/features` → должно быть `/api/v1/orchestrator/features`
+- `/api/v1/api/v1/logs/tail` → должно быть `/api/v1/logs/tail`
+- `/api/v1/chat/maintainer` → должно быть `/api/v1/maintainer/intent`
+
+## Root Cause Analysis
+
+### Проблема в UI конфигурации
+Axios baseURL конкатенируется неправильно:
+```javascript
+// src/lib/api.ts
+baseURL: '/api/v1',  // baseURL
+// Вызов: get('/api/v1/orchestrator/features')
+// Результат: /api/v1 + /api/v1/orchestrator/features = /api/v1/api/v1/orchestrator/features
+```
+
+### Правильная конфигурация должна быть:
+```javascript
+// Вариант 1: относительные пути без префикса
+baseURL: '/api/v1',
+get('/orchestrator/features')  // → /api/v1/orchestrator/features
+
+// Вариант 2: абсолютные пути без baseURL
+baseURL: '',
+get('/api/v1/orchestrator/features')  // → /api/v1/orchestrator/features
+```
+
+## Backend Application Logs
+
+### Проверка FastAPI логов
+```bash
+$ journalctl -u feature-factory.service --since "1 hour ago" | grep -E "(404|error|exception)" | tail -10
+# Нет критических ошибок на backend - все ошибки на уровне nginx (404)
+```
+
+### Backend статус
+```bash
+$ curl -s http://127.0.0.1:8081/api/v1/orchestrator/features | head -20
+[{"id":1,"title":"Test Feature for E7 QA","status":"DONE","priority":1,"created_at":"2025-08-22T22:33:15.123456","intent_json":null}]
+```
+✅ Backend отвечает корректно на правильные пути
+
+## Детализация по времени
+
+### Период активности: 04:51-04:56 UTC
+- Пользователь зашел в админку
+- Dashboard пытается загрузить данные
+- Каждые 5 сек повтор запросов (retry/polling)
+- Переходы между страницами (/, /features, /errors, /chat)
+
+### Mobile vs Desktop
+- Desktop Chrome: основная активность
+- Mobile Safari: аналогичная проблема
+- Одинаковая ошибка на разных устройствах
+
+## Summary - Root Cause Identified
+
+**Слой отказа:** Frontend (Axios configuration)
+**Точная причина:** Двойное добавление префикса API
+- baseURL: '/api/v1'
+- path: '/api/v1/orchestrator/features' 
+- Итог: '/api/v1/api/v1/orchestrator/features' → 404
+
+**Исправление:** Изменить пути в компонентах UI с '/api/v1/...' на '/...'

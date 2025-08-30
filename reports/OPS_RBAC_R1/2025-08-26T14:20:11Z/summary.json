@@ -1,0 +1,16 @@
+{
+  "ts_utc": "2025-08-26T14:20:11Z",
+  "host": "bivanov.fvds.ru",
+  "acceptance": {
+    "visudo_rc": 0,
+    "nginx_t_rc": 0,
+    "orch_restart_rc": 0,
+    "health_ok": true
+  },
+  "paths": {
+    "sudoers_main": "meta/99-feature-factory-ops.sudoers",
+    "sudoers_nginx": "meta/99-ff-ops-nginx-t.sudoers",
+    "logs_dir": "logs",
+    "bin_dir": "bin"
+  }
+}

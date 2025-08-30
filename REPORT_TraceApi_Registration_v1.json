@@ -1,0 +1,19 @@
+{
+  "trace_path_exists": false,
+  "needs_implementation": true,
+  "openapi_checked": true,
+  "proofs": [
+    {
+      "url": "https://etl-tst.chococraft.ru/api/v1/openapi.json",
+      "status": 404,
+      "latency_ms": 75,
+      "body_head": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "url": "https://etl-tst.chococraft.ru/api/v1/tasks/task_timeline_demo/trace?limit=1",
+      "status": 404,
+      "latency_ms": 33,
+      "body_head": "{\"detail\":\"Not Found\"}"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+roles:
+  Maintainer: { providers: ['stub'], reasoning_effort: minimal,  json_mode: json_schema,  json_schema_ref: configs/schemas/maintainer.intent.schema.json, timeout_sec: 15 }
+  Architect:  { providers: ['stub'], reasoning_effort: high,     json_mode: json_schema,  json_schema_ref: configs/schemas/architect.plan.schema.json,   timeout_sec: 30 }
+  Dev:        { providers: ['stub'], reasoning_effort: minimal,  json_mode: false,        timeout_sec: 20 }
+  QA:         { providers: ['stub'], reasoning_effort: minimal,  json_mode: json_object,  json_schema_ref: configs/schemas/qa.report.schema.json,        timeout_sec: 20 }
+  Scribe:     { providers: ['stub'], reasoning_effort: minimal,  json_mode: json_object,  json_schema_ref: configs/schemas/scribe.changelog.schema.json,  timeout_sec: 20 }
+fallback:
+  true: ['TIMEOUT','RATE_LIMIT','RC_NONZERO','JSON_PARSE_ERROR','LLM_ERROR']
+budgets:
+  role_daily_tokens: { Maintainer: 900, Architect: 1800, Dev: 1400, QA: 800, Scribe: 800 }

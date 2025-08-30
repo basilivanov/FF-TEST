@@ -1,0 +1,88 @@
+roles:
+  Maintainer:
+    providers: [anthropic_opus41, openai_gpt5_via_codex, stub]
+    reasoning_effort: high              # GPT-5
+    extended_thinking: true             # Claude Opus
+    adaptive_thinking: true             # Gemini 2.5
+    json_mode: json_schema              # для создания структурированных задач
+    json_schema_ref: "configs/schemas/maintainer.intent.schema.json"
+    timeout_sec: 55
+  ChatMaintainer:
+    providers: [anthropic_opus41, gemini_25_pro, openai_gpt5_via_codex, stub]
+    reasoning_effort: minimal           # для чата не нужно глубокое рассуждение  
+    extended_thinking: false
+    adaptive_thinking: true             # Gemini хорош для диалогов
+    json_mode: off                      # простой текстовый чат
+    timeout_sec: 30
+  Architect:
+    providers: [anthropic_opus41, openai_gpt5_via_codex, gemini_25_pro, stub]
+    reasoning_effort: high
+    extended_thinking: true
+    adaptive_thinking: true
+    json_mode: json_object
+    timeout_sec: 60
+  Dev:
+    providers: [qwen_code, gemini_25_flash, openai_gpt5_mini, stub]
+    reasoning_effort: minimal
+    json_mode: off                      # код/текст; парсеры локальные
+    timeout_sec: 30
+  QA:
+    providers: [qwen_code, openai_gpt5_mini, gemini_25_flash, stub]
+    reasoning_effort: minimal
+    json_mode: json_object
+    json_schema_ref: "configs/schemas/qa.report.schema.json"
+    timeout_sec: 30
+  Scribe:
+    providers: [qwen_code, openai_gpt5_mini, stub]
+    reasoning_effort: minimal
+    json_mode: json_object
+    json_schema_ref: "configs/schemas/scribe.changelog.schema.json"
+    timeout_sec: 25
+  test_Dev:
+    providers: [stub]
+    reasoning_effort: minimal
+    json_mode: off
+    timeout_sec: 10
+  test_QA:
+    providers: [stub]
+    reasoning_effort: minimal
+    json_mode: off
+    timeout_sec: 10
+  test_Scribe:
+    providers: [stub]
+    reasoning_effort: minimal
+    json_mode: off
+    timeout_sec: 10
+  test_Architect:
+    providers: [stub]
+    reasoning_effort: minimal
+    json_mode: json_object
+    timeout_sec: 10
+  InternalAnalyst:
+    providers: [gemini_25_pro, stub]
+    reasoning_effort: high
+    extended_thinking: true
+    json_mode: json_object
+    timeout_sec: 60
+  BusinessAnalyst:
+    providers: [gemini_25_pro, stub]
+    reasoning_effort: high  
+    extended_thinking: true
+    json_mode: json_object
+    timeout_sec: 60
+
+# --- Global routing options ---
+fallback:
+  on: ["TIMEOUT", "RATE_LIMIT", "RC_NONZERO", "JSON_PARSE_ERROR"]
+  strategy: "next_provider_then_resume"
+  resume_after_hours: 5                 # лимиты Opus 4.1 обновляются ~каждые 5 ч
+budgets:
+  role_daily_tokens:
+    Maintainer: 5000  # Увеличено для тестирования диалогов
+    ChatMaintainer: 3000  # Для чата
+    Architect: 1800
+    Dev: 1400
+    QA: 800
+    Scribe: 800
+    InternalAnalyst: 2000
+    BusinessAnalyst: 2000

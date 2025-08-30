@@ -19,7 +19,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 def get_database_url():
     """Получает URL базы данных из переменной окружения или использует тестовую базу."""
-    return os.getenv("DATABASE_URL", "sqlite:////opt/feature-factory/data/test.db")
+    return os.getenv("DATABASE_URL", "sqlite:///./feature.test.db")
 
 def calculate_file_hash(file_path):
     """Вычисляет SHA256 хэш файла."""
@@ -130,6 +130,7 @@ def update_symbol_index(engine, symbols):
     """Обновляет индекс символов в базе данных."""
     try:
         with engine.connect() as conn:
+            inserted_count = 0
             for symbol in symbols:
                 # Извлекаем необходимые поля
                 file_path = symbol.get('_file', '')
@@ -138,20 +139,31 @@ def update_symbol_index(engine, symbols):
                 line_start = symbol.get('line', 0)
                 line_end = symbol.get('end', line_start)
                 
+                # Если _file отсутствует, пытаемся получить файл из других полей
+                if not file_path:
+                    # Для ctags JSON формата файл может быть в других полях
+                    file_path = symbol.get('file', '')
+                
                 if file_path and symbol_name:
                     # Вставляем символ в symbol_index
-                    conn.execute(text("""
-                        INSERT INTO symbol_index (file_path, symbol_name, symbol_type, line_start, line_end)
-                        VALUES (:file_path, :symbol_name, :symbol_type, :line_start, :line_end)
-                        ON CONFLICT DO NOTHING
-                    """), {
-                        'file_path': file_path,
-                        'symbol_name': symbol_name,
-                        'symbol_type': symbol_type,
-                        'line_start': line_start,
-                        'line_end': line_end
-                    })
+                    try:
+                        conn.execute(text("""
+                            INSERT INTO symbol_index (file_path, symbol_name, symbol_type, line_start, line_end)
+                            VALUES (:file_path, :symbol_name, :symbol_type, :line_start, :line_end)
+                        """), {
+                            'file_path': file_path,
+                            'symbol_name': symbol_name,
+                            'symbol_type': symbol_type,
+                            'line_start': line_start,
+                            'line_end': line_end
+                        })
+                        inserted_count += 1
+                    except Exception as e:
+                        # Пропускаем дубликаты
+                        if "UNIQUE constraint failed" not in str(e):
+                            print(f"Ошибка при вставке символа {symbol_name}: {e}")
             conn.commit()
+            print(f"Успешно вставлено {inserted_count} символов")
     except SQLAlchemyError as e:
         print(f"Ошибка при обновлении symbol_index: {e}")
 
@@ -223,6 +235,9 @@ def main():
     
     # Обновляем индекс символов
     print("Обновляем индекс символов...")
+    print(f"Передаем {len(symbols)} символов в update_symbol_index")
+    if symbols:
+        print(f"Пример первого символа: {symbols[0]}")
     update_symbol_index(engine, symbols)
     
     # Запускаем pyan3 для построения графа вызовов

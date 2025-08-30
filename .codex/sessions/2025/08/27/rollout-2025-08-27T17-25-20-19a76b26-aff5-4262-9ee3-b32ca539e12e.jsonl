@@ -1,0 +1,3 @@
+{"id":"19a76b26-aff5-4262-9ee3-b32ca539e12e","timestamp":"2025-08-27T17:25:20.865Z","instructions":null,"git":{"commit_hash":"c4fdfcf905b77d35c276d4a6bbd05b0fc7682662","branch":"main"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\nCurrent working directory: /opt/feature-factory\nApproval policy: never\nSandbox mode: danger-full-access\nNetwork access: enabled\n</environment_context>"}]}

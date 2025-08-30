@@ -1,0 +1,16 @@
+{
+  "base_tried": [
+    {
+      "url": "https://etl-tst.chococraft.ru/api/v1",
+      "status": 200,
+      "latency_s": 0.035,
+      "error": null
+    }
+  ],
+  "base_chosen": "https://etl-tst.chococraft.ru/api/v1",
+  "context_status": 200,
+  "context_latency_ms": 48,
+  "x_correlation_id": "5f074223-e656-40a0-b0fd-2668e7776fc7",
+  "body_head": "{\"context_pack\":\"# ДОКТРИНА И ПРАВИЛА РАБОТЫ\\n\\n# ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА И АНТИ-ПАТТЕРНЫ\\n\\n## 🚨 КРИТИЧЕСКИЕ ЗАПРЕТЫ\\n\\n### Обработка ошибок кода\\n\\n**ЗАПРЕЩЕНО**: Исправлять ошибки отступов (IndentationError) или сложные синтаксические ошибки через Edit (замена строки).\\n\\n**ПРАВИЛЬНО**: \\n1. Сначала",
+  "error": null
+}

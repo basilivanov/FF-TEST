@@ -1,0 +1,105 @@
+name: docs-guard
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "cortex/**"
+      - "configs/**"
+      - "docs/**"
+      - ".github/workflows/docs-guard.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "cortex/**"
+      - "configs/**"
+      - "docs/**"
+      - ".github/workflows/docs-guard.yml"
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show tree context
+        run: |
+          pwd
+          ls -la
+          echo "::group::git status"
+          git status
+          echo "::endgroup::"
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+          # yq нужен, только если вызывается внутри скриптов
+          sudo snap install yq || true
+
+      - name: DocSync — docs guard (DEPRECATED /docs)
+        run: |
+          set -euo pipefail
+          echo "=== DocSync: Checking docs guard ==="
+          if bash cortex/scripts/check_docs_guard.sh; then
+            echo "✅ DocSync docs guard: PASS"
+          else
+            echo "❌ DocSync docs guard: FAIL"
+            exit 1
+          fi
+        shell: bash
+
+      - name: DocSync — TOC sync
+        run: |
+          set -euo pipefail
+          echo "=== DocSync: Checking TOC sync ==="
+          if bash cortex/scripts/check_toc_sync.sh; then
+            echo "✅ DocSync TOC sync: PASS"
+          else
+            echo "❌ DocSync TOC sync: FAIL"
+            exit 1
+          fi
+        shell: bash
+
+      - name: DocSync — FF-DocMeta
+        run: |
+          set -euo pipefail
+          echo "=== DocSync: Checking FF-DocMeta ==="
+          if bash cortex/scripts/check_docmeta.sh; then
+            echo "✅ DocSync FF-DocMeta: PASS"
+          else
+            echo "❌ DocSync FF-DocMeta: FAIL"
+            exit 1
+          fi
+        shell: bash
+
+      - name: DocSync — oversized
+        run: |
+          set -euo pipefail
+          echo "=== DocSync: Checking oversized files ==="
+          if bash cortex/scripts/check_oversized.sh; then
+            echo "✅ DocSync oversized: PASS"
+          else
+            echo "❌ DocSync oversized: FAIL"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Notify on failure (Slack)
+        if: failure() && github.event_name == 'schedule'
+        run: |
+          echo "Nightly docs-guard check failed. Please check the logs."
+          # Здесь будет добавлен код уведомления при наличии вебхука

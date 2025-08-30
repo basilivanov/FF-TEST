@@ -1,0 +1,15 @@
+```yaml
+# artifact_manifest для задачи E9-LOOP-QA
+- tests/test_loop_stability.py:
+    version: "1.0"
+    changes:
+      - "Создан тест для проверки стабильности лупа"
+      - "Тест инъекции BudgetExceeded"
+      - "Тест возобновления выполнения на следующем слоте"
+      - "Тест отсутствия 500 ошибок"
+      - "Тест наличия логов retry_scheduled/rate_limited"
+- qa_report_loop.md:
+    version: "1.0"
+    changes:
+      - "Создан отчет о результатах тестирования лупа"
+```

@@ -1,0 +1,70 @@
+{
+  "task": "TRACE_API_IMPLEMENT_v1",
+  "status": "green",
+  "findings": {
+    "local_endpoint": {
+      "url": "http://127.0.0.1:8081/api/v1/tasks/task_timeline_demo/trace?limit=5",
+      "status": 200,
+      "latency_ms": 6,
+      "x_correlation_id": null,
+      "body_head": "{\"task_id\":\"task_timeline_demo\",\"items\":[{\"timestamp\":\"2025-08-30 12:02:15\",\"kind\":\"task_started\",\"icon\":\"🧠\",\"title\":\"Задача запущена\",\"description\":\"Инициатор: Unknown; контур: Unknown\",\"severity\":\"info\",\"links\":{},\"details\":{}},{\"timestamp\":\"2025-08-30 12:02:45\",\"kind\":\"task_started\",\"icon\":\"🧠\",\"t",
+      "success": true
+    },
+    "remote_endpoint": {
+      "url": "https://etl-tst.chococraft.ru/api/v1/tasks/task_timeline_demo/trace?limit=5",
+      "status": 200,
+      "latency_ms": 39,
+      "x_correlation_id": null,
+      "body_head": "{\"task_id\":\"task_timeline_demo\",\"items\":[{\"timestamp\":\"2025-08-30 12:02:15\",\"kind\":\"task_started\",\"icon\":\"🧠\",\"title\":\"Задача запущена\",\"description\":\"Инициатор: Unknown; контур: Unknown\",\"severity\":\"info\",\"links\":{},\"details\":{}},{\"timestamp\":\"2025-08-30 12:02:45\",\"kind\":\"task_started\",\"icon\":\"🧠\",\"t",
+      "success": true
+    },
+    "openapi_local": {
+      "openapi_available": true,
+      "trace_paths_found": [
+        "/api/v1/tasks/{task_id}/trace"
+      ],
+      "contains_task_trace": true
+    },
+    "openapi_remote": {
+      "openapi_available": true,
+      "trace_paths_found": [
+        "/api/v1/tasks/{task_id}/trace"
+      ],
+      "contains_task_trace": true
+    },
+    "performance": {
+      "total_requests": 20,
+      "successful_requests": 20,
+      "p95_latency_ms": 6.41,
+      "avg_latency_ms": 2.47,
+      "min_latency_ms": 1.47,
+      "max_latency_ms": 6.41,
+      "meets_requirement": true
+    }
+  },
+  "openapi_ok": true,
+  "samples": {
+    "items": [
+      {
+        "timestamp": "2025-08-30 12:02:15",
+        "kind": "task_started",
+        "icon": "🧠",
+        "title": "Задача запущена",
+        "description": "Инициатор: Unknown; контур: Unknown",
+        "severity": "info",
+        "links": {},
+        "details": {}
+      },
+      {
+        "timestamp": "2025-08-30 12:02:45",
+        "kind": "task_started",
+        "icon": "🧠",
+        "title": "Задача запущена",
+        "description": "Инициатор: Unknown; контур: Unknown",
+        "severity": "info",
+        "links": {},
+        "details": {}
+      }
+    ]
+  }
+}

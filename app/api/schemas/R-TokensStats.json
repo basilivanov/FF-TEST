@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Token Statistics Response Schema",
+  "description": "Schema for GET /admin/tokens response with daily token usage statistics",
+  "type": "object",
+  "required": ["date", "stats_by_role", "total_usage", "budget_status"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date for statistics in YYYY-MM-DD format",
+      "example": "2025-08-22"
+    },
+    "stats_by_role": {
+      "type": "object",
+      "description": "Token usage statistics grouped by role",
+      "patternProperties": {
+        "^(Architect|Dev|QA|Scribe|Maintainer)$": {
+          "type": "object",
+          "required": ["daily_limit", "used_tokens", "remaining_tokens", "usage_percentage", "calls_count"],
+          "properties": {
+            "daily_limit": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Daily token limit for this role",
+              "example": 1400
+            },
+            "used_tokens": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Tokens used today",
+              "example": 856
+            },
+            "remaining_tokens": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Remaining tokens for today",
+              "example": 544
+            },
+            "usage_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of daily limit used",
+              "example": 61.14
+            },
+            "calls_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of LLM calls made today",
+              "example": 12
+            },
+            "last_call": {
+              "type": ["string", "null"],
+              "format": "date-time",
+              "description": "Timestamp of last LLM call",
+              "example": "2025-08-22T16:45:30Z"
+            },
+            "wait_budget_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of times hit WAIT_BUDGET today",
+              "example": 2
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "total_usage": {
+      "type": "object",
+      "required": ["total_limit", "total_used", "total_remaining", "overall_percentage"],
+      "properties": {
+        "total_limit": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sum of all daily limits",
+          "example": 5700
+        },
+        "total_used": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total tokens used across all roles",
+          "example": 2341
+        },
+        "total_remaining": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total remaining tokens",
+          "example": 3359
+        },
+        "overall_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall usage percentage",
+          "example": 41.07
+        }
+      }
+    },
+    "budget_status": {
+      "type": "object",
+      "required": ["status", "roles_exhausted", "roles_at_risk"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["healthy", "warning", "critical"],
+          "description": "Overall budget health status"
+        },
+        "roles_exhausted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles that have exhausted their daily budget",
+          "example": []
+        },
+        "roles_at_risk": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles with >80% budget usage",
+          "example": ["Dev"]
+        },
+        "next_reset": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When daily limits reset",
+          "example": "2025-08-23T00:00:00Z"
+        }
+      }
+    },
+    "historical_trend": {
+      "type": "object",
+      "description": "Optional historical usage trend",
+      "properties": {
+        "yesterday_usage": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total tokens used yesterday"
+        },
+        "week_average": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Average daily usage this week"
+        },
+        "peak_usage_hour": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$",
+          "description": "Hour with highest usage today (HH:MM)",
+          "example": "14:30"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["generated_at", "correlation_id"],
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this report was generated",
+          "example": "2025-08-22T16:50:00Z"
+        },
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Correlation ID for request tracking",
+          "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+        },
+        "query_time_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Time taken to generate statistics",
+          "example": 45.2
+        }
+      }
+    }
+  }
+}

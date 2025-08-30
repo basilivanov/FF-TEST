@@ -1,0 +1,58 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .event-node { fill: #4ade80; }
+    .event-node.warn { fill: #facc15; }
+    .event-node.error { fill: #f87171; }
+    .event-time { font-family: Arial, sans-serif; font-size: 12px; fill: #6b7280; }
+    .event-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #1f2937; }
+    .event-description { font-family: Arial, sans-serif; font-size: 12px; fill: #6b7280; }
+    .button { font-family: Arial, sans-serif; font-size: 12px; fill: #1f2937; }
+    .details-box { fill: #f9fafb; stroke: #e5e7eb; }
+    .details-text { font-family: monospace; font-size: 11px; fill: #374151; }
+  </style>
+  
+  <!-- Timeline line -->
+  <line x1="50" y1="0" x2="50" y2="600" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Event 1: Task started -->
+  <circle cx="50" cy="50" r="8" class="event-node"/>
+  <text x="70" y="45" class="event-time">11:00:09</text>
+  <text x="70" y="65" class="event-title">🧠 Задача запущена</text>
+  <text x="70" y="85" class="event-description">Инициатор: Architect; контур: test</text>
+  <rect x="70" y="95" width="80" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="110" y="112" class="button" text-anchor="middle">Открыть лог</text>
+  
+  <!-- Event 2: Context built (with expanded details) -->
+  <circle cx="50" cy="150" r="8" class="event-node"/>
+  <text x="70" y="145" class="event-time">11:01:09</text>
+  <text x="70" y="165" class="event-title">📦 Контекст собран</text>
+  <text x="70" y="185" class="event-description">Размер: 4567 bytes</text>
+  <rect x="70" y="195" width="80" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="110" y="212" class="button" text-anchor="middle">Открыть лог</text>
+  <rect x="160" y="195" width="120" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="220" y="212" class="button" text-anchor="middle">Показать артефакт</text>
+  <text x="70" y="240" class="button" font-weight="bold">Скрыть детали</text>
+  
+  <!-- Expanded details box -->
+  <rect x="70" y="250" width="600" height="150" rx="4" class="details-box"/>
+  <text x="80" y="270" class="details-text">{"pack_bytes": 4567, "selectors": ["admin/logs"], "correlation_id": "corr-43487b4d",</text>
+  <text x="80" y="285" class="details-text">"artifact_path": "/artifacts/task-119/context_pack_built.json"}</text>
+  <rect x="80" y="300" width="80" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="120" y="317" class="button" text-anchor="middle">Копировать</text>
+  
+  <!-- Event 3: LLM call start -->
+  <circle cx="50" cy="450" r="8" class="event-node"/>
+  <text x="70" y="445" class="event-time">11:02:09</text>
+  <text x="70" y="465" class="event-title">🤖 Вызов LLM начат</text>
+  <text x="70" y="485" class="event-description">Роль: Dev; модель: claude-3.5-sonnet; провайдер: anthropic</text>
+  <rect x="70" y="495" width="80" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="110" y="512" class="button" text-anchor="middle">Открыть лог</text>
+  
+  <!-- Event 4: LLM call end -->
+  <circle cx="50" cy="550" r="8" class="event-node"/>
+  <text x="70" y="545" class="event-time">11:03:09</text>
+  <text x="70" y="565" class="event-title">🤖 Вызов LLM завершён</text>
+  <text x="70" y="585" class="event-description">Токены: 1250 in / 842 out; время: 1250 ms</text>
+  <rect x="70" y="595" width="80" height="25" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+  <text x="110" y="612" class="button" text-anchor="middle">Открыть лог</text>
+</svg>

@@ -1,0 +1,501 @@
+diff --git a/app/api/health.py b/app/api/health.py
+new file mode 100755
+index 0000000..9c5e043
+--- /dev/null
++++ b/app/api/health.py
+@@ -0,0 +1,199 @@
++from __future__ import annotations
++from fastapi import APIRouter, Depends, HTTPException
++from sqlalchemy import text
++from sqlalchemy.orm import Session
++import os
++import subprocess
++from typing import Dict, Any, List
++from app.db.session import get_db
++from app.logging_helpers import log, get_env
++from app.llm.cli_path_guard import get_health_check_result
++import httpx # Added import for httpx
++
++router = APIRouter(prefix="/health")
++
++def check_database_health(db: Session) -> Dict[str, Any]:
++    """Проверяет состояние подключения к базе данных."""
++    try:
++        # Выполняем простой запрос к БД для проверки подключения
++        db.execute(text("SELECT 1"))
++        return {"status": "ok", "component": "database"}
++    except Exception as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "database", "status": "error", "error": str(e)}
++        )
++        return {"status": "error", "component": "database", "error": str(e)}
++
++def check_migrations_health(db: Session) -> Dict[str, Any]:
++    """Проверяет, применены ли все миграции."""
++    try:
++        # Проверяем текущую версию миграций
++        result = db.execute(text("SELECT version_num FROM alembic_version"))
++        version = result.scalar()
++        return {"status": "ok", "component": "migrations", "version": version}
++    except Exception as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "migrations", "status": "error", "error": str(e)}
++        )
++        return {"status": "error", "component": "migrations", "error": str(e)}
++
++def check_index_files_health() -> Dict[str, Any]:
++    """Проверяет наличие индексных файлов."""
++    try:
++        # Проверяем наличие файлов индекса
++        base_path = "/opt/feature-factory/data"
++        required_files = ["code_registry.jsonl", "symbol_index.jsonl", "call_graph.dot"]
++        
++        missing_files = []
++        for file in required_files:
++            if not os.path.exists(os.path.join(base_path, file)):
++                missing_files.append(file)
++        
++        if missing_files:
++            return {"status": "error", "component": "index_files", "missing": missing_files}
++        else:
++            return {"status": "ok", "component": "index_files"}
++    except Exception as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "index_files", "status": "error", "error": str(e)}
++        )
++        return {"status": "error", "component": "index_files", "error": str(e)}
++
++def check_llm_cli_health() -> Dict[str, Any]:
++    """Проверяет работоспособность LLM CLI провайдеров."""
++    try:
++        # Используем новый модуль для проверки CLI зависимостей
++        return get_health_check_result()
++    except Exception as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "llm_cli", "status": "error", "error": str(e)}
++        )
++        return {"status": "error", "component": "llm_cli", "error": str(e)}
++
++async def check_llm_status_health() -> Dict[str, Any]: # New function for LLM status check
++    """Проверяет доступность и статус LLM API."""
++    try:
++        async with httpx.AsyncClient() as client:
++            response = await client.get("http://localhost:8081/api/v1/llm/status", timeout=5)
++            response.raise_for_status() # Raise an exception for 4xx/5xx responses
++            return {"status": "ok", "component": "llm_api", "response_status": response.status_code}
++    except httpx.RequestError as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "llm_api", "status": "error", "error": f"Request error: {e}"}
++        )
++        return {"status": "error", "component": "llm_api", "error": f"Request error: {e}"}
++    except httpx.HTTPStatusError as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "llm_api", "status": "error", "error": f"HTTP status error: {e.response.status_code}"}
++        )
++        return {"status": "error", "component": "llm_api", "error": f"HTTP status error: {e.response.status_code}"}
++    except Exception as e:
++        log.error(
++            event="healthcheck",
++            env=get_env(),
++            component="health",
++            agent_role="System",
++            correlation_id="health-check",
++            kv={"component": "llm_api", "status": "error", "error": str(e)}
++        )
++        return {"status": "error", "component": "llm_api", "error": str(e)}
++
++@router.get("/live")
++async def health_live():
++    """
++    Эндпоинт для проверки живости приложения.
++    Всегда возвращает 200, если приложение запущено.
++    """
++    log.info(
++        event="healthcheck",
++        env=get_env(),
++        component="health",
++        agent_role="System",
++        correlation_id="health-check",
++        kv={"component": "live", "status": "ok"}
++    )
++    return {"status": "ok", "component": "live"}
++
++@router.get("/ready")
++async def health_ready(db: Session = Depends(get_db)):
++    """
++    Эндпоинт для проверки готовности приложения к работе.
++    Проверяет подключение к БД, применение миграций, наличие индексных файлов и статус LLM API.
++    """
++    checks: List[Dict[str, Any]] = [
++        check_database_health(db),
++        check_migrations_health(db),
++        check_index_files_health(),
++        await check_llm_status_health() # Added LLM status check
++    ]
++    
++    # Проверяем, все ли проверки успешны
++    all_healthy = all(check["status"] == "ok" for check in checks)
++    
++    # Логируем результат
++    log.info(
++        event="healthcheck",
++        env=get_env(),
++        component="health",
++        agent_role="System",
++        correlation_id="health-check",
++        kv={"component": "ready", "status": "ok" if all_healthy else "error", "checks": checks}
++    )
++    
++    if all_healthy:
++        return {"status": "ok", "component": "ready", "checks": checks}
++    else:
++        return {"status": "error", "component": "ready", "checks": checks}
++
++@router.get("/deps")
++async def health_deps():
++    """
++    Эндпоинт для проверки зависимостей приложения.
++    Проверяет работоспособность CLI бинарников для каждого провайдера LLM.
++    """
++    llm_check = check_llm_cli_health()
++    
++    # Логируем результат
++    log.info(
++        event="healthcheck",
++        env=get_env(),
++        component="health",
++        agent_role="System",
++        correlation_id="health-check",
++        kv={"component": "deps", "status": llm_check["status"], "checks": [llm_check]}
++    )
++    
++    if llm_check["status"] == "ok":
++        return {"status": "ok", "component": "deps", "checks": [llm_check]}
++    else:
++        return {"status": "error", "component": "deps", "checks": [llm_check]}
+\ No newline at end of file
+diff --git a/app/api/middleware.py b/app/api/middleware.py
+new file mode 100755
+index 0000000..1c5615e
+--- /dev/null
++++ b/app/api/middleware.py
+@@ -0,0 +1,107 @@
++#!/usr/bin/env python3
++"""
++Middleware для FastAPI, обеспечивающий сквозную корреляцию запросов.
++"""
++
++import uuid
++from typing import Callable, Awaitable
++from fastapi import Request, Response
++import os
++import structlog
++
++# Настройка structlog для JSON логов
++structlog.configure(
++    processors=[
++        structlog.processors.TimeStamper(fmt="iso"),
++        structlog.processors.JSONRenderer()
++    ],
++    context_class=dict,
++    logger_factory=structlog.PrintLoggerFactory(),
++)
++
++# Глобальный логгер
++log = structlog.get_logger()
++
++
++def get_env() -> str:
++    """Получает текущее окружение (test или prod)."""
++    return os.getenv("ENV", "test")
++
++
++class CorrelationIdMiddleware:
++    """
++    Middleware для генерации и прокидывания correlation_id.
++    """
++    
++    def __init__(self, app):
++        self.app = app
++
++    async def __call__(self, scope, receive, send):
++        if scope["type"] not in ("http", "websocket"):
++            await self.app(scope, receive, send)
++            return
++        
++        if scope["type"] == "websocket":
++            # Для WebSocket просто пропускаем без обработки correlation_id
++            await self.app(scope, receive, send)
++            return
++
++        # Извлекаем заголовки напрямую из scope
++        headers = dict(scope.get("headers", []))
++        correlation_id_bytes = headers.get(b"x-correlation-id")
++        
++        # Проверяем наличие correlation_id в заголовках
++        correlation_id = correlation_id_bytes.decode() if correlation_id_bytes else None
++        if not correlation_id:
++            # Генерируем новый correlation_id если его нет
++            correlation_id = str(uuid.uuid4())
++        
++        # Добавляем correlation_id в scope
++        scope["correlation_id"] = correlation_id
++        scope["env"] = get_env()
++        
++        # Создаем обертку для send, чтобы добавить заголовки в ответ
++        async def send_with_correlation_id(message):
++            if message["type"] == "http.response.start":
++                # Добавляем correlation_id в заголовки ответа
++                headers = list(message.get("headers", []))
++                headers.append((b"x-correlation-id", correlation_id.encode()))
++                message["headers"] = headers
++            await send(message)
++        
++        try:
++            await self.app(scope, receive, send_with_correlation_id)
++        except Exception as e:
++            # Ensure correlation_id is set even on exceptions
++            response = Response(status_code=500)
++            response.headers["x-correlation-id"] = correlation_id
++            await response(scope, receive, send)
++            raise e
++
++
++def get_correlation_id(request: Request) -> str:
++    """
++    Получает correlation_id из request scope.
++    
++    Args:
++        request (Request): Объект запроса FastAPI
++        
++    Returns:
++        str: correlation_id
++    """
++    # Получаем correlation_id из scope
++    return request.scope.get("correlation_id", str(uuid.uuid4()))
++
++
++def get_env_from_scope(request: Request) -> str:
++    """
++    Получает окружение из request scope.
++    
++    Args:
++        request (Request): Объект запроса FastAPI
++        
++    Returns:
++        str: окружение (test или prod)
++    """
++    # Получаем окружение из scope
++    return request.scope.get("env", "test")
+\ No newline at end of file
+diff --git a/app/main.py b/app/main.py
+new file mode 100644
+index 0000000..864fcad
+--- /dev/null
++++ b/app/main.py
+@@ -0,0 +1,174 @@
++from __future__ import annotations
++from fastapi import FastAPI, HTTPException
++from fastapi.staticfiles import StaticFiles
++import os
++from app.index.api import router as index_router
++from app.api.middleware import CorrelationIdMiddleware
++from app.admin.routes import router as admin_router
++from app.admin.call_graph_api import router as admin_call_graph_router
++from app.api.orchestrator import router as orchestrator_router
++from app.api.orchestrator_queue_endpoints import router as orchestrator_queue_router
++from app.api.health import router as health_router
++# from app.api.health import check_llm_cli_health # Removed this import as the hardcoded route is removed
++from app.api.maintainer import router as maintainer_router
++from app.api.stream import router as stream_router
++from app.api.logs import router as logs_router
++from app.api.logs_errors_endpoints import router as logs_errors_router
++from app.api.tokens import router as tokens_router
++from app.api.tokens_stats_endpoints import router as tokens_stats_router
++from app.api.docs_status import router as docs_status_router
++from app.api.chat import router as chat_router
++from app.api.chat_websocket import router as chat_websocket_router # Новый импорт
++# from app.api.chat_v2 import router as chat_v2_router
++from app.api.llm_endpoints import router as llm_router_api
++from app.api.llm_status import router as llm_status_router
++from app.api.ops import router as ops_router
++from app.api.secrets import router as secrets_router
++from app.api.analyst import router as analyst_router
++from app.api.context import router as context_router
++from app.api.agents_status import router as agents_status_router
++from app.api.tasks import router as tasks_router
++
++# Импортируем модуль защиты БД
++try:
++    from app.db.guard import guard_db_path, FAILED_NEEDS_ATTENTION
++except ImportError:
++    # Заглушка для случаев, когда модуль еще не создан
++    def guard_db_path(current_db_url: str) -> None:
++        pass
++    
++    class FAILED_NEEDS_ATTENTION(Exception):
++        pass
++
++# Set openapi_url to /openapi.json explicitly
++app = FastAPI(title="Feature Factory MVP", openapi_url="/openapi.json")
++
++# Подключаем middleware для корреляции
++app.add_middleware(CorrelationIdMiddleware)
++
++# Подключаем маршруты индекса
++app.include_router(index_router)
++
++# Подключаем маршруты админки
++app.include_router(admin_router)
++app.include_router(admin_call_graph_router)
++
++# Подключаем маршруты оркестратора
++app.include_router(orchestrator_router)
++
++# Подключаем маршруты очередей оркестратора
++app.include_router(orchestrator_queue_router)
++
++# Подключаем маршруты maintainer
++app.include_router(maintainer_router)
++
++# Подключаем маршруты stream
++app.include_router(stream_router)
++
++# Подключаем маршруты логов
++app.include_router(logs_router)
++
++# Подключаем маршруты ошибок логов
++app.include_router(logs_errors_router)
++
++# Подключаем маршруты токенов
++app.include_router(tokens_router)
++
++# Подключаем маршруты статистики токенов
++app.include_router(tokens_stats_router)
++
++# Подключаем маршруты health check
++app.include_router(health_router)
++
++# Подключаем маршруты docs status
++app.include_router(docs_status_router)
++app.include_router(chat_router)
++app.include_router(chat_websocket_router) # Включение нового роутера
++# app.include_router(chat_v2_router)
++app.include_router(llm_router_api)
++app.include_router(llm_status_router)
++
++# Подключаем маршруты ops
++app.include_router(ops_router)
++app.include_router(secrets_router)
++
++# Подключаем маршруты analyst
++app.include_router(analyst_router)
++
++# Подключаем маршруты context
++app.include_router(context_router, prefix="/api/v1/context", tags=["Context"])
++
++# Подключаем маршруты кэшированного статуса агентов
++app.include_router(agents_status_router, tags=["Agents"])
++
++# Подключаем маршруты tasks
++app.include_router(tasks_router, prefix="/api/v1/tasks", tags=["Tasks"])
++
++# Подключаем маршруты трассировки
++from app.api.trace import router as trace_router
++app.include_router(trace_router, prefix="/api/v1", tags=["Trace"])
++
++"""
++Подключение дополнительных роутеров, которые могут появляться как артефакты
++после прогона графа (например, app/api/ping.py). Импорт защищаем, чтобы
++приложение стартовало даже если файла ещё нет.
++"""
++try:
++    from app.api.ping import router as ping_router
++    app.include_router(ping_router)
++except Exception:
++    # Нет ping-роутера — ничего страшного, он может появиться как артефакт
++    pass
++
++
++
++# Получаем DATABASE_URL из переменных окружения или используем тестовую базу
++DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////opt/feature-factory/data/test.db")
++
++# Проверяем путь к БД
++try:
++    guard_db_path(DATABASE_URL)
++except FAILED_NEEDS_ATTENTION as e:
++    # В production окружении останавливаем приложение
++    if os.getenv("ENV", "TEST") == "PROD":
++        raise
++    else:
++        # В тестовом окружении просто логируем предупреждение
++        print(f"Warning: DB guard check failed: {e}")
++
++@app.get("/")
++def root():
++    return {"message": "Feature Factory MVP", "docs": "/docs", "admin": "/admin/jobs"}
++
++# Removed hardcoded health endpoints
++# @app.get("/api/v1/health")
++# def health(): 
++#     return {"status": "ok"}
++
++# ping-эндпоинт не хардкодим: он должен появляться как артефакт
++
++# Removed hardcoded health_cli endpoint
++# @app.get("/api/v1/health/cli")
++# def health_cli():
++#     return check_llm_cli_health()
++
++# Инициализация админки sqladmin
++from sqladmin import Admin
++from sqlalchemy import create_engine
++
++engine = create_engine(DATABASE_URL)
++
++# Создаем админку с BasicAuth
++admin = Admin(app, engine=engine, base_url="/admin/sqladmin")
++
++# Добавляем views для таблиц
++try:
++    from app.admin.views import JobView, DocRegistryView, AgentEventView
++    if JobView:
++        admin.add_view(JobView)
++    if DocRegistryView:
++        admin.add_view(DocRegistryView)
++    if AgentEventView:
++        admin.add_view(AgentEventView)
++except Exception as e:
++    print(f"Warning: Could not add admin views: {e}")
+\ No newline at end of file

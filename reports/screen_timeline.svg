@@ -1,0 +1,78 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .timeline { fill: #f9fafb; }
+    .event-node { fill: #10b981; }
+    .event-node.warn { fill: #f59e0b; }
+    .event-node.error { fill: #ef4444; }
+    .event-card { fill: white; stroke: #e5e7eb; }
+    .event-time { fill: #6b7280; font-size: 12px; }
+    .event-title { fill: #111827; font-size: 14px; font-weight: bold; }
+    .event-desc { fill: #6b7280; font-size: 12px; }
+    .btn { fill: #f3f4f6; stroke: #d1d5db; }
+    .btn-text { fill: #374151; font-size: 12px; }
+  </style>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" class="timeline"/>
+  
+  <!-- Timeline line -->
+  <line x1="50" y1="20" x2="50" y2="580" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- Event 1: task_started -->
+  <circle cx="50" cy="50" r="8" class="event-node"/>
+  <rect x="70" y="30" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="45" class="event-time">11:00:09</text>
+  <text x="80" y="65" class="event-title">🧠 Задача запущена</text>
+  <text x="80" y="85" class="event-desc">Инициатор: Architect; контур: test</text>
+  <rect x="600" y="40" width="80" height="24" rx="4" class="btn"/>
+  <text x="610" y="56" class="btn-text">Открыть лог</text>
+  
+  <!-- Event 2: context_pack_built -->
+  <circle cx="50" cy="150" r="8" class="event-node"/>
+  <rect x="70" y="130" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="145" class="event-time">11:01:09</text>
+  <text x="80" y="165" class="event-title">📦 Контекст собран</text>
+  <text x="80" y="185" class="event-desc">Размер: 4567 bytes</text>
+  <rect x="500" y="140" width="80" height="24" rx="4" class="btn"/>
+  <text x="510" y="156" class="btn-text">Открыть лог</text>
+  <rect x="600" y="140" width="120" height="24" rx="4" class="btn"/>
+  <text x="610" y="156" class="btn-text">Показать артефакт</text>
+  
+  <!-- Event 3: llm_call_start -->
+  <circle cx="50" cy="250" r="8" class="event-node"/>
+  <rect x="70" y="230" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="245" class="event-time">11:02:09</text>
+  <text x="80" y="265" class="event-title">🤖 Вызов LLM начат</text>
+  <text x="80" y="285" class="event-desc">Роль: Dev; модель: claude-3.5-sonnet; провайдер: anthropic</text>
+  <rect x="600" y="240" width="80" height="24" rx="4" class="btn"/>
+  <text x="610" y="256" class="btn-text">Открыть лог</text>
+  
+  <!-- Event 4: llm_call_end -->
+  <circle cx="50" cy="350" r="8" class="event-node"/>
+  <rect x="70" y="330" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="345" class="event-time">11:03:09</text>
+  <text x="80" y="365" class="event-title">🤖 Вызов LLM завершён</text>
+  <text x="80" y="385" class="event-desc">Токены: 1250 in / 842 out; время: 1250 ms</text>
+  <rect x="600" y="340" width="80" height="24" rx="4" class="btn"/>
+  <text x="610" y="356" class="btn-text">Открыть лог</text>
+  
+  <!-- Event 5: tool_apply -->
+  <circle cx="50" cy="450" r="8" class="event-node"/>
+  <rect x="70" y="430" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="445" class="event-time">11:04:09</text>
+  <text x="80" y="465" class="event-title">🔧 Применён инструмент</text>
+  <text x="80" y="485" class="event-desc">Инструмент: write_file; файл: /app/main.py</text>
+  <rect x="500" y="440" width="80" height="24" rx="4" class="btn"/>
+  <text x="510" y="456" class="btn-text">Открыть лог</text>
+  <rect x="600" y="440" width="120" height="24" rx="4" class="btn"/>
+  <text x="610" y="456" class="btn-text">Показать артефакт</text>
+  
+  <!-- Event 6: watchdog_triggered -->
+  <circle cx="50" cy="550" r="8" class="event-node warn"/>
+  <rect x="70" y="530" width="700" height="80" rx="8" class="event-card"/>
+  <text x="80" y="545" class="event-time">11:05:09</text>
+  <text x="80" y="565" class="event-title">️⚠️ Codex: анти-зацикливание</text>
+  <text x="80" y="585" class="event-desc">Причина: anti-loop; контекст: Codex: анти-зацикливание</text>
+  <rect x="600" y="540" width="80" height="24" rx="4" class="btn"/>
+  <text x="610" y="556" class="btn-text">Открыть лог</text>
+</svg>

@@ -1,0 +1,50 @@
+{
+  "files_total": 11789,
+  "excluded_dirs": [".git","" "node_modules","" "dist","" "build","" ".venv","" "__pycache__","" ".pytest_cache","" ".mypy_cache","" ".idea","" ".vscode"],
+  "policy_hash": "ca0ad99bf4d5579f118b0ff826de96d42ffe323f2f4f5e8d836616ae66cb0568",
+  "proofs": {
+    "grep_absent_node_modules": {
+      "count": 0
+    },
+    "sanity_list": [
+      "/opt/feature-factory/agent_contract_payload.json",
+      "/opt/feature-factory/agent_contracts_validation_report.json",
+      "/opt/feature-factory/agents/charters/architect.md",
+      "/opt/feature-factory/agents/charters/dev.md",
+      "/opt/feature-factory/agents/charters/maintainer.md",
+      "/opt/feature-factory/agents/charters/qa.md",
+      "/opt/feature-factory/agents/charters/scribe.md",
+      "/opt/feature-factory/agents/prompts/architect.md",
+      "/opt/feature-factory/agents/prompts/dev.md",
+      "/opt/feature-factory/agents/prompts/maintainer_chat.md",
+      "/opt/feature-factory/agents/prompts/maintainer.md",
+      "/opt/feature-factory/agents/prompts/qa.md",
+      "/opt/feature-factory/agents/prompts/scribe.md",
+      "/opt/feature-factory/alembic.ini",
+      "/opt/feature-factory/ANALYST_UI_IMPLEMENTATION_REPORT.md",
+      "/opt/feature-factory/app/admin/call_graph_api.py",
+      "/opt/feature-factory/app/admin/__init__.py",
+      "/opt/feature-factory/app/admin/nl_view.py",
+      "/opt/feature-factory/app/admin/routes.py",
+      "/opt/feature-factory/app/admin/views.py",
+      "/opt/feature-factory/app/agents/prompts/architect.md",
+      "/opt/feature-factory/app/agents/prompts/business_analyst.md",
+      "/opt/feature-factory/app/agents/prompts/_capsule.md",
+      "/opt/feature-factory/app/agents/prompts/developer.md",
+      "/opt/feature-factory/app/agents/prompts/internal_analyst.md",
+      "/opt/feature-factory/app/agents/prompts/maintainer_chat_internal.md",
+      "/opt/feature-factory/app/agents/prompts/maintainer_chat.md",
+      "/opt/feature-factory/app/agents/prompts/maintainer.md",
+      "/opt/feature-factory/app/agents/prompts/scribe.md",
+      "/opt/feature-factory/app/agents/prompts/validator.md"
+    ],
+    "symlink_check": {
+      "follow_symlinks": false,
+      "symlinks_in_root_count": 0
+    },
+    "tool_variant": "find (GNU findutils) 4.9.0",
+    "corr_id_policy": {
+      "http_200_status": 000000,
+      "http_404_status": 000000
+    }
+  }

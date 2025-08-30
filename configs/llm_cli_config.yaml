@@ -1,0 +1,114 @@
+# Declarative CLI assembly for LLM providers (Nexus)
+
+providers:
+  claude:
+    binary_path: "/usr/local/bin/claude"
+    probe: ["version"]
+    stdin: "messages_json"
+    env:
+      HOME: "/home/feature"
+      ANTHROPIC_API_KEY: "<SECRET:ANTHROPIC_API_KEY>"
+    flags:
+      base: ["messages", "create", "--dangerously-skip-permissions"]
+      model_flag: "--model"
+    models:
+      sonnet4:
+        id: "claude-sonnet-4-20250514"
+      default:
+        id: "claude-sonnet-4-20250514"
+    output_parser: "text"  # чатовый ответ — обычный текст
+    modes:
+      reasoning: { model: "sonnet4" }
+      fast: { model: "sonnet4" }
+    auth:
+      refresh_secret_key: "CLAUDE_REFRESH_TOKEN"   # ключ секрета с refresh_token
+      authorization_endpoint: "<SECRET:CLAUDE_OAUTH_AUTHZ_ENDPOINT>"  # заполните валидным URL OAuth2 авторизации
+      token_endpoint: "<SECRET:CLAUDE_OAUTH_TOKEN_ENDPOINT>"  # заполните валидным URL обмена
+      client_id: "<SECRET:CLAUDE_OAUTH_CLIENT_ID>"
+      client_secret: "<SECRET:CLAUDE_OAUTH_CLIENT_SECRET>"
+      scope: ""  # при необходимости укажите требуемые scope
+      access_token_flag: "--session-token"         # если CLI поддерживает флаг доступа
+      access_env: "ANTHROPIC_ACCESS_TOKEN"         # либо переменная окружения
+      local_config_file: "/home/feature/.claude.json" # обновляем перед вызовом
+
+  gemini:
+    binary_path: "/usr/local/bin/gemini"
+    probe: ["-v"]
+    stdin: "prompt"
+    env:
+      HOME: "/opt/feature-factory"   # здесь хранится .gemini
+      GOOGLE_CLOUD_PROJECT: "<SECRET:GOOGLE_CLOUD_PROJECT>"
+    flags:
+      base: []
+    models:
+      pro:
+        id: "gemini-2.5-pro"
+        flags: ["-m", "gemini-2.5-pro"]
+      flash:
+        id: "gemini-2.5-flash"
+        flags: ["-m", "gemini-2.5-flash"]
+      default:
+        id: "gemini-2.5-pro"
+        flags: ["-m", "gemini-2.5-pro"]
+    output_parser: "text"
+    modes:
+      reasoning: { model: "pro" }
+      fast: { model: "flash" }
+    auth:
+      refresh_secret_key: "GEMINI_REFRESH_TOKEN"
+      authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth"
+      token_endpoint: "https://oauth2.googleapis.com/token"
+      client_id: "<SECRET:GEMINI_OAUTH_CLIENT_ID>"
+      client_secret: "<SECRET:GEMINI_OAUTH_CLIENT_SECRET>"
+      scope: "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+      access_env: "GOOGLE_OAUTH_ACCESS_TOKEN"      # передаем токен в окружение
+      local_config_file: "/home/feature/.gemini/oauth_creds.json"  # атомарно обновляем
+
+  codex:
+    binary_path: "/opt/feature-factory/bin/codex"
+    probe: ["--version"]
+    stdin: "messages_json"
+    env: {}
+    flags:
+      base: ["exec", "--dangerously-bypass-approvals-and-sandbox", "--skip-git-repo-check", "-m", "gpt-5", "--output-last-message", "${OUTFILE}"]
+    models:
+      default:
+        id: "gpt-5"
+    output_parser: "textfile"
+    outfile_template: "/tmp/ff_codex_last_${UUID}.txt"
+    modes:
+      reasoning: { model: "default" }
+      fast: { model: "default" }
+
+  qwen:
+    binary_path: "/usr/local/bin/qwen"
+    probe: ["--version"]
+    stdin: "prompt"
+    env:
+      HOME: "/home/feature"
+      QWEN_API_KEY: "<SECRET:QWEN_API_KEY>"
+    flags:
+      base: ["run", "-y", "--no-color", "--quiet"]
+    models:
+      default:
+        id: "qwen-code-latest"
+    output_parser: "text"
+    modes:
+      reasoning: { model: "default" }
+      fast: { model: "default" }
+    auth:
+      refresh_secret_key: "QWEN_REFRESH_TOKEN"
+      authorization_endpoint: "<SECRET:QWEN_OAUTH_AUTHZ_ENDPOINT>"  # если у провайдера есть OAuth для CLI
+      token_endpoint: "<SECRET:QWEN_OAUTH_TOKEN_ENDPOINT>"
+      client_id: "<SECRET:QWEN_OAUTH_CLIENT_ID>"
+      client_secret: "<SECRET:QWEN_OAUTH_CLIENT_SECRET>"
+      scope: ""
+
+# Provider aliases map existing routing names to declarative providers/variants
+aliases:
+  anthropic_opus41: { provider: "claude", model: "sonnet4" }
+  claude_chat:      { provider: "claude", model: "sonnet4" }
+  gemini_25_pro:    { provider: "gemini", model: "pro" }
+  gemini_25_flash:  { provider: "gemini", model: "flash" }
+  openai_gpt5_via_codex: { provider: "codex", model: "default" }
+  qwen_code:        { provider: "qwen", model: "default" }

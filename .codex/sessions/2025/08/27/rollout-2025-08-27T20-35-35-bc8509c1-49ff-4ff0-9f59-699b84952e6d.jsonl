@@ -1,0 +1,6 @@
+{"id":"bc8509c1-49ff-4ff0-9f59-699b84952e6d","timestamp":"2025-08-27T20:35:35.922Z","instructions":null,"git":{"commit_hash":"c4fdfcf905b77d35c276d4a6bbd05b0fc7682662","branch":"main"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\nCurrent working directory: /opt/feature-factory\nApproval policy: never\nSandbox mode: danger-full-access\nNetwork access: enabled\n</environment_context>"}]}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"system: You are an Architect AI. Your task is to generate a detailed plan (DAG of tasks) based on the provided intent. The plan should be in JSON format, strictly following the architect.plan.schema.json.\nuser: Generate a plan for the following intent: {}"}]}
+{"record_type":"state"}

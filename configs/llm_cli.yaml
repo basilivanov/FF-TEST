@@ -1,0 +1,74 @@
+# --- Provider definitions (CLI-first, non-interactive) ---
+
+anthropic_opus41:
+  cmd: ["/usr/local/bin/claude", "messages", "create"]
+  model: "claude-sonnet-4-20250514"
+  flags: ["--dangerously-skip-permissions"]
+  stdin_mode: "messages_json"              # подаём messages через stdin
+  output_parser: "text"                    # для чата ожидаем простой текст
+  tool_schema_ref_from_role: false         # не используем JSON schema для чата
+  env_required: ["ANTHROPIC_API_KEY"]
+
+claude_chat:
+  cmd: ["/usr/local/bin/claude", "messages", "create"]
+  model: "claude-sonnet-4-20250514"
+  flags: ["--dangerously-skip-permissions"]
+  stdin_mode: "messages_json"              # подаём messages через stdin
+  output_parser: "text"                    # получаем обычный текст для чата
+  tool_schema_ref_from_role: false         # не используем JSON schema для чата
+  env_required: ["ANTHROPIC_API_KEY"]
+
+anthropic_sonnet4:
+  cmd: ["claude", "messages", "create"]
+  model: "claude-4.1-sonnet"
+  flags: ["--dangerously-skip-permissions"]
+  stdin_mode: "messages_json"
+  output_parser: "json"
+  tool_schema_ref_from_role: true
+  env_required: ["ANTHROPIC_API_KEY"]
+
+
+
+
+
+gemini_25_pro:
+  cmd: ["gemini"]
+  model: "gemini-2.5-pro"
+  flags: ["-m", "gemini-2.5-pro"]
+  stdin_mode: "prompt"                     # передаём плоский prompt через -p
+  output_parser: "text"                    # для чата ожидаем простой текст
+  env_required: ["GOOGLE_CLOUD_PROJECT"]
+
+gemini_25_flash:
+  cmd: ["gemini"]
+  model: "gemini-2.5-flash"
+  flags: ["-m", "gemini-2.5-flash"]
+  stdin_mode: "prompt"
+  output_parser: "text+json_extract"
+  env_required: ["GOOGLE_CLOUD_PROJECT"]
+
+qwen_code:
+  cmd: ["qwen", "run"]
+  model: "qwen-code-latest"
+  flags: ["-y", "--no-color", "--quiet"]
+  stdin_mode: "prompt"                     # Qwen CLI чаще ждёт плоский prompt
+  output_parser: "text+json_extract"       # вычленяем JSON-блок при наличии
+  env_required: ["QWEN_API_KEY"]
+
+stub:
+  cmd: ["echo"]
+  model: "stub"
+  flags: []
+  stdin_mode: "prompt"
+  output_parser: "text"
+  env_required: []
+
+openai_gpt5_via_codex:
+  cmd: ["/opt/feature-factory/bin/codex"]
+  model: "gpt-5"
+  flags: ["--dangerously-bypass-approvals-and-sandbox"]
+  stdin_mode: "messages_json"
+  output_parser: "json"
+  auth: "oauth_cli"
+  login_probe: ["/opt/feature-factory/bin/codex","status"]
+  non_interactive: true

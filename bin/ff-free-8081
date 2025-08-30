@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+PORT="${1:-8081}"
+SERVICE="${2:-feature-factory-test.service}"
+SERVICE_CGROUP="system.slice/${SERVICE}"
+
+is_service_pid() {
+  local pid="$1"
+  [[ -r "/proc/${pid}/cgroup" ]] && grep -q "${SERVICE_CGROUP}" "/proc/${pid}/cgroup"
+}
+
+pname() {
+  local pid="$1"
+  if [[ -r "/proc/${pid}/comm" ]]; then cat "/proc/${pid}/comm"; else echo "?"; fi
+}
+
+mapfile -t PIDS < <( ss -ltnp "sport = :${PORT}" \
+  | awk 'NR>1{match($0,/pid=([0-9]+)/,m); if(m[1]!="") print m[1] }' | sort -u )
+
+if (( ${#PIDS[@]} == 0 )); then
+  echo "no listeners on :${PORT}"
+  exit 0
+fi
+
+echo "found PIDs on :${PORT}: ${PIDS[*]}"
+
+for pid in "${PIDS[@]}"; do
+  if is_service_pid "${pid}"; then
+    echo "skip ${pid} ($(pname ${pid})) — belongs to ${SERVICE}"
+    continue
+  fi
+  echo "TERM ${pid} ($(pname ${pid}))"
+  kill -TERM "${pid}" 2>/dev/null || true
+done
+
+# ждём до ~5с, выход если порт свободен
+for i in {1..10}; do
+  if ss -ltnp "sport = :${PORT}" | grep -q 'pid='; then
+    sleep 0.5
+  else
+    echo "port ${PORT} is free"
+    exit 0
+  fi
+done
+
+# если всё ещё занято — KILL всех чужих (не unit)
+mapfile -t LEFT < <( ss -ltnp "sport = :${PORT}" \
+  | awk 'NR>1{match($0,/pid=([0-9]+)/,m); if(m[1]!="") print m[1] }' | sort -u )
+KILLED=0
+for pid in "${LEFT[@]}"; do
+  if is_service_pid "${pid}"; then
+    echo "still present ${pid} ($(pname ${pid})) — unit ${SERVICE}, not killing"
+    continue
+  fi
+  echo "KILL ${pid} ($(pname ${pid}))"
+  kill -KILL "${pid}" 2>/dev/null || true
+  KILLED=1
+done
+
+if (( KILLED == 1 )); then
+  sleep 0.5
+fi
+
+if ss -ltnp "sport = :${PORT}" | grep -q 'pid='; then
+  echo "WARN: port ${PORT} still busy"
+  exit 1
+else
+  echo "port ${PORT} is free"
+  exit 0
+fi

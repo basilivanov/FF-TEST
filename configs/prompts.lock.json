@@ -1,0 +1,29 @@
+{
+  "roles": {
+    "Architect": {
+      "file": "agents/prompts/architect.md",
+      "sha256": "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      "updated_at": "2025-08-25T15:00:00Z"
+    },
+    "Dev": {
+      "file": "agents/prompts/dev.md",
+      "sha256": "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "updated_at": "2025-08-25T15:00:00Z"
+    },
+    "QA": {
+      "file": "agents/prompts/qa.md",
+      "sha256": "a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+      "updated_at": "2025-08-25T15:00:00Z"
+    },
+    "Scribe": {
+      "file": "agents/prompts/scribe.md",
+      "sha256": "b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9",
+      "updated_at": "2025-08-25T15:00:00Z"
+    },
+    "Maintainer": {
+      "file": "agents/prompts/maintainer.md",
+      "sha256": "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0",
+      "updated_at": "2025-08-25T15:00:00Z"
+    }
+  }
+}

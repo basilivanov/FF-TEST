@@ -1,0 +1,13 @@
+server {
+    listen 80;
+    server_name etl-tst.chococraft.ru;
+
+    # ACME challenge для Let's Encrypt
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+        default_type text/plain;
+    }
+
+    # Перенаправление на HTTPS для всех остальных запросов
+    return 301 https://$server_name$request_uri;
+}

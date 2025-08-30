@@ -1,0 +1,73 @@
+# C1. Проверка открытых файлов БД
+
+## FastAPI Process Analysis
+
+### Процессы приложения:
+```bash
+$ ps aux | grep uvicorn
+feature  53554  python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000  [DEBUG mode]
+feature  65048  /opt/feature-factory/.venv/bin/python3 /opt/feature-factory/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8081  [MAIN]
+```
+
+### Открытые файлы БД (PID 65048 - порт 8081):
+```
+/opt/feature-factory/data/test.db         # Основной файл БД
+/opt/feature-factory/data/test.db-wal     # Write-Ahead Logging файл  
+/opt/feature-factory/data/test.db-shm     # Shared Memory файл
+```
+
+## Анализ использования БД
+
+### ✅ Правильный путь к БД
+- Используется: `/opt/feature-factory/data/test.db`
+- Соответствует ожидаемому пути для TEST окружения
+- Нет файлов вида `./feature.test.db` в корне проекта
+
+### ✅ SQLite WAL mode активен
+- Присутствие файлов `.db-wal` и `.db-shm` подтверждает WAL режим
+- Множественные file descriptors указывают на корректную работу пула соединений
+
+### File Descriptors анализ:
+```
+fd 13: test.db       (read)
+fd 14: test.db-wal   (write)  
+fd 15: test.db-shm   (read)
+fd 19: test.db       (read)   # Connection pool
+fd 20: test.db-wal   (write)  # Connection pool  
+fd 21: test.db       (read)   # Connection pool
+...
+```
+
+### Интерпретация:
+- Приложение открывает несколько соединений к одной БД (connection pooling)
+- WAL режим позволяет одновременное чтение/запись
+- Все соединения к одному файлу БД - нет расщепления на разные базы
+
+## Environment Variables проверка
+
+### DATABASE_URL процесса:
+```bash
+$ grep DATABASE_URL /proc/65048/environ
+# ENV vars недоступны для чтения (процесс под другим пользователем)
+```
+
+### Ожидаемое значение из кода:
+```python
+# app/main.py:72
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////opt/feature-factory/data/test.db")
+```
+
+## Заключение C1
+
+✅ **Корректное использование БД:**
+- Один файл БД для приложения: `/opt/feature-factory/data/test.db`
+- SQLite WAL режим активен (производительность + concurrency)
+- Connection pooling работает нормально  
+- Нет legacy файлов БД в неправильных местах
+
+✅ **Путь соответствует архитектуре:**
+- TEST окружение использует тестовую БД в `/opt/feature-factory/data/`
+- Нет конфликтов с продакшн БД
+- Структура каталогов соответствует стандартизации ADR-003
+
+**Проблем с БД не обнаружено.** База данных работает корректно, проблема была только в UI API путях.

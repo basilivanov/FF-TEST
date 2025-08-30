@@ -1,0 +1,5 @@
+# CODEOWNERS for Feature Factory
+# See https://help.github.com/articles/about-codeowners/
+
+# Cortex documentation and policies
+/cortex/**  @feature-factory/core

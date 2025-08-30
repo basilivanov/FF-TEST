@@ -1,0 +1,11 @@
+HTTP/2 200 
+server: nginx/1.24.0 (Ubuntu)
+date: Sat, 30 Aug 2025 11:52:20 GMT
+content-type: application/json
+content-length: 61061
+x-correlation-id: f6449f4a-721d-4561-b2bd-9dd819ff8367
+strict-transport-security: max-age=86400; includeSubDomains
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+

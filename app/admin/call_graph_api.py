@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+"""
+Call Graph API endpoint for admin panel visualization.
+"""
+
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from sqlalchemy import create_engine, text
+import secrets
+import os
+from app.logging_helpers import log_http
+import structlog
+
+# Настройка логгера
+log = structlog.get_logger()
+
+# Security
+security = HTTPBasic()
+
+# Database setup
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////opt/feature-factory/data/test.db")
+engine = create_engine(DATABASE_URL)
+
+router = APIRouter(prefix="/admin")
+
+def get_env() -> str:
+    """Get current environment."""
+    return os.getenv("ENV", "test")
+
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    """Verify basic auth credentials."""
+    correct_username = secrets.compare_digest(credentials.username, "ops")
+    correct_password = secrets.compare_digest(credentials.password, "ops123")
+    
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+@router.get("/call-graph")
+@log_http
+def get_call_graph(request: Request,
+                   module_filter: str = None,
+                   max_nodes: int = 100,
+                   username: str = Depends(get_current_username)):
+    """Get call graph data for visualization."""
+    correlation_id = request.headers.get("x-correlation-id", "unknown")
+    
+    try:
+        with engine.connect() as conn:
+            # Получаем топ модули по количеству вызовов
+            top_modules_query = """
+                SELECT source_symbol, COUNT(*) as outgoing_calls
+                FROM call_graph_edges 
+                WHERE source_symbol LIKE '%app.%'
+                GROUP BY source_symbol
+                ORDER BY outgoing_calls DESC
+                LIMIT :max_nodes
+            """
+            
+            result = conn.execute(text(top_modules_query), {"max_nodes": max_nodes})
+            top_modules = [row[0] for row in result]
+            
+            if not top_modules:
+                return {"nodes": [], "links": [], "stats": {"total_nodes": 0, "total_edges": 0}}
+            
+            # Получаем связи между топ модулями
+            placeholders = ','.join([f':module_{i}' for i in range(len(top_modules))])
+            params = {f'module_{i}': module for i, module in enumerate(top_modules)}
+            
+            links_query = f"""
+                SELECT source_symbol, target_symbol, COUNT(*) as weight, file_path
+                FROM call_graph_edges
+                WHERE source_symbol IN ({placeholders})
+                   OR target_symbol IN ({placeholders})
+                GROUP BY source_symbol, target_symbol, file_path
+                ORDER BY weight DESC
+                LIMIT 500
+            """
+            
+            result = conn.execute(text(links_query), params)
+            links = []
+            all_symbols = set()
+            
+            for row in result:
+                source, target, weight, file_path = row
+                # Упрощаем имена модулей для визуализации
+                source_short = source.split('.')[-2:] if '.' in source else [source]
+                target_short = target.split('.')[-2:] if '.' in target else [target]
+                
+                source_name = '.'.join(source_short[-2:])
+                target_name = '.'.join(target_short[-2:])
+                
+                if source_name != target_name:  # Избегаем self-loops
+                    links.append({
+                        "source": source_name,
+                        "target": target_name,
+                        "weight": weight,
+                        "file_path": file_path.split('/')[-1] if file_path else "",
+                        "full_source": source,
+                        "full_target": target
+                    })
+                    all_symbols.add(source_name)
+                    all_symbols.add(target_name)
+            
+            # Создаем узлы с метаданными
+            nodes = []
+            for symbol in all_symbols:
+                # Определяем тип модуля по пути
+                module_type = "unknown"
+                color = "#9CA3AF"
+                
+                if "api" in symbol:
+                    module_type = "api"
+                    color = "#3B82F6"  # blue
+                elif "llm" in symbol:
+                    module_type = "llm"
+                    color = "#EF4444"  # red  
+                elif "db" in symbol or "models" in symbol:
+                    module_type = "database"
+                    color = "#10B981"  # green
+                elif "admin" in symbol:
+                    module_type = "admin"
+                    color = "#8B5CF6"  # purple
+                elif "graph" in symbol:
+                    module_type = "graph"
+                    color = "#F59E0B"  # amber
+                elif "utils" in symbol:
+                    module_type = "utils"
+                    color = "#6B7280"  # gray
+                
+                # Подсчитываем связи для размера узла
+                incoming = sum(1 for link in links if link["target"] == symbol)
+                outgoing = sum(1 for link in links if link["source"] == symbol)
+                total_connections = incoming + outgoing
+                
+                nodes.append({
+                    "id": symbol,
+                    "name": symbol,
+                    "type": module_type,
+                    "color": color,
+                    "size": min(10 + total_connections * 2, 50),  # Размер от 10 до 50
+                    "incoming": incoming,
+                    "outgoing": outgoing,
+                    "total_connections": total_connections
+                })
+            
+            # Статистика
+            stats = {
+                "total_nodes": len(nodes),
+                "total_edges": len(links),
+                "module_types": {}
+            }
+            
+            for node in nodes:
+                module_type = node["type"]
+                if module_type not in stats["module_types"]:
+                    stats["module_types"][module_type] = 0
+                stats["module_types"][module_type] += 1
+        
+        log.info(
+            event="api_call_end",
+            env=get_env(),
+            component="ui",
+            agent_role="Dev",
+            run_id=correlation_id,
+            task_id="admin_call_graph",
+            correlation_id=correlation_id,
+            kv={
+                "method": "GET",
+                "url_host": request.url.hostname or "localhost",
+                "url_path": "/admin/call-graph",
+                "status": 200,
+                "nodes_count": len(nodes),
+                "links_count": len(links)
+            }
+        )
+        
+        return {
+            "nodes": nodes,
+            "links": links,
+            "stats": stats,
+            "metadata": {
+                "generated_at": correlation_id,
+                "max_nodes_requested": max_nodes,
+                "module_filter": module_filter
+            }
+        }
+        
+    except Exception as e:
+        log.error(
+            event="api_call_end",
+            env=get_env(),
+            component="ui", 
+            agent_role="Dev",
+            run_id=correlation_id,
+            task_id="admin_call_graph",
+            correlation_id=correlation_id,
+            kv={
+                "method": "GET",
+                "url_host": request.url.hostname or "localhost",
+                "url_path": "/admin/call-graph",
+                "status": 500,
+                "err_type": type(e).__name__,
+                "err_msg": str(e)
+            },
+            stack=True
+        )
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,0 +1,46 @@
+{
+  "per_cli": {
+    "gemini": {
+      "present": true,
+      "otlp_sent": false,
+      "outfile_size_bytes": 0,
+      "rc": 0,
+      "stderr_excerpt": "OTLP connection failed: ECONNREFUSED 127.0.0.1:4318, but CLI executed successfully with GOOGLE_CLOUD_PROJECT=etl-marketplace"
+    },
+    "qwen": {
+      "present": true,
+      "otlp_sent": false,
+      "outfile_size_bytes": 35,
+      "rc": 0,
+      "stderr_excerpt": "telemetry-otlp-protocol parameter not supported"
+    },
+    "claude": {
+      "present": true,
+      "otlp_sent": false,
+      "outfile_size_bytes": 0,
+      "rc": 124,
+      "stderr_excerpt": "Command timeout after 2m"
+    },
+    "codex": {
+      "present": true,
+      "otlp_sent": false,
+      "outfile_size_bytes": 8,
+      "rc": 1,
+      "stderr_excerpt": "Error: No such device or address (os error 6)"
+    }
+  },
+  "usage_tokens_if_available": "not_available_in_test_mode",
+  "latency_ms_estimate": {
+    "gemini": 3000,
+    "qwen": 1500,
+    "claude": 120000,
+    "codex": 2000
+  },
+  "prompts_logged": false,
+  "next_actions": [
+    "Настроить GOOGLE_CLOUD_PROJECT для gemini CLI",
+    "Проверить конфигурацию OTLP collector на порту 4318",
+    "Исследовать timeout Claude CLI при работе с OTLP",
+    "Исправить конфигурацию codex CLI для корректной работы"
+  ]
+}

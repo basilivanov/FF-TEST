@@ -1,0 +1,6 @@
+{"id":"219171b7-86b8-4628-b688-387594909bb8","timestamp":"2025-08-22T19:51:40.884Z","instructions":null,"git":{"commit_hash":"c4fdfcf905b77d35c276d4a6bbd05b0fc7682662","branch":"main"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\nCurrent working directory: /opt/feature-factory\nApproval policy: never\nSandbox mode: danger-full-access\nNetwork access: enabled\n</environment_context>"}]}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"Прочитай информацию по проекту /opt/feature-factory/docs/_bundle/FF-Handbook-BUNDLE.md  https://etl-tst.chococraft.ru/admin/  500 Internal Server Error нужно починить"}]}
+{"record_type":"state"}

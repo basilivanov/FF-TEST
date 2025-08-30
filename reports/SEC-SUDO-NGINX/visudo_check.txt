@@ -1,0 +1,5 @@
+Для валидации сгенерированного файла sudoers после его размещения в /etc/sudoers.d/feature-factory-ops, выполните следующую команду:
+
+sudo visudo -c -f /etc/sudoers.d/feature-factory-ops
+
+Ожидаемый результат: "/etc/sudoers.d/feature-factory-ops: parsed OK"

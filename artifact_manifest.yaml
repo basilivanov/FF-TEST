@@ -1,0 +1,6 @@
+changed_files:
+  - /opt/feature-factory/app/graph/nodes/gate.py
+  - /opt/feature-factory/app/graph/nodes/dev_code.py
+  - /opt/feature-factory/app/graph/nodes/qa.py
+  - /opt/feature-factory/app/graph/nodes/scribe.py
+  - /opt/feature-factory/app/graph/nodes/apply.py

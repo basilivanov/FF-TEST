@@ -1,0 +1,19 @@
+#!/bin/bash
+# Qwen CLI wrapper for stable non-interactive execution
+set -euo pipefail
+
+export HOME="/home/feature"
+export LANG="C.UTF-8"
+export TERM="dumb"
+export NO_COLOR="1"
+if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+  export PATH="/usr/local/bin:$PATH"
+fi
+
+# Prefer absolute if exists, else fallback to PATH
+if [[ -x "/usr/local/bin/qwen" ]]; then
+  exec /usr/local/bin/qwen "$@"
+else
+  exec qwen "$@"
+fi
+

@@ -1,0 +1,7 @@
+exclude_dirs: [".git","node_modules","dist","build",".venv","__pycache__",".pytest_cache",".mypy_cache",".idea",".vscode"]
+include_ext: ["md","markdown","yml","yaml","json","toml","ini","cfg","conf","sql","py","pyi","ini"]
+max_lines: 400
+max_bytes: 40960
+openapi_caps: {max_lines: 200, max_bytes: 20480}
+follow_symlinks: false
+max_depth: 0

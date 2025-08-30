@@ -1,0 +1,81 @@
+name: "E16-ANALYST-PROMPTS"
+description: "Создание специализированных промптов для BusinessAnalyst и InternalAnalyst"
+version: "1.0.0"
+date: "2025-08-27"
+
+artifacts:
+  modified:
+    - path: "app/agents/prompts/business_analyst.md"
+      type: "prompt"
+      description: "Дружелюбный бизнес-аналитик с проактивным подходом и минимальными вопросами"
+      changes:
+        - "Добавлены эмодзи и красивое форматирование"
+        - "Логика 'минимум вопросов - максимум предложений'"
+        - "Шаблон ответа с саммари и подтверждением"
+        - "Фокус на бизнес-ценности и практичности"
+
+    - path: "app/agents/prompts/internal_analyst.md"
+      type: "prompt"
+      description: "Технический архитектор с максимальной автономией и детализацией"
+      changes:
+        - "Контекстная база знаний по архитектуре системы"
+        - "Алгоритм анализа по типам задач"
+        - "Формат JSON-ответа с техническими деталями"
+        - "Принцип максимальной автономии без уточняющих вопросов"
+
+    - path: "configs/prompts.yaml"
+      type: "configuration"
+      description: "Обновление конфигурации промптов для новых ролей аналитиков"
+      changes:
+        - "Добавлена секция BusinessAnalyst с required_sections"
+        - "Добавлена секция InternalAnalyst с required_sections"
+        - "Версионирование 1.0.0 для новых ролей"
+
+technical_details:
+  llm_routing:
+    - "BusinessAnalyst: anthropic_opus41 (primary), reasoning_effort: high"
+    - "InternalAnalyst: anthropic_opus41 (primary), reasoning_effort: high"
+    - "Обе роли используют json_mode: json_object"
+    - "Timeout 60 секунд для обеих ролей"
+
+  api_integration:
+    - "Эндпоинт: POST /api/v1/analyst/create-intent"
+    - "Поддержка type: INTERNAL|BUSINESS"
+    - "Автоматический выбор промпта по типу аналитика"
+
+validation:
+  prompt_structure:
+    BusinessAnalyst:
+      - "✅ Роль и персона определены"
+      - "✅ Стиль общения с эмодзи"
+      - "✅ Логика работы с минимумом вопросов"
+      - "✅ Формат ответа 'саммари + подтверждение'"
+    
+    InternalAnalyst:
+      - "✅ Роль системного архитектора"
+      - "✅ Принцип максимальной автономии"
+      - "✅ Контекстная база знаний"
+      - "✅ Алгоритм анализа и JSON формат"
+
+  configuration:
+    - "✅ Обе роли добавлены в prompts.yaml"
+    - "✅ Required sections определены"
+    - "✅ Версионирование настроено"
+
+deployment:
+  status: "READY"
+  next_steps:
+    - "Тестирование с real LLM (Opus 4.1)"
+    - "Верификация JSON-ответов от InternalAnalyst"
+    - "Проверка user experience BusinessAnalyst"
+
+impact:
+  BusinessAnalyst:
+    - "Дружелюбное взаимодействие с пользователями"
+    - "Быстрое получение готовых решений"
+    - "Минимальное количество итераций уточнения"
+  
+  InternalAnalyst:
+    - "Автоматическое создание детальных технических спецификаций"
+    - "Ускорение процесса планирования разработки"
+    - "Снижение времени на техническую проработку задач"

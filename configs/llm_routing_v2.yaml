@@ -1,0 +1,51 @@
+# Маршрутизация LLM v2 по ролям
+
+roles:
+  Dev:
+    providers_chain:
+      - primary: qwen
+        fallback: gemini
+    temperature: 0
+    max_tokens: 4096
+    timeout: 30
+  
+  QA:
+    providers_chain:
+      - primary: qwen
+        fallback: gemini
+    temperature: 0
+    max_tokens: 4096
+    timeout: 30
+  
+  Scribe:
+    providers_chain:
+      - primary: qwen
+        fallback: gemini
+    temperature: 0
+    max_tokens: 4096
+    timeout: 30
+  
+  Architect:
+    providers_chain:
+      - primary: claude
+        fallback: 
+          - gpt
+          - gemini
+    temperature: 0.2
+    max_tokens: 4096
+    timeout: 30
+  
+  Maintainer:
+    providers_chain:
+      - primary: claude
+        fallback: 
+          - gpt
+          - gemini
+    temperature: 0.2
+    max_tokens: 4096
+    timeout: 30
+
+# Общие параметры
+default_timeout: 30
+retry_attempts: 3
+retry_delay: 5

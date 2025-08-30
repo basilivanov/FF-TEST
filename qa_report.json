@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-08-29 07:18:21",
+  "test_session_id": "31fb4387-38f6-4100-a2fb-a82624623bfe",
+  "reasoning_providers": [
+    "anthropic_opus41",
+    "openai_gpt5_via_codex",
+    "stub"
+  ],
+  "websocket_url": "ws://localhost:8081/ws/v1/chat/maintainer",
+  "cold_start": {
+    "success": true,
+    "latency_ms": 1346.4999198913574,
+    "session_id": "31fb4387-38f6-4100-a2fb-a82624623bfe",
+    "response_length": 0,
+    "response_preview": ""
+  },
+  "warm_start": {
+    "success": true,
+    "latency_ms": 1180.161714553833,
+    "session_id": "31fb4387-38f6-4100-a2fb-a82624623bfe",
+    "response_length": 0,
+    "response_preview": ""
+  },
+  "performance_comparison": {
+    "warm_faster_than_cold": true,
+    "latency_improvement_ms": 166.3382053375244
+  }
+}

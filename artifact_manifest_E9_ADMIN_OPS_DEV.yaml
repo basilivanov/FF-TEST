@@ -1,0 +1,56 @@
+```yaml
+# artifact_manifest для задачи E9-ADMIN-OPS-DEV
+- app/ui/src/pages/Now.tsx:
+    version: "1.0"
+    changes:
+      - "Создана страница Now с информацией о текущих задачах и событиях"
+      - "Интеграция с API для получения данных о запущенных задачах и последних событиях"
+      - "Реализована автоматическая перезагрузка данных"
+- app/ui/src/pages/Queue.tsx:
+    version: "1.0"
+    changes:
+      - "Создана страница Queue с информацией об очереди фич и задач"
+      - "Интеграция с API для получения данных об очереди"
+      - "Реализованы вкладки для переключения между фичами и задачами в очереди"
+- app/ui/src/pages/Errors.tsx:
+    version: "1.0"
+    changes:
+      - "Создана страница Errors с информацией об ошибках системы"
+      - "Интеграция с API для получения данных об ошибках"
+      - "Реализованы фильтры по уровню и компоненту"
+      - "Отображение стек трейса и дополнительной информации об ошибках"
+- app/ui/src/pages/Budget.tsx:
+    version: "1.0"
+    changes:
+      - "Создана страница Budget с информацией о бюджете токенов"
+      - "Интеграция с API для получения данных о статистике токенов"
+      - "Отображение сводки по бюджету и детализации по ролям и моделям"
+      - "Визуализация прогресса использования бюджета"
+- app/ui/src/App.tsx:
+    version: "1.1"
+    changes:
+      - "Добавлены маршруты для новых страниц Now, Queue, Errors, Budget"
+- app/ui/src/components/AppShell.tsx:
+    version: "1.1"
+    changes:
+      - "Добавлены пункты меню для новых страниц Now, Queue, Errors, Budget"
+- app/api/orchestrator_queue_endpoints.py:
+    version: "1.0"
+    changes:
+      - "Созданы эндпоинты для получения очередей фич и задач"
+      - "Эндпоинты: GET /api/v1/orchestrator/features/queue, GET /api/v1/orchestrator/tasks/queue, GET /api/v1/orchestrator/tasks/running"
+- app/api/logs_errors_endpoints.py:
+    version: "1.0"
+    changes:
+      - "Создан эндпоинт для получения ошибок из логов"
+      - "Эндпоинт: GET /api/v1/logs/errors"
+- app/api/tokens_stats_endpoints.py:
+    version: "1.0"
+    changes:
+      - "Созданы эндпоинты для получения статистики токенов"
+      - "Эндпоинты: GET /admin/tokens/stats, GET /admin/tokens/summary"
+- app/main.py:
+    version: "1.2"
+    changes:
+      - "Подключены новые роутеры для эндпоинтов очередей, логов и токенов"
+```

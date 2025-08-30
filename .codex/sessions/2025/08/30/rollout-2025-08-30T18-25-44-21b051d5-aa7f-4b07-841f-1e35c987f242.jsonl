@@ -1,0 +1,6 @@
+{"id":"21b051d5-aa7f-4b07-841f-1e35c987f242","timestamp":"2025-08-30T18:25:44.041Z","instructions":null,"git":{"commit_hash":"c4fdfcf905b77d35c276d4a6bbd05b0fc7682662","branch":"main"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\nCurrent working directory: /opt/feature-factory\nApproval policy: never\nSandbox mode: danger-full-access\nNetwork access: enabled\n</environment_context>"}]}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"жив,"}]}
+{"record_type":"state"}

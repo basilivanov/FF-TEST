@@ -1,0 +1,39 @@
+```yaml
+# artifact_manifest для задачи E8-ADMIN-BIND-API-DEV
+- app/api/orchestrator_v2.py:
+    version: "1.1"
+    changes:
+      - "Добавлен эндпоинт GET /tasks для получения списка задач"
+      - "Добавлен эндпоинт GET /runs для получения списка запусков графов"
+- app/ui/src/pages/Features.tsx:
+    version: "1.1"
+    changes:
+      - "Заменены моковые данные на реальные данные из API"
+      - "Добавена обработка состояний загрузки и ошибок"
+- app/ui/src/pages/Tasks.tsx:
+    version: "1.1"
+    changes:
+      - "Заменены моковые данные на реальные данные из API"
+      - "Добавена обработка состояний загрузки и ошибок"
+- app/ui/src/pages/Runs.tsx:
+    version: "1.1"
+    changes:
+      - "Заменены моковые данные на реальные данные из API"
+      - "Добавена обработка состояний загрузки и ошибок"
+- app/ui/src/lib/hooks/useFeatures.ts:
+    version: "1.0"
+    changes:
+      - "Создан хук для получения списка фич из API"
+- app/ui/src/lib/hooks/useTasks.ts:
+    version: "1.0"
+    changes:
+      - "Создан хук для получения списка задач из API"
+- app/ui/src/lib/hooks/useGraphRuns.ts:
+    version: "1.0"
+    changes:
+      - "Создан хук для получения списка запусков графов из API"
+- tests/playwright/admin-panel.spec.ts:
+    version: "1.0"
+    changes:
+      - "Созданы тесты Playwright для проверки отображения данных в админке"
+```

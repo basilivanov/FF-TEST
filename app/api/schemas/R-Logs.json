@@ -1,0 +1,263 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Logs Response Schema",
+  "description": "Schema for GET /api/v1/logs response with system and application logs",
+  "type": "object",
+  "required": ["logs", "pagination", "metadata"],
+  "properties": {
+    "logs": {
+      "type": "array",
+      "description": "Array of log entries",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "level", "service", "message", "correlation_id"],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Log entry timestamp in ISO 8601 format",
+            "example": "2025-08-22T16:45:30.123Z"
+          },
+          "level": {
+            "type": "string",
+            "enum": ["DEBUG", "INFO", "WARN", "ERROR", "FATAL"],
+            "description": "Log level",
+            "example": "INFO"
+          },
+          "service": {
+            "type": "string",
+            "description": "Service or component name",
+            "example": "orchestrator"
+          },
+          "message": {
+            "type": "string",
+            "description": "Log message content",
+            "example": "Feature 3 execution started with run_id 6f06afa2-17c2-4522-b157-d639cb24d8e0"
+          },
+          "correlation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Correlation ID for request tracking",
+            "example": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Individual request ID",
+            "example": "b79d8eef-c476-46fd-9cfc-eb4c13435b0d"
+          },
+          "user": {
+            "type": ["string", "null"],
+            "description": "User identifier if available",
+            "example": "admin"
+          },
+          "source": {
+            "type": "string",
+            "description": "Log source type",
+            "enum": ["application", "nginx", "system", "journalctl"],
+            "example": "application"
+          },
+          "feature_id": {
+            "type": ["integer", "null"],
+            "description": "Related feature ID if applicable",
+            "example": 3
+          },
+          "task_id": {
+            "type": ["integer", "null"],
+            "description": "Related task ID if applicable", 
+            "example": 1
+          },
+          "run_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Related execution run ID if applicable",
+            "example": "6f06afa2-17c2-4522-b157-d639cb24d8e0"
+          },
+          "duration_ms": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "description": "Operation duration in milliseconds if available",
+            "example": 150.5
+          },
+          "status_code": {
+            "type": ["integer", "null"],
+            "minimum": 100,
+            "maximum": 599,
+            "description": "HTTP status code for web requests",
+            "example": 200
+          },
+          "ip_address": {
+            "type": ["string", "null"],
+            "format": "ipv4",
+            "description": "Client IP address for web requests",
+            "example": "10.0.0.1"
+          },
+          "user_agent": {
+            "type": ["string", "null"],
+            "description": "User agent for web requests",
+            "example": "curl/7.68.0"
+          },
+          "error": {
+            "type": ["object", "null"],
+            "description": "Error details if log level is ERROR or FATAL",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Error type or class name",
+                "example": "BudgetExceededException"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message",
+                "example": "Daily token limit exceeded for role Dev"
+              },
+              "stack_trace": {
+                "type": ["string", "null"],
+                "description": "Error stack trace if available",
+                "example": "Traceback (most recent call last):\\n..."
+              },
+              "code": {
+                "type": ["string", "null"],
+                "description": "Error code if available",
+                "example": "BUDGET_EXCEEDED"
+              }
+            }
+          },
+          "context": {
+            "type": ["object", "null"],
+            "description": "Additional context data as key-value pairs",
+            "additionalProperties": true,
+            "example": {
+              "graph": "G1",
+              "node": "Dev",
+              "retries": 2
+            }
+          }
+        }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["page", "per_page", "total_count", "total_pages"],
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Current page number",
+          "example": 1
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Number of logs per page",
+          "example": 50
+        },
+        "total_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of log entries matching filters",
+          "example": 1250
+        },
+        "total_pages": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of pages",
+          "example": 25
+        },
+        "has_next": {
+          "type": "boolean",
+          "description": "Whether there are more pages available",
+          "example": true
+        },
+        "has_prev": {
+          "type": "boolean",
+          "description": "Whether there are previous pages available",
+          "example": false
+        }
+      }
+    },
+    "filters": {
+      "type": ["object", "null"],
+      "description": "Applied filters for this query",
+      "properties": {
+        "level": {
+          "type": ["string", "null"],
+          "description": "Filtered log level",
+          "example": "ERROR"
+        },
+        "service": {
+          "type": ["string", "null"],
+          "description": "Filtered service name",
+          "example": "orchestrator"
+        },
+        "from_timestamp": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Start time filter",
+          "example": "2025-08-22T00:00:00Z"
+        },
+        "to_timestamp": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "End time filter",
+          "example": "2025-08-22T23:59:59Z"
+        },
+        "correlation_id": {
+          "type": ["string", "null"],
+          "format": "uuid",
+          "description": "Filter by correlation ID",
+          "example": "47d131a1-43ce-45ed-99c1-19ab2efd7ecc"
+        },
+        "feature_id": {
+          "type": ["integer", "null"],
+          "description": "Filter by feature ID",
+          "example": 3
+        },
+        "search": {
+          "type": ["string", "null"],
+          "description": "Text search query in log messages",
+          "example": "budget exceeded"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["generated_at", "correlation_id"],
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this log response was generated",
+          "example": "2025-08-22T16:50:00Z"
+        },
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Correlation ID for this API request",
+          "example": "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+        },
+        "query_time_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Time taken to query logs",
+          "example": 125.8
+        },
+        "log_sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Available log sources",
+          "example": ["application", "nginx", "journalctl"]
+        },
+        "retention_days": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Log retention period in days",
+          "example": 30
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3>Natural Language Input</h3>
+            </div>
+            <div class="card-body">
+                <form id="nlForm" method="post" action="/admin/nl/process">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Введите команду на русском языке:</label>
+                        <textarea class="form-control" id="text" name="text" rows="4" 
+                                  placeholder="Например: Покажи статус последних задач или Покажи последние 50 логов ошибок БД"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Обработать</button>
+                </form>
+                
+                <div id="result" class="mt-4" style="display: none;">
+                    <h4>Результат:</h4>
+                    <div id="intentResult"></div>
+                    <div id="dagResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('nlForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/admin/nl/process', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('result').style.display = 'block';
+        
+        // Отображаем intent
+        let intentHtml = '<h5>Intent:</h5><pre>' + JSON.stringify(data.intent, null, 2) + '</pre>';
+        document.getElementById('intentResult').innerHTML = intentHtml;
+        
+        // Отображаем DAG
+        let dagHtml = '<h5>DAG (не выполняется):</h5><pre>' + JSON.stringify(data.dag, null, 2) + '</pre>';
+        document.getElementById('dagResult').innerHTML = dagHtml;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('result').innerHTML = '<div class="alert alert-danger">Ошибка обработки: ' + error + '</div>';
+    });
+});
+</script>
+{% endblock %}

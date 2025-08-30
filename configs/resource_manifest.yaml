@@ -1,0 +1,7 @@
+resources:
+  - name: feature_pipeline
+    description: "Глобальный ресурс, блокируемый на все время выполнения одной фичи от начала до конца (для MVP)."
+  - name: database_main
+    description: "Основная база данных приложения."
+  - name: code_indexer
+    description: "Внутренний сервис индексации кода."

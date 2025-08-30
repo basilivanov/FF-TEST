@@ -1,0 +1,41 @@
+version: 1
+intents:
+  plan_feature:
+    patterns:
+      - "спланируй фичу *"
+      - "сделай план *"
+  run_import_ozon:
+    patterns:
+      - "импортируй озон *"
+      - "забери постинги озон *"
+    slots:
+      from: optional
+      to: optional
+  run_normalize:
+    patterns: ["нормализуй данные", "сделай взрыв json"]
+  run_export_sheets:
+    patterns: ["экспортируй в шитс *", "сделай отчёт в гугл шитс *"]
+    slots:
+      sheet: required
+      range: optional
+  set_schedule:
+    patterns: ["поставь расписание *", "запланируй *"]
+    slots:
+      time: required
+      days: optional
+  status_jobs:
+    patterns: ["покажи статус *", "что с задачами"]
+    slots:
+      last: optional
+  logs_tail:
+    patterns: ["логи *", "хвост логов *"]
+    slots:
+      component: optional
+      level: optional
+      last: optional
+  docs_status:
+    patterns: ["статус доков", "доки ок?"]
+  docs_rebuild:
+    patterns: ["пересобери доки", "обнови хэндбук"]
+  dry_run_toggle:
+    patterns: ["включи dry-run", "выключи dry-run"]

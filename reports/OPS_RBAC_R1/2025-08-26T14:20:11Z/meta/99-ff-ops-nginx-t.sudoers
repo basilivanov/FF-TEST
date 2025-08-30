@@ -1,0 +1,20 @@
+Runas_Alias FF_RUNAS = root
+
+# ТОЛЬКО тесты nginx (обычный и через наш tmp-конфиг)
+Cmnd_Alias FF_NGINX_T    = /usr/sbin/nginx -t
+Cmnd_Alias FF_NGINX_TEST = /usr/sbin/nginx -t -c /opt/feature-factory/tmp/*.conf
+
+# Обёртка nginx reload/start — без алиаса, по абсолютному пути (чтобы не конфликтовать)
+# (Алиас FF_NGINX_WRAP определён в другом sudoers — не дублируем)
+# NOPASSWD даём на сам исполняемый файл:
+#   /opt/feature-factory/bin/ff-nginx-reload-safe
+
+Defaults!FF_NGINX_T    env_reset, use_pty, log_output
+Defaults!FF_NGINX_TEST env_reset, use_pty, log_output
+Defaults!/opt/feature-factory/bin/ff-nginx-reload-safe env_reset, use_pty, log_output
+
+Defaults!FF_NGINX_T    secure_path=/usr/sbin:/usr/bin:/bin
+Defaults!FF_NGINX_TEST secure_path=/usr/sbin:/usr/bin:/bin
+Defaults!/opt/feature-factory/bin/ff-nginx-reload-safe secure_path=/usr/sbin:/usr/bin:/bin:/opt/feature-factory/bin
+
+%ff-ops ALL=(FF_RUNAS) NOPASSWD: FF_NGINX_T, FF_NGINX_TEST, /opt/feature-factory/bin/ff-nginx-reload-safe

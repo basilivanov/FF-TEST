@@ -1,0 +1,17 @@
+# --- wrappers для сетевой диагностики/очистки и рестартов ---
+Cmnd_Alias FF_NETWRAP = /opt/feature-factory/bin/ff-netdiag-8081, /opt/feature-factory/bin/ff-free-8081
+Cmnd_Alias FF_ORCH    = /opt/feature-factory/bin/ff-orch-restart-safe
+
+Defaults!FF_NETWRAP env_reset, use_pty, log_output
+Defaults!FF_NETWRAP secure_path=/usr/sbin:/usr/bin:/bin:/opt/feature-factory/bin
+Defaults!FF_NETWRAP env_keep += "GOOGLE_CLOUD_PROJECT,CI"
+
+Defaults!FF_ORCH env_reset, use_pty, log_output
+Defaults!FF_ORCH secure_path=/usr/sbin:/usr/bin:/bin:/opt/feature-factory/bin
+Defaults!FF_ORCH env_keep += "GOOGLE_CLOUD_PROJECT,CI"
+
+%ff-ops ALL=(FF_RUNAS) NOPASSWD: FF_NETWRAP, FF_NGINX_WRAP, FF_ORCH
+Cmnd_Alias FF_NGINX_WRAP = /opt/feature-factory/bin/ff-nginx-reload-safe
+Defaults!FF_NGINX_WRAP env_reset, use_pty, log_output
+Defaults!FF_NGINX_WRAP secure_path=/usr/sbin:/usr/bin:/bin:/opt/feature-factory/bin
+Defaults!FF_NGINX_WRAP env_keep += "GOOGLE_CLOUD_PROJECT,CI"

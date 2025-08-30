@@ -1,0 +1,188 @@
+[
+  {
+    "path": "/opt/feature-factory/runbook_E12_E2E_TEST_v2.md",
+    "sha256": "4651e5ccf91f00c1225b9a2248c367910f03110f5cab829739c458a1b56d8e1f",
+    "kind": "doc",
+    "hints": [
+      "task_related"
+    ],
+    "$id": null,
+    "$schema": null,
+    "title": "Runbook E2E (v2)"
+  },
+  {
+    "path": "/opt/feature-factory/runbook_E12_E2E_TEST.md",
+    "sha256": "fb367e0cbee91da698846a279362d8d087d80082c943850b04c67464f8491027",
+    "kind": "doc",
+    "hints": [
+      "task_related"
+    ],
+    "$id": null,
+    "$schema": null,
+    "title": "Runbook: E12 E2E Tests"
+  },
+  {
+    "path": "/opt/feature-factory/runbook_RPS_UPDATE.md",
+    "sha256": "b851a23b53fb17aec4de7ca19aceca1fcb370a17fe4073f6baf7ec5b520beff7",
+    "kind": "doc",
+    "hints": [
+      "task_related"
+    ],
+    "$id": null,
+    "$schema": null,
+    "title": "Runbook \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f \u0443\u0441\u0442\u0430\u0432\u043e\u0432/\u043f\u0440\u043e\u043c\u043f\u0442\u043e\u0432"
+  },
+  {
+    "path": "/opt/feature-factory/configs/schemas/architect.plan.schema.json",
+    "sha256": "c4afe668820d22f5e9229f32c73dd75a03503e92526791063d48422a74209b14",
+    "kind": "schema",
+    "hints": [],
+    "$id": "architect.plan.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "architect.plan.schema.json"
+  },
+  {
+    "path": "/opt/feature-factory/configs/schemas/maintainer.intent.schema.json",
+    "sha256": "28e0dea199072c85b646959245bb864949305445f6b33e2afed76f460ac68ac3",
+    "kind": "schema",
+    "hints": [],
+    "$id": "maintainer.intent.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "maintainer.intent.schema.json"
+  },
+  {
+    "path": "/opt/feature-factory/configs/schemas/qa.report.schema.json",
+    "sha256": "d949c949db2b5c9af00eb4cd449b3fc865ff4c7b9ec875a6ff1ac9ad3c71c2a4",
+    "kind": "schema",
+    "hints": [],
+    "$id": "qa.report.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "qa.report.schema.json"
+  },
+  {
+    "path": "/opt/feature-factory/configs/schemas/scribe.changelog.schema.json",
+    "sha256": "aed7ab4cea5d2908a64e79af938d459974d4f0c7dd276d265657d832e535b797",
+    "kind": "schema",
+    "hints": [],
+    "$id": "scribe.changelog.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "scribe.changelog.schema.json"
+  },
+  {
+    "path": "/opt/feature-factory/agents/charters/architect.md",
+    "sha256": "278c8ac9063263b7e616b36825c27cfad0e3f02c941e1d1187e91d31d525b071",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Architect \u2014 \u0443\u0441\u0442\u0430\u0432 \u0440\u043e\u043b\u0438"
+  },
+  {
+    "path": "/opt/feature-factory/agents/charters/dev.md",
+    "sha256": "1f02057af0a8afa8df96d0bba8061a93ebc57e26e299df0c3c849079f61965ca",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Dev \u2014 \u0443\u0441\u0442\u0430\u0432 \u0440\u043e\u043b\u0438"
+  },
+  {
+    "path": "/opt/feature-factory/agents/charters/maintainer.md",
+    "sha256": "58476a2c0ffd7788583ced439effe152d3d2ee1e48a1c958f51d20815250d431",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Maintainer \u2014 \u0443\u0441\u0442\u0430\u0432 \u0440\u043e\u043b\u0438"
+  },
+  {
+    "path": "/opt/feature-factory/agents/charters/qa.md",
+    "sha256": "eadc38b7af54f119817692b496b0ca8bbf1443a172aafec94bb012ede7ed27ba",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "QA \u2014 \u0443\u0441\u0442\u0430\u0432 \u0440\u043e\u043b\u0438"
+  },
+  {
+    "path": "/opt/feature-factory/agents/charters/scribe.md",
+    "sha256": "195daf39743f57f41908334a6df454f1d9ccbb6628d3707133d9962d2afe1f5a",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Scribe \u2014 \u0443\u0441\u0442\u0430\u0432 \u0440\u043e\u043b\u0438"
+  },
+  {
+    "path": "/opt/feature-factory/agents/prompts/architect.md",
+    "sha256": "b66ff9bd915d6e8f9ceea485ce7801afe99b939cb16fea26ba708fb02931bfea",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Persona"
+  },
+  {
+    "path": "/opt/feature-factory/agents/prompts/dev.md",
+    "sha256": "22994694cf860cf407ba30f78c2b599ee97f7bd2291fc05e1e377b66bd6a9860",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Persona"
+  },
+  {
+    "path": "/opt/feature-factory/agents/prompts/maintainer.md",
+    "sha256": "9cd8c6e1edce1a0c7a18ae085f518569036d7dab1a84839a501157568a97204d",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Persona"
+  },
+  {
+    "path": "/opt/feature-factory/agents/prompts/qa.md",
+    "sha256": "99638fe62cf7e88fa162719d1d1e5bbd67e50bc4c20b52633b5e8286d55edd7c",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Persona"
+  },
+  {
+    "path": "/opt/feature-factory/agents/prompts/scribe.md",
+    "sha256": "20d3152b9e704ea83704b6fb82cb8e5e823dc1f5a984f254aa594047a3282d9b",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Persona"
+  },
+  {
+    "path": "/opt/feature-factory/docs/ChangePolicy-Gate-001.md",
+    "sha256": "be42969dd87b9b02056893ceb59d64e521b9ca59ddc56c23b510131a0ee01c3c",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Gate Policy \u2014 \u043f\u0440\u0438\u0447\u0438\u043d\u044b REJECT"
+  },
+  {
+    "path": "/opt/feature-factory/docs/Gate-Rules-Roles.md",
+    "sha256": "47401c4798ff9c8da67404f5bb909e40693dce07f190939250cc79bf377482b4",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "\u041f\u0440\u0430\u0432\u0438\u043b\u0430 Gate \u0434\u043b\u044f \u0440\u043e\u043b\u0435\u0439/\u043f\u0440\u043e\u043c\u043f\u0442\u043e\u0432"
+  },
+  {
+    "path": "/opt/feature-factory/docs/API-Maintainer-001.md",
+    "sha256": "e3dec7f585064ce0a905c9aecff45b60e55d17379afe9106eeae3fecd3064da7",
+    "kind": "doc",
+    "hints": [],
+    "$id": null,
+    "$schema": null,
+    "title": "Maintainer Intake & Planning"
+  }
+]

@@ -1,0 +1,21 @@
+version: 1
+views:
+  - name: v_postings_daily
+    sql: |
+      SELECT
+        date(posting_date) AS day,
+        source,
+        COUNT(DISTINCT posting_id) AS postings_cnt,
+        SUM(qty) AS qty_sum,
+        SUM(final_price) AS revenue
+      FROM postings_flat
+      GROUP BY day, source;
+  - name: v_postings_by_sku
+    sql: |
+      SELECT
+        source,
+        sku,
+        SUM(qty) AS qty_sum,
+        SUM(final_price) AS revenue
+      FROM postings_flat
+      GROUP BY source, sku;

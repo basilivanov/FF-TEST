@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+unit="feature-factory-test.service"
+timeout="${1:-15}"
+/bin/systemctl daemon-reload >/dev/null || true
+if /bin/systemctl is-active --quiet "$unit"; then
+  /bin/systemctl restart "$unit"
+else
+  /bin/systemctl start "$unit"
+fi
+/bin/systemctl is-active --quiet "$unit"
+/bin/systemctl status "$unit" --no-pager -l | tail -n 30 || true
+for i in $(seq 1 "$timeout"); do
+  if curl -fsS http://127.0.0.1:8081/api/v1/health >/dev/null; then
+    echo "health: ok"
+    exit 0
+  fi
+  sleep 1
+done
+echo "health: timeout"
+exit 1

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "maintainer.intent.schema.json",
+  "type": "object",
+  "required": ["intent", "package_contract", "next_actions"],
+  "properties": {
+    "intent": {
+      "type": "object",
+      "required": ["title", "summary"],
+      "properties": {
+        "title": {"type": "string"},
+        "summary": {"type": "string"},
+        "priority": {"type": "string", "enum": ["P0","P1","P2","P3"]}
+      },
+      "additionalProperties": false
+    },
+    "package_contract": {
+      "type": "object",
+      "required": ["artifact_manifest"],
+      "properties": {
+        "artifact_manifest": {"type": "string"},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "risks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action","owner"],
+        "properties": {
+          "action": {"type": "string"},
+          "owner": {"type": "string"}
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

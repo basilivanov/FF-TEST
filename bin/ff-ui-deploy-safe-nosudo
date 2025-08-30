@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "[ff-ui-deploy-safe-nosudo] Starting UI deploy (Vite build + BasicAuth + Nginx)..."
+FF_ENV="${FF_ENV:-tst}" \
+FF_DOMAIN="${FF_DOMAIN:-etl-tst.chococraft.ru}" \
+FF_UI_BASIC_AUTH_USER="${FF_UI_BASIC_AUTH_USER:-}" \
+FF_UI_BASIC_AUTH_PASS="${FF_UI_BASIC_AUTH_PASS:-}" \
+exec /opt/feature-factory/scripts/deploy_ui.sh
+

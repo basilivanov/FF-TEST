@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket Chat After Restart</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin: 10px 0; }
+        input { width: 70%; padding: 5px; }
+        button { padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Chat Test (After Restart)</h2>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Введите сообщение..." />
+    <button onclick="sendMessage()">Send</button>
+    
+    <script>
+        const ws = new WebSocket('wss://etl-tst.chococraft.ru/ws/v1/chat/maintainer');
+        const messages = document.getElementById('messages');
+        const status = document.getElementById('status');
+        
+        function addMessage(text) {
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        ws.onopen = function() {
+            status.textContent = 'Connected';
+            status.style.color = 'green';
+            // Отправляем handshake
+            ws.send(JSON.stringify({session_id: 'test-' + Date.now()}));
+            addMessage('WebSocket connected');
+        };
+        
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            addMessage('Received: ' + JSON.stringify(data, null, 2));
+        };
+        
+        ws.onclose = function(event) {
+            status.textContent = 'Disconnected';
+            status.style.color = 'red';
+            addMessage('WebSocket closed: ' + event.code + ' - ' + event.reason);
+        };
+        
+        ws.onerror = function(error) {
+            status.textContent = 'Error';
+            status.style.color = 'red';
+            addMessage('WebSocket error: ' + error);
+        };
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if (input.value.trim()) {
+                const msg = {
+                    message: input.value,
+                    analyst_type: 'INTERNAL'
+                };
+                ws.send(JSON.stringify(msg));
+                addMessage('Sent: ' + input.value);
+                input.value = '';
+            }
+        }
+        
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "env": "test",
+  "context": {
+    "url": "https://etl-tst.chococraft.ru/api/v1/context?task_description=HEALTH_CORRID_FIX_v2",
+    "status": 200,
+    "latency_ms": 102,
+    "x_correlation_id": "0146925c-443e-4518-9275-24e86af6e1be",
+    "body_head": "{\"context_pack\":\"# ДОКТРИНА И ПРАВИЛА РАБОТЫ\n\n# ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА И АНТИ-ПАТТЕРНЫ\n\n## 🚨 КРИТИЧЕСКИЕ ЗАПРЕТЫ\n\n### О"
+  },
+  "health_checks": {
+    "/health/live":  {"status": 500, "latency_ms": 51, "x_correlation_id": "N/A"},
+    "/health/ready": {"status": 500, "latency_ms": 55, "x_correlation_id": "N/A"}
+  },
+  "openapi": {
+    "url": "/openapi.json",
+    "status": 200,
+    "latency_ms": 45,
+    "paths_count": 55,
+    "body_head": "{"
+  },
+  "corr_id_policy": {
+    "ok_on_200": true,
+    "ok_on_500": false
+  },
+  "proofs": [
+    {"url":"/api/v1/index/calls?limit=1","expect":"500","has_x_correlation_id":false}
+  ],
+  "status": "yellow",
+  "notes": [
+    "Health endpoints (/health/live, /health/ready) are returning 500 Internal Server Error, indicating that the changes have not taken effect or there's an issue.",
+    "OpenAPI specification is now accessible at /openapi.json with 200 OK status.",
+    "x-correlation-id is present on 200 OK responses but is missing on 500 Internal Server Error responses, indicating the middleware changes are not fully active or effective yet.",
+    "Server restart is required for changes to take effect."
+  ]
+}

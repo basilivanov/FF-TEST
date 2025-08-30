@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TASK_DESC="${1-}"
+if [[ -z "$TASK_DESC" ]]; then
+  echo "usage: ff-context \"task description\"" >&2
+  exit 2
+fi
+
+# 1) Resolve BASE: env -> bootstrap.yaml -> fallback
+BASE="${FF_API_BASE_URL:-}"
+BOOTSTRAP="/opt/feature-factory/configs/bootstrap.yaml"
+
+if [[ -z "$BASE" && -f "$BOOTSTRAP" ]]; then
+  if command -v yq >/dev/null 2>&1; then
+    BASE="$(yq -r '.ff_api_base_url // .api_base_url // empty' "$BOOTSTRAP" || true)"
+  else
+    # грубый парсер без yq
+    BASE="$(grep -Eo 'ff_api_base_url:\s*\S+|api_base_url:\s*\S+' "$BOOTSTRAP" | head -1 | awk -F': *' '{print $2}' || true)"
+  fi
+fi
+
+BASE="${BASE:-http://127.0.0.1:8081/api/v1}"
+BASE="${BASE%/}"  # убрать завершающий /
+
+# 2) Ждать готовность (до 30с). Если BASE оканчивается на /api/v1, /ready на уровень выше
+READY_URL="${BASE%/api/v1}/ready"
+READY_OK=0
+for _ in {1..30}; do
+  code="$(curl -ks -o /dev/null -w '%{http_code}' "$READY_URL" || true)"
+  if [[ "$code" == "200" ]]; then READY_OK=1; break; fi
+  sleep 1
+done
+[[ $READY_OK -eq 1 ]] || echo "WARN: /ready != 200 — пробуем взять контекст вслепую…"
+
+# 3) Забрать контекст (правильная кодировка)
+curl -ksS --connect-timeout 2 -m 15 -G "${BASE}/context/" \
+  -H 'Accept: application/json' \
+  --data-urlencode "task_description=${TASK_DESC}"

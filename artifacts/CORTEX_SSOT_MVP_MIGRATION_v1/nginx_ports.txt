@@ -1,0 +1,16 @@
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.backup:2:    listen 80;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.backup:3:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.backup:16:    listen 443 ssl http2;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.backup:17:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.conf:2:    listen 80;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.conf:3:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.conf:16:    listen 443 ssl http2;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.conf:17:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru:2:    listen 80;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru:3:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru:16:    listen 443 ssl http2;
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru:17:    server_name etl-tst.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl.chococraft.ru:2:    listen 80;
+/opt/feature-factory/configs/nginx/etl.chococraft.ru:3:    server_name etl.chococraft.ru;
+/opt/feature-factory/configs/nginx/etl.chococraft.ru:10:    listen 443 ssl http2;
+/opt/feature-factory/configs/nginx/etl.chococraft.ru:11:    server_name etl.chococraft.ru;

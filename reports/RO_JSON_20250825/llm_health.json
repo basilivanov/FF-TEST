@@ -1,0 +1,24 @@
+{
+  "providers": {
+    "claude": {
+      "binary_present": true,
+      "version": "1.0.86 (Claude Code)",
+      "env_ANTHROPIC_API_KEY_present": false
+    },
+    "openai": {
+      "binary_present": false,
+      "version": "N/A",
+      "env_OPENAI_API_KEY_present": false
+    },
+    "gemini": {
+      "binary_present": true,
+      "version": "0.1.22",
+      "env_GOOGLE_CLOUD_PROJECT_present": true
+    },
+    "qwen": {
+      "binary_present": true,
+      "version": "0.0.7",
+      "env_QWEN_API_KEY_present": false
+    }
+  }
+}

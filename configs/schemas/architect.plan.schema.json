@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "architect.plan.schema.json",
+  "type": "object",
+  "required": ["dag", "budgets", "dod"],
+  "properties": {
+    "dag": {
+      "type": "object",
+      "required": ["nodes","edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id","role","name"],
+            "properties": {
+              "id": {"type": "string"},
+              "role": {"type": "string", "enum": ["Dev","QA","Scribe","Gate","Apply"]},
+              "name": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from","to"],
+            "properties": {
+              "from": {"type": "string"},
+              "to": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "budgets": {
+      "type": "object",
+      "properties": {
+        "Dev": {"type": "integer"},
+        "QA": {"type": "integer"},
+        "Scribe": {"type": "integer"},
+        "Maintainer": {"type": "integer"},
+        "Architect": {"type": "integer"}
+      },
+      "additionalProperties": true
+    },
+    "dod": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

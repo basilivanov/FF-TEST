@@ -1,0 +1,53 @@
+{
+  "dag": {
+    "nodes": [
+      {
+        "id": "test-maintainer-json",
+        "role": "QA",
+        "name": "Проверить контракт агента Maintainer",
+        "description": "Подать на вход NL-текст, проверить, что на выходе получается валидный intent.json согласно схеме."
+      },
+      {
+        "id": "test-architect-json",
+        "role": "QA",
+        "name": "Проверить контракт агента Architect",
+        "description": "Подать на вход валидный intent.json, проверить, что на выходе получается валидный plan.dsl.json согласно схеме."
+      },
+      {
+        "id": "test-qa-json",
+        "role": "QA",
+        "name": "Проверить контракт агента QA",
+        "description": "Подать на вход тестовый артефакт, проверить, что на выходе получается валидный qa.report.json согласно схеме."
+      },
+      {
+        "id": "test-scribe-json",
+        "role": "QA",
+        "name": "Проверить контракт агента Scribe",
+        "description": "Подать на вход тестовый артефакт, проверить, что на выходе получается валидный scribe.changelog.json согласно схеме."
+      },
+      {
+        "id": "generate-final-report",
+        "role": "QA",
+        "name": "Сформировать итоговый отчет о проверке контрактов",
+        "description": "Собрать результаты всех предыдущих шагов в единый отчет о состоянии здоровья агентов."
+      }
+    ],
+    "edges": [
+      { "from": "test-maintainer-json", "to": "generate-final-report" },
+      { "from": "test-architect-json", "to": "generate-final-report" },
+      { "from": "test-qa-json", "to": "generate-final-report" },
+      { "from": "test-scribe-json", "to": "generate-final-report" }
+    ]
+  },
+  "budgets": {
+    "QA": 800,
+    "Dev": 0,
+    "Scribe": 0
+  },
+  "dod": [
+    "Все тесты агентов выполнены со статусом PASS или FAIL (но не ERROR).",
+    "Итоговый отчет 'agent_contracts_validation_report.json' сгенерирован.",
+    "Отчет содержит статус проверки для каждого из четырех агентов.",
+    "Расход токенов на задачу зафиксирован и не превышает установленный бюджет."
+  ]
+}

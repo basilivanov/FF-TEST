@@ -1,0 +1,35 @@
+{
+  "summary": "Тестирование контрактов агентов не может быть выполнено из-за неполной или имитирующей реализации. Ключевые агенты (Architect) являются заглушками и не выполняют требуемые функции.",
+  "agent_statuses": [
+    {
+      "id": "test-maintainer-json",
+      "name": "Проверить контракт агента Maintainer",
+      "status": "FAIL",
+      "reason": "Система не генерирует 'intent.json' из NL-текста. API требует предоставления уже готового 'intent'."
+    },
+    {
+      "id": "test-architect-json",
+      "name": "Проверить контракт агента Architect",
+      "status": "FAIL",
+      "reason": "Функция планирования является заглушкой (mock). Она не вызывает агента Architect и не производит 'plan.dsl.json' согласно схеме."
+    },
+    {
+      "id": "test-qa-json",
+      "name": "Проверить контракт агента QA",
+      "status": "FAIL",
+      "reason": "Тестирование невозможно, так как предыдущий шаг (Architect) является заглушкой и не создает необходимого плана для выполнения."
+    },
+    {
+      "id": "test-scribe-json",
+      "name": "Проверить контракт агента Scribe",
+      "status": "FAIL",
+      "reason": "Тестирование невозможно, так как предыдущий шаг (Architect) является заглушкой и не создает необходимого плана для выполнения."
+    }
+  ],
+  "dod_compliance": {
+    "all_tests_run": true,
+    "report_generated": true,
+    "all_agents_in_report": true,
+    "budget_within_limits": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "task": "CORTEX_SSOT_MVP_MIGRATION_v1",
+  "status": "green",
+  "counts": {
+    "inventory_total": 5928,
+    "oversized": 46
+  },
+  "orphans": [],
+  "notes": [
+    "runtime configs not moved; documented via links",
+    "CHANGELOG symlinked to cortex/change/CHANGELOG.md"
+  ]
+}

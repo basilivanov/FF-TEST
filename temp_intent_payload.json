@@ -1,0 +1,8 @@
+{
+  "title": "Создать Ping-Pong Endpoint",
+  "intent": {
+    "title": "Создать Ping-Pong Endpoint",
+    "summary": "Разработать простой неавторизованный API эндпоинт GET /api/v1/ping, который возвращает JSON-объект {\"ping\": \"pong\"}. Эндпоинт должен быть реализован в новом файле app/api/ping.py и добавлен в основной роутер FastAPI в app/main.py.",
+    "priority": "P1"
+  }
+}

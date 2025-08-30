@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Package Contract Schema",
+  "description": "Schema for validating package contracts in artifact manifests",
+  "type": "object",
+  "properties": {
+    "package_id": {
+      "type": "string",
+      "description": "Unique identifier for the package"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief description of the package"
+    },
+    "files_layout": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of expected file paths in the package"
+    },
+    "db": {
+      "type": "object",
+      "properties": {
+        "urls": {
+          "type": "object",
+          "properties": {
+            "test": {
+              "type": "string"
+            },
+            "prod": {
+              "type": "string"
+            }
+          }
+        },
+        "tables_touched": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "index_api": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "calls": {
+          "type": "string"
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": "string"
+        },
+        "events_must": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dod": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "tokens_max": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "required": ["package_id", "summary"],
+  "additionalProperties": false
+}

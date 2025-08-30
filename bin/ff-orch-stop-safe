@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+/usr/bin/systemctl stop feature-factory-test.service
+echo "Service feature-factory-test.service stopped."

@@ -1,0 +1,6 @@
+{"id":"ca2dcd8a-5641-4254-95bf-39aae78d9084","timestamp":"2025-08-22T22:38:23.326Z","instructions":null,"git":{"commit_hash":"c4fdfcf905b77d35c276d4a6bbd05b0fc7682662","branch":"main"}}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"<environment_context>\nCurrent working directory: /opt/feature-factory\nApproval policy: never\nSandbox mode: danger-full-access\nNetwork access: enabled\n</environment_context>"}]}
+{"record_type":"state"}
+{"type":"message","id":null,"role":"user","content":[{"type":"input_text","text":"Прочитай информацию по проекту /opt/feature-factory/docs/_bundle/FF-Handbook-BUNDLE.md https://etl-tst.chococraft.ru/ должна быть админка, аотдаёт {\"detail\":\"Not Found\"} почини"}]}
+{"record_type":"state"}

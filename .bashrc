@@ -1,0 +1,2 @@
+export FF_UI_BASIC_AUTH_USER=ops
+export FF_UI_BASIC_AUTH_PASS=ops123

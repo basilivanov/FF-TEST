@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Wrapper script for Claude CLI to ensure stable execution environment
+#
+set -euo pipefail
+
+# Устанавливаем окружение, необходимое для Claude CLI
+export HOME="/home/feature"
+export LANG="C.UTF-8"
+export TERM="dumb"
+export NO_COLOR="1"
+
+# Добавляем путь к системным утилитам в PATH, если его нет
+if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
+
+# Передаем все аргументы, полученные этим скриптом,
+# в реальный бинарный файл Claude
+exec /usr/local/bin/claude "$@"
+

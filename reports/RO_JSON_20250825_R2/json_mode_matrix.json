@@ -1,0 +1,29 @@
+{
+  "roles": [
+    {
+      "role": "Maintainer",
+      "json_mode": "json_schema",
+      "json_schema_ref_exists": true
+    },
+    {
+      "role": "Architect",
+      "json_mode": "json_schema",
+      "json_schema_ref_exists": true
+    },
+    {
+      "role": "Dev",
+      "json_mode": "off",
+      "json_schema_ref_exists": false
+    },
+    {
+      "role": "QA",
+      "json_mode": "json_object",
+      "json_schema_ref_exists": true
+    },
+    {
+      "role": "Scribe",
+      "json_mode": "json_object",
+      "json_schema_ref_exists": true
+    }
+  ]
+}

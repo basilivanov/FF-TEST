@@ -1,0 +1,12 @@
+{
+  "tool_variant": "find (GNU findutils) 4.9.0",
+  "sample_leaks": [
+    "app/ui/node_modules/resolve/test/node_path/y",
+    "node_modules/resolve/test/node_path/y", 
+    ".npm/_npx/8b2b02dfd972a5c3/node_modules/resolve/test/node_path/y",
+    "app/ui/node_modules.backup.1756282346/resolve/test/node_path/y",
+    "app/ui/node_modules.backup.1756282805/resolve/test/node_path/y"
+  ],
+  "suspected_cause": "glob_misconfig",
+  "предложенный_remedy": "переключить инструмент обхода"
+}

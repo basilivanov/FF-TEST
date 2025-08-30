@@ -1,0 +1,14 @@
+watchdog:
+  enabled: true
+  triggers:
+    - type: consecutive_tool_failures
+      tool_name: "any"
+      error_type: "identical"
+      threshold: 3
+  escalation_protocol:
+    - level: 1
+      action: "retry_with_error_context"
+    - level: 2
+      action: "escalate_to_next_provider"
+    - level: 3
+      action: "fail_and_alert"

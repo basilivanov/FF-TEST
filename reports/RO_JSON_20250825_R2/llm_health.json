@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "claude": {
+      "logged_in": false,
+      "reason": "ANTHROPIC_API_KEY not set"
+    },
+    "codex": {
+      "logged_in": false,
+      "reason": "codex command failed: Error: No such device or address (os error 6)"
+    },
+    "gemini": {
+      "logged_in": true,
+      "reason": "GOOGLE_CLOUD_PROJECT is set"
+    },
+    "qwen": {
+      "logged_in": false,
+      "reason": "QWEN_API_KEY not set"
+    }
+  }
+}

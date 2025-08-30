@@ -1,0 +1,14 @@
+#!/bin/bash
+# Gemini CLI wrapper for stable non-interactive execution
+set -euo pipefail
+
+export HOME="/opt/feature-factory"
+export LANG="C.UTF-8"
+export TERM="dumb"
+export NO_COLOR="1"
+if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+  export PATH="/usr/local/bin:$PATH"
+fi
+
+exec /usr/local/bin/gemini "$@"
+

@@ -1,0 +1,7 @@
+total 24
+-rwxr-xr-x 1 root root  184 авг 25 23:44 codex
+-rwxr-xr-x 1 root root  805 авг 26 16:29 ff-free-8081
+-rwxr-xr-x 1 root root  297 авг 26 16:29 ff-netdiag-8081
+-rwxr-xr-x 1 root root  193 авг 26 16:49 ff-nginx-reload-safe
+-rwxr-xr-x 1 root root 1998 авг 26 17:33 ff-ops-acceptance
+-rwxr-xr-x 1 root root  350 авг 26 16:49 ff-orch-restart-safe

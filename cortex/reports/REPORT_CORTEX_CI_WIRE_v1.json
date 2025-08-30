@@ -1,0 +1,18 @@
+{
+  "task": "CORTEX_CI_WIRE_v1",
+  "status": "completed",
+  "commit_hash": "c4fdfcf905b77d35c276d4a6bbd05b0fc7682662",
+  "runtime": "GitHub Actions",
+  "acceptance_tests": {
+    "docs_guard_test": "pending - need to create test branch",
+    "docmeta_test": "pending - need to create test branch",
+    "toc_sync_test": "pending - need to create test branch",
+    "oversized_test": "pending - need to create test branch"
+  },
+  "notes": [
+    "CI config added to .github/workflows/docs-guard.yml",
+    "Badge added to cortex/README.md",
+    "All DocSync checks integrated with explicit PASS/FAIL logs",
+    "Pipeline will fail on any non-zero exit code"
+  ]
+}

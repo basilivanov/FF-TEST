@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+/usr/sbin/nginx -t >/dev/null
+if /bin/systemctl is-active --quiet nginx; then
+  exec /bin/systemctl reload nginx
+else
+  exec /bin/systemctl start nginx
+fi

@@ -1,0 +1,6 @@
+{"title":"Stub Route Test - 1756251850","intent":{
+  "title":"Stub Route Test - 1756251850",
+  "summary":"Создать ping.py и обновить CHANGELOG.md",
+  "scope":["add ping.py","update CHANGELOG.md"],
+  "acceptance_criteria":["ping.py печатает 'pong'","CHANGELOG.md содержит запись про фичу"]
+}}

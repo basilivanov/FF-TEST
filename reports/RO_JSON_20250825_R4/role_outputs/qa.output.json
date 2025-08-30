@@ -1,0 +1,17 @@
+{
+  "cases": [
+    {
+      "id": "test_case_1",
+      "name": "Verify Feature A",
+      "status": "PASS",
+      "notes": "All checks passed."
+    },
+    {
+      "id": "test_case_2",
+      "name": "Verify Feature B",
+      "status": "PASS"
+    }
+  ],
+  "pass": 2,
+  "fail": []
+}

@@ -1,0 +1,6 @@
+/opt/feature-factory/configs/feature-factory-test.service:10:WorkingDirectory=/opt/feature-factory
+/opt/feature-factory/configs/feature-factory-test.service:14:ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8081 --workers 1
+/opt/feature-factory/configs/feature-factory-prod.service:10:WorkingDirectory=/opt/feature-factory
+/opt/feature-factory/configs/feature-factory-prod.service:14:ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8080 --workers 2
+/opt/feature-factory/configs/litellm.service:9:WorkingDirectory=/opt/feature-factory
+/opt/feature-factory/configs/litellm.service:10:ExecStart=/opt/feature-factory/scripts/start_litellm.sh

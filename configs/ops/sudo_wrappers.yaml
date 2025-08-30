@@ -1,0 +1,11 @@
+wrappers:
+  - path: /opt/feature-factory/bin/ff-logs-read
+    description: "Read the last N lines of the feature-factory-test.service log."
+  - path: /opt/feature-factory/bin/ff-orch-stop-safe
+    description: "Safely stops the feature-factory-test.service."
+  - path: /opt/feature-factory/bin/ff-orch-start-safe
+    description: "Safely starts the feature-factory-test.service."
+  - path: /opt/feature-factory/bin/ff-orch-status-safe
+    description: "Checks the status of the feature-factory-test.service."
+  - path: /opt/feature-factory/bin/ff-netdiag-8081
+    description: "Run network diagnostics for port 8081."

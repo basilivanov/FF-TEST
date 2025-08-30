@@ -1,0 +1,65 @@
+# Карта промптов по ролям
+
+roles:
+  Architect:
+    file: "app/agents/prompts/architect.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+  
+  Dev:
+    file: "app/agents/prompts/developer.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+  
+  QA:
+    file: "app/agents/prompts/validator.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+  
+  Scribe:
+    file: "app/agents/prompts/scribe.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+  
+  Maintainer:
+    file: "app/agents/prompts/maintainer.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+
+  BusinessAnalyst:
+    file: "app/agents/prompts/business_analyst.md"
+    required_sections:
+      - "Роль"
+      - "Персона"
+      - "Стиль общения"
+      - "Логика работы"
+    version: "1.0.0"
+
+  InternalAnalyst:
+    file: "app/agents/prompts/internal_analyst.md"
+    required_sections:
+      - "Роль"
+      - "Персона"
+      - "Принцип работы"
+      - "Контекстная база знаний"
+    version: "1.0.0"

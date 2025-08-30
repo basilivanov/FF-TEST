@@ -1,0 +1,36 @@
+# Artifact Manifest for E11-ADMIN-MISSION-CONTROL
+
+## UI Components
+- app/ui/src/components/MaintainerChat.tsx
+- app/ui/src/components/TokenBudgetChart.tsx
+- app/ui/src/components/RunningTasks.tsx
+- app/ui/src/components/TaskQueue.tsx
+- app/ui/src/components/ErrorList.tsx
+- app/ui/src/components/RunHistory.tsx
+- app/ui/src/components/FeatureList.tsx
+- app/ui/src/components/FeatureDetail.tsx
+- app/ui/src/components/TaskList.tsx
+
+## UI Pages
+- app/ui/src/pages/Dashboard.tsx
+- app/ui/src/pages/Now.tsx
+- app/ui/src/pages/Queue.tsx
+- app/ui/src/pages/Errors.tsx
+- app/ui/src/pages/Budget.tsx
+- app/ui/src/pages/Runs.tsx
+- app/ui/src/pages/Features.tsx
+- app/ui/src/pages/FeatureDetail.tsx
+- app/ui/src/pages/Tasks.tsx
+- app/ui/src/pages/Chat.tsx
+
+## Reports
+- ui_report_E11_ADMIN_MISSION_CONTROL.md
+
+## Configuration
+- app/ui/package.json
+- app/ui/tsconfig.json
+- app/ui/vite.config.ts
+
+## Directories
+- app/ui/src/components/
+- app/ui/src/pages/

@@ -1,0 +1,19 @@
+version: 1
+sources:
+  - path: "/opt/feature-factory/cortex"
+    depth: 4
+    include_ext: [".md", ".yaml", ".yml", ".json"]
+legacy_watch:
+  - "/opt/feature-factory/docs"
+  - "/opt/feature-factory/configs"
+  - "/opt/feature-factory/agents"
+  - "/opt/feature-factory/app/ui"
+exclude:
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/.venv/**"
+  - "**/__pycache__/**"
+  - "**/.cache/**"
+policy:
+  fail_on_orphans: true
+  max_file_size_kb: 200

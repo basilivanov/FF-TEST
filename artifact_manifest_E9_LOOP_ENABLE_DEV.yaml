@@ -1,0 +1,17 @@
+```yaml
+# artifact_manifest для задачи E9-LOOP-ENABLE-DEV
+- app/orchestrator/loop.py:
+    version: "1.1"
+    changes:
+      - "Добавлена поддержка ENV ORCH_LOOP_ENABLED=true для включения джоба"
+      - "Добавлена поддержка ENV ORCH_LOOP_INTERVAL_SEC для настройки интервала"
+      - "Реализована логика учета WAIT_BUDGET с retry/backoff"
+      - "Улучшена логика обработки задач в состоянии WAIT_BUDGET"
+      - "Обновлена функция _generate_plan_for_feature для создания задач по DSL"
+      - "Использование get_db_connection_string для получения DATABASE_URL"
+- tests/test_orchestrator_loop.py:
+    version: "1.1"
+    changes:
+      - "Добавлен smoke-тест для цикла оркестратора"
+      - "Тест проверяет создание фичи и доведение до DONE"
+```

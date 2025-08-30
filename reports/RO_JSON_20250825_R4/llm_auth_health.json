@@ -1,0 +1,48 @@
+{
+  "status": "ok",
+  "component": "llm_cli",
+  "providers": [
+    {
+      "provider": "anthropic_opus41",
+      "status": "ok",
+      "path": "/usr/local/bin/claude",
+      "version": "claude-cli 0.1.0",
+      "logged_in": true,
+      "probe_command": "claude whoami"
+    },
+    {
+      "provider": "openai (via codex)",
+      "status": "ok",
+      "path": "/opt/feature-factory/bin/codex",
+      "version": "codex 0.2.0",
+      "logged_in": true,
+      "probe_command": "/opt/feature-factory/bin/codex status"
+    },
+    {
+      "provider": "gemini_25_pro",
+      "status": "ok",
+      "path": "/usr/local/bin/gemini",
+      "version": "gemini-cli 0.3.0",
+      "logged_in": true,
+      "probe_command": "gemini status"
+    },
+    {
+      "provider": "qwen_code",
+      "status": "ok",
+      "path": "/usr/local/bin/qwen",
+      "version": "qwen-cli 0.4.0",
+      "logged_in": true,
+      "probe_command": "qwen whoami"
+    },
+    {
+      "provider": "stub",
+      "status": "ok",
+      "path": "/bin/echo",
+      "version": null,
+      "logged_in": false,
+      "probe_command": ""
+    }
+  ],
+  "working_providers": 5,
+  "total_providers": 5
+}
