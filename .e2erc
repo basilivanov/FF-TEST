@@ -1,0 +1,30 @@
+# E2E Test Configuration
+# Источник переменных окружения для безопасного тестирования
+
+# Режим работы
+export E2E_MODE="safe"              # safe, full, mock
+export E2E_CLEANUP_ENABLED="true"   # всегда убирать за собой
+export E2E_BRANCH_PROTECTION="true" # не трогать main/master ветки
+
+# Базовые настройки
+export E2E_BASE_URL="http://127.0.0.1:8081"
+export E2E_TIMEOUT="30"
+export E2E_ARTIFACTS_RETENTION_DAYS="7"
+
+# Настройки безопасности
+export E2E_REQUIRE_CONFIRMATION="true"  # спрашивать подтверждение для полных тестов
+export E2E_MAX_TEST_FEATURES="3"        # максимум созданных features
+export E2E_MAX_TEST_BRANCHES="2"        # максимум созданных веток
+
+# Исключения из тестирования
+export E2E_SKIP_BRANCHES="main,master,develop,staging,production"
+export E2E_SKIP_DESTRUCTIVE_TESTS="true"
+export E2E_SKIP_EXTERNAL_APIS="false"
+
+# Отчёты и логирование
+export E2E_REPORT_FORMAT="json,text"
+export E2E_LOG_LEVEL="info"  # debug, info, warn, error
+export E2E_SAVE_ARTIFACTS="true"
+
+# Проверки
+export E2E_CHECK_UNCOMMITTED="false"  # не блокировать на uncommitted changes

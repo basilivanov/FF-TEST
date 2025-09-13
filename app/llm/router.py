@@ -16,6 +16,7 @@ from app.llm.providers.qwen import QwenAdapter
 from app.llm.providers.gemini import GeminiAdapter
 from app.llm.providers.claude import ClaudeAdapter
 from app.llm.providers.chat import ChatAdapter
+from app.auth.oauth_manager import oauth_manager
 from app.llm.providers.gemini_chat import GeminiChatAdapter
 from app.llm.providers.gpt import GPTAdapter
 from app.llm.providers.stub import StubAdapter
@@ -221,63 +222,43 @@ def _build_decl_cli(provider_name: str, role_cfg: Dict[str, Any], mode: str | No
 _ACCESS_TOKEN_CACHE: Dict[str, Dict[str, Any]] = {}
 
 def _inject_oauth_access_token(provider_name: str, prov_cfg: Dict[str, Any], cmd: List[str], env: Dict[str, str]) -> None:
-    """Получает access_token по refresh_token и внедряет его в команду/окружение согласно конфигу.
-    Включает TTL-кэш (10 мин) и синхронизацию локальных конфигов CLI.
+    """Получает access_token и внедряет его в команду/окружение используя OAuth менеджер.
+    Автоматически обновляет токены при необходимости.
     """
-    decl = _load_cli_decl_config() or {}
-    base_provider, _ = _alias_to_decl(provider_name, None, decl)
-    prov = decl.get('providers', {}).get(base_provider) or {}
-    auth_cfg = _resolve_secret_refs(prov.get('auth', {}) or {})
-    refresh_key = auth_cfg.get('refresh_secret_key')
-    if not refresh_key:
-        return
-    # достаём refresh_token из секретов
-    refresh_token = None
-    if SessionLocal is not None:
-        db = SessionLocal()
-        try:
-            row = db.execute("SELECT value_enc FROM secrets WHERE key = :k", {"k": refresh_key}).fetchone()
-            if row:
-                refresh_token = decrypt_value(row[0])
-        except Exception:
-            refresh_token = None
-        finally:
-            db.close()
-    if not refresh_token:
-        return
-    # Собираем auth_config и проверяем кэш
-    auth_cfg["refresh_token"] = refresh_token
-    now = time.time()
-    cached = _ACCESS_TOKEN_CACHE.get(provider_name)
-    if cached and (now - cached.get("ts", 0) < 600) and cached.get("token"):
-        access_token = cached["token"]
-    else:
-        adapter_class = PROVIDER_ADAPTERS.get(provider_name)
-        if not adapter_class:
+    try:
+        # Получаем конфигурацию OAuth из декларативной конфигурации
+        decl = _load_cli_decl_config() or {}
+        base_provider, _ = _alias_to_decl(provider_name, None, decl)
+        prov = decl.get('providers', {}).get(base_provider) or {}
+        auth_cfg = _resolve_secret_refs(prov.get('auth', {}) or {})
+        
+        if not auth_cfg:
+            logger.debug("no_oauth_config", provider=provider_name)
             return
-        adapter = adapter_class(provider_name)
-        access_token = None
-        try:
-            if hasattr(adapter, 'get_fresh_access_token'):
-                access_token = adapter.get_fresh_access_token(auth_cfg)
-        except Exception:
-            access_token = None
-        if not access_token:
+        
+        # Маппинг провайдеров на внутренние имена OAuth менеджера
+        provider_mapping = {
+            'claude': 'claude',
+            'anthropic_opus41': 'claude',
+            'gemini': 'gemini',
+            'gemini_25_pro': 'gemini',
+            'gemini_25_flash': 'gemini'
+        }
+        
+        oauth_provider = provider_mapping.get(base_provider) or provider_mapping.get(provider_name)
+        if not oauth_provider:
+            logger.debug("no_oauth_provider_mapping", provider=provider_name, base_provider=base_provider)
             return
-        # Синхронизируем локальные конфиги CLI
-        try:
-            if hasattr(adapter, 'update_local_config_file'):
-                adapter.update_local_config_file(access_token, auth_cfg)
-        except Exception:
-            pass
-        _ACCESS_TOKEN_CACHE[provider_name] = {"token": access_token, "ts": now}
-    # внедрение в команду
-    access_flag = auth_cfg.get('access_token_flag')
-    access_env = auth_cfg.get('access_env')
-    if access_env:
-        env[access_env] = access_token
-    if access_flag:
-        cmd.extend([access_flag, access_token])
+        
+        # Используем OAuth менеджер для внедрения токена
+        success = oauth_manager.inject_access_token(oauth_provider, auth_cfg, cmd, env)
+        if success:
+            logger.info("oauth_token_injected", provider=provider_name, oauth_provider=oauth_provider)
+        else:
+            logger.warning("failed_to_inject_oauth_token", provider=provider_name, oauth_provider=oauth_provider)
+            
+    except Exception as e:
+        logger.error("oauth_injection_error", provider=provider_name, error=str(e))
 
 def _load_routing_config() -> Dict[str, Any]:
     """Загружает конфигурацию роутинга из файла."""

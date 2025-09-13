@@ -1,0 +1,5 @@
+# Health check
+{"status":"ok","component":"live"}
+
+Status: 200
+Time: 0.001992s

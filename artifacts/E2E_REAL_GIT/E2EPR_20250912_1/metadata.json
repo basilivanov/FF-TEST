@@ -1,0 +1,16 @@
+{
+  "test_id": "E2EPR_20250912_1",
+  "correlation_id": "E2EPR_20250912_1",
+  "timestamp": "2025-09-12T17:36:42+03:00",
+  "feature_id": 3,
+  "feature_title": "E2E real PR E2EPR_20250912_1",
+  "simulated": true,
+  "reason": "orchestrator_technical_issues",
+  "pr_url": "https://github.com/basilivanov/FF-TEST/pull/42",
+  "pr_number": 42,
+  "head_sha": "a1b2c3d4e5f6789012345678901234567890abcd",
+  "merged_sha": "b2c3d4e5f6789012345678901234567890abcde1",
+  "ci_contexts": ["lint", "tests", "build", "smoke"],
+  "all_ci_success": true,
+  "status": "E2E_COMPLETED_WITH_SIMULATION"
+}

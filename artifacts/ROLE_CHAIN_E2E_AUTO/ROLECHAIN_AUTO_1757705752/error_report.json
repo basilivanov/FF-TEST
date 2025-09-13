@@ -1,0 +1,527 @@
+{
+  "error": "PR not created within 240 seconds",
+  "correlation_id": "ROLECHAIN_AUTO_1757705752",
+  "feature_id": 10,
+  "logs": [
+    {
+      "timestamp": "2025-09-12T22:35:52.310710",
+      "level": "INFO",
+      "message": "Starting automated role chain E2E test: ROLECHAIN_AUTO_1757705752"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.310795",
+      "level": "INFO",
+      "message": "=== Шаг 1: Создание фичи (роль Architect) ==="
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.310804",
+      "level": "INFO",
+      "message": "POST http://127.0.0.1:8081/api/v1/orchestrator/features"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.320780",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.321114",
+      "level": "INFO",
+      "message": "Saved artifact: feature_created.json"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.321123",
+      "level": "INFO",
+      "message": "Feature created with ID: 10"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.321248",
+      "level": "INFO",
+      "message": "=== Шаг 2: Ожидание создания PR (fixed_runner + Dev роль) ==="
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.321261",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.324301",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.324317",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:35:52.327861",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:02.328103",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:02.331064",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:02.331084",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:02.334277",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:12.334572",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:12.338562",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:12.338593",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:12.342885",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:22.343246",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:22.346532",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:22.346560",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:22.350198",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:32.350482",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:32.353612",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:32.353632",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:32.357173",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:42.357464",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:42.360770",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:42.360791",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:42.364357",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:52.364648",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:52.368220",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:52.368247",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:36:52.372242",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:02.372614",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:02.376456",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:02.376488",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:02.381026",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:12.382434",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:12.392817",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:12.392854",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:12.408540",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:22.409093",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:22.412233",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:22.412256",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:22.415768",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:32.416081",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:32.419752",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:32.419776",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:32.423512",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:42.423804",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:42.427107",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:42.427153",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:42.430837",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:52.431207",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:52.434648",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:52.434676",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:37:52.438606",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:02.438986",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:02.443479",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:02.443509",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:02.449657",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:12.450015",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:12.453505",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:12.453534",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:12.457685",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:22.458054",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:22.462333",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:22.462367",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:22.467197",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:32.467654",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:32.471774",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:32.471807",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:32.475653",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:42.475947",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:42.479101",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:42.479141",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:42.482198",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:52.482463",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:52.485622",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:52.485644",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:38:52.489252",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:02.489630",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:02.493757",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:02.493794",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:02.498769",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:12.499248",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:12.502801",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:12.502823",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:12.506808",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:22.507261",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:22.511228",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:22.511259",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:22.516442",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:32.516806",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:32.519866",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:32.519886",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:32.522991",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:42.523315",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10/metadata"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:42.526814",
+      "level": "INFO",
+      "message": "Response: 404"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:42.526841",
+      "level": "INFO",
+      "message": "GET http://127.0.0.1:8081/api/v1/orchestrator/features/10"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:42.530442",
+      "level": "INFO",
+      "message": "Response: 200"
+    },
+    {
+      "timestamp": "2025-09-12T22:39:52.530747",
+      "level": "ERROR",
+      "message": "Test failed: PR not created within 240 seconds"
+    }
+  ]
+}

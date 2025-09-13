@@ -1,0 +1,25 @@
+# E2E Test Configuration Example
+# Копируйте в .e2erc и настройте под свои нужды
+
+# Основные настройки
+export E2E_MODE="safe"                    # safe, full, mock
+export E2E_BASE_URL="http://127.0.0.1:8081"
+export E2E_TIMEOUT="30"
+
+# Безопасность
+export E2E_CLEANUP_ENABLED="true"        # всегда убирать за собой
+export E2E_BRANCH_PROTECTION="true"      # защита main веток
+export E2E_REQUIRE_CONFIRMATION="true"   # спрашивать подтверждение
+
+# Лимиты
+export E2E_MAX_TEST_FEATURES="3"
+export E2E_MAX_TEST_BRANCHES="2"
+
+# Исключения
+export E2E_SKIP_BRANCHES="main,master,develop"
+export E2E_SKIP_DESTRUCTIVE_TESTS="true"
+
+# Отчёты
+export E2E_REPORT_FORMAT="json,text"
+export E2E_LOG_LEVEL="info"
+export E2E_SAVE_ARTIFACTS="true"

@@ -1,0 +1,12 @@
+{"role": "Architect", "status": "success", "response": {"plan_type": "endpoint", "components": ["health_check"], "estimated_effort": "low"}, "valid_format": true, "type": "json", "config": {"json_mode": "json_object", "providers": ["anthropic_opus41", "openai_gpt5_via_codex", "gemini_25_pro"], "timeout_sec": 60}}
+{"role": "Architect", "status": "need_context", "response": {"error": "NeedContext", "missing": ["repo_meta", "feature_schema"]}, "valid_format": true, "type": "need_context"}
+{"role": "Dev", "status": "success", "response": "# Health endpoint code\ndef health():\n    return {'status': 'ok'}", "valid_format": true, "type": "text", "config": {"json_mode": false, "providers": ["qwen_code", "gemini_25_flash", "openai_gpt5_mini"], "timeout_sec": 30}}
+{"role": "Dev", "status": "need_context", "response": {"error": "NeedContext", "missing": ["allowed_paths", "coding_guidelines"]}, "valid_format": true, "type": "need_context"}
+{"role": "QA", "status": "success", "response": {"validation_status": "pass", "issues": [], "recommendations": []}, "valid_format": true, "type": "json", "config": {"json_mode": "json_object", "providers": ["qwen_code", "openai_gpt5_mini", "gemini_25_flash"], "timeout_sec": 30}}
+{"role": "QA", "status": "need_context", "response": {"error": "NeedContext", "missing": ["qa_schema", "test_matrix_template"]}, "valid_format": true, "type": "need_context"}
+{"role": "Gate", "status": "role_not_found", "valid_format": false}
+{"role": "Gate", "status": "need_context", "response": {"error": "NeedContext", "missing": ["gate_policy"]}, "valid_format": true, "type": "need_context"}
+{"role": "Scribe", "status": "success", "response": {"changelog_entry": "Added health check endpoint", "version": "1.0.1"}, "valid_format": true, "type": "json", "config": {"json_mode": "json_object", "providers": ["qwen_code", "openai_gpt5_mini"], "timeout_sec": 25}}
+{"role": "Scribe", "status": "need_context", "response": {"error": "NeedContext", "missing": ["doc_templates"]}, "valid_format": true, "type": "need_context"}
+{"role": "Apply", "status": "role_not_found", "valid_format": false}
+{"role": "Apply", "status": "need_context", "response": {"error": "NeedContext", "missing": ["scm_flags", "ci_contexts"]}, "valid_format": true, "type": "need_context"}

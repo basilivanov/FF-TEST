@@ -1,0 +1,10 @@
+{
+  "id": 16,
+  "title": "Auto E2E Test ROLECHAIN_FINAL_1757740380",
+  "intent_json": "{}",
+  "status": "DONE",
+  "priority": 0,
+  "created_at": "2025-09-13T05:13:00Z",
+  "created_by": "API",
+  "env": "test"
+}

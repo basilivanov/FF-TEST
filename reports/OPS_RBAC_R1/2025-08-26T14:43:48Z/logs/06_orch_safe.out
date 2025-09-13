@@ -1,0 +1,13 @@
+● feature-factory-test.service - Feature Factory (test)
+     Loaded: loaded (/etc/systemd/system/feature-factory-test.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/feature-factory-test.service.d
+             └─10-llm.conf
+     Active: active (running) since Tue 2025-08-26 17:43:54 MSK; 20ms ago
+   Main PID: 359487 (uvicorn)
+      Tasks: 1 (limit: 2085)
+     Memory: 2.9M (peak: 3.0M)
+        CPU: 9ms
+     CGroup: /system.slice/feature-factory-test.service
+             └─359487 /opt/feature-factory/.venv/bin/python3 /opt/feature-factory/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8081
+
+авг 26 17:43:54 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).

@@ -1,0 +1,16 @@
+INFO:     Started server process [2422957]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8081 (Press CTRL+C to quit)
+INFO:     31.181.57.254:0 - "GET /api/v1/orchestrator/tasks HTTP/1.0" 404 Not Found
+INFO:     31.181.57.254:0 - "GET /api/v1/orchestrator/tasks HTTP/1.0" 404 Not Found
+INFO:     127.0.0.1:42370 - "GET /docs HTTP/1.1" 200 OK
+INFO:     31.181.57.254:0 - "GET /api/v1/orchestrator/tasks HTTP/1.0" 404 Not Found
+INFO:app.api.ci_status:Saved CI status: PR#2 final=success
+INFO:app.api.ci_status:PR#2: successful contexts = ['lint', 'tests', 'build', 'smoke'], all_success = True
+ERROR:app.api.ci_status:Failed to process CI status: Incorrect number of bindings supplied. The current statement uses 0, and there are 2 supplied.
+INFO:     127.0.0.1:48644 - "POST /api/v1/ci/status HTTP/1.1" 500 Internal Server Error
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2422957]

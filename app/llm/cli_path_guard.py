@@ -14,7 +14,7 @@ import structlog
 logger = structlog.get_logger()
 
 # Путь к конфигурационному файлу CLI
-CLI_CONFIG_PATH = "/opt/feature-factory/configs/llm_cli.yaml"
+CLI_CONFIG_PATH = "/opt/feature-factory/configs/llm_cli_config.yaml"
 
 class CliPathError(Exception):
     """Базовый класс для ошибок путей CLI."""
@@ -207,7 +207,7 @@ def validate_cli_paths() -> Dict[str, Dict[str, Any]]:
                 if not logged_in:
                     # mini-run "echo ok" through main subcommand
                     try:
-                        mini_run_cmd = [binary_path, "run", "-y", "--no-color", "--quiet"]
+                        mini_run_cmd = [binary_path, "-y", "-p"]
                         mini_run_input = 'echo ok'
                         mini_run_result = subprocess.run(
                             mini_run_cmd,

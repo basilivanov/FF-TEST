@@ -1,0 +1,10 @@
+{
+  "role": "QA",
+  "status": "FAILED",
+  "error": "CLI command failed with return code 1: Please set an Auth method in your /home/feature/.gemini/settings.json or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA\n",
+  "response": null,
+  "provider_used": null,
+  "latency_ms": 31046,
+  "expected_behavior": "Python тест с pytest",
+  "full_error": "Traceback (most recent call last):\n  File \"/opt/feature-factory/scripts/comprehensive_agent_test.py\", line 68, in test_role\n    response = completion(\n               ^^^^^^^^^^^\n  File \"/opt/feature-factory/app/llm/router.py\", line 560, in completion\n    raise e\n  File \"/opt/feature-factory/app/llm/router.py\", line 483, in completion\n    rc, stdout, stderr = run_cli(cmd, env, timeout_s=provider_timeout, input_data=input_data)\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/feature-factory/app/llm/transports/cli.py\", line 88, in run_cli\n    raise CliExecError(f\"CLI command failed with return code {result.returncode}: {result.stderr}\")\napp.llm.transports.cli.CliExecError: CLI command failed with return code 1: Please set an Auth method in your /home/feature/.gemini/settings.json or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA\n\n"
+}

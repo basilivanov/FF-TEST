@@ -4,16 +4,23 @@ set -euo pipefail
 
 export HOME="/home/feature"
 export LANG="C.UTF-8"
-export TERM="dumb"
+export TERM="xterm"
 export NO_COLOR="1"
+export CI="true"
+export QWEN_CODE_NON_INTERACTIVE="true"
 if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
 fi
 
+# Ensure OAuth credentials exist and skip device flow if possible
+if [[ -f "/home/feature/.qwen/oauth_creds.json" ]]; then
+  export QWEN_SKIP_DEVICE_FLOW="true"
+fi
+
 # Prefer absolute if exists, else fallback to PATH
 if [[ -x "/usr/local/bin/qwen" ]]; then
-  exec /usr/local/bin/qwen "$@"
+  exec /usr/local/bin/qwen "$@" </dev/null
 else
-  exec qwen "$@"
+  exec qwen "$@" </dev/null
 fi
 

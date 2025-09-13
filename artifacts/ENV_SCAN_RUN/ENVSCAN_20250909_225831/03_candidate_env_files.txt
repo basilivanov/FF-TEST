@@ -1,0 +1,26 @@
+== list candidate env files ==
+/etc/systemd/system/feature-factory-test.service
+/etc/systemd/system/feature-factory-prod.service
+/etc/systemd/system/feature-factory-test.service.d/10-workingdir.conf
+/etc/systemd/system/feature-factory-test.service.d/20-debug.conf
+/etc/systemd/system/feature-factory-test.service.d/16-env-git.conf
+/etc/systemd/system/feature-factory-test.service.d/40-exec-python.conf
+/etc/systemd/system/feature-factory-test.service.d/20-path.conf
+/etc/systemd/system/feature-factory-test.service.d/override.conf
+/etc/systemd/system/feature-factory-test.service.d/15-env-db.conf
+/etc/systemd/system/feature-factory-test.service.d/30-logs.conf
+/etc/systemd/system/feature-factory-test.service.d/10-path.conf
+/etc/systemd/system/feature-factory-test.service.d/10-llm.conf
+/etc/systemd/system/feature-factory-test.service.d/99-logs-to-journal.conf
+/opt/feature-factory/artifacts/WEBHOOK_FIX_RUN/WEBHOOK_FIX_1757439803/nginx-config-after.conf
+/opt/feature-factory/artifacts/WEBHOOK_FIX_RUN/WEBHOOK_FIX_1757439803/nginx-globals-before.conf
+/opt/feature-factory/artifacts/WEBHOOK_FIX_RUN/WEBHOOK_FIX_1757439803/nginx-config-before.conf
+/opt/feature-factory/.env
+/opt/feature-factory/nginx-config/correct-config.conf
+/opt/feature-factory/etc/nginx/http.d/10-ff-globals.conf
+/opt/feature-factory/configs/feature-factory-test.service
+/opt/feature-factory/configs/feature-factory-prod.service
+/opt/feature-factory/configs/nginx/etl-tst.chococraft.ru.conf
+/opt/feature-factory/configs/litellm.service
+/opt/feature-factory/configs/feature-factory-test.env
+/opt/feature-factory/configs/feature-factory-prod.env

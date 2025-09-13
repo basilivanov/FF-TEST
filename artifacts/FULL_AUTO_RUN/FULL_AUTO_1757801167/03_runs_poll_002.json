@@ -1,0 +1,4 @@
+{
+  "code": 500,
+  "body": "{\"detail\":\"Failed to list runs: (sqlite3.OperationalError) no such column: gr.env\\n[SQL: \\n            SELECT gr.run_id, gr.feature_id, f.title as feature_title,\\n                   gr.graph_name, gr.thread_id,\\n                   gr.status, REPLACE(gr.last_checkpoint_at, ' ', 'T') || 'Z' as last_checkpoint_at, gr.env\\n            FROM graph_runs gr\\n            JOIN features f ON gr.feature_id = f.id\\n            WHERE gr.feature_id = ?\\n            ORDER BY datetime(gr.last_checkpoint_at) DESC\\n        ]\\n[parameters: (23,)]\\n(Background on this error at: https://sqlalche.me/e/20/e3q8)\"}"
+}

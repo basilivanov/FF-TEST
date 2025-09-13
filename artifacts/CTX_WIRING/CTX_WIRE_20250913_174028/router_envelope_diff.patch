@@ -1,0 +1,64 @@
+--- a/app/llm/router.py
++++ b/app/llm/router.py
+@@ -119,6 +119,52 @@ def _resolve_secret_refs(val: Any) -> Any:
+         return _subst(val)
+     return val
+ 
++def _build_xml_envelope(role: str, messages: List[Dict[str, str]], context_data: str = None, task_data: Dict[str, Any] = None) -> List[Dict[str, str]]:
++    """
++    Строит XML envelope для роли согласно стандартному контракту.
++    
++    Mandatory tags: <role>, <context>, <task>, <rules>, <output_format>, <code>
++    """
++    # Определяем output_format по роли
++    output_formats = {
++        "Architect": {"type": "json_object", "schema": "plan_dsl per Architect schema"},
++        "Dev": {"type": "text", "schema": "code with unique markers"},
++        "QA": {"type": "json_object", "schema": "qa_report per QA schema"},
++        "Gate": {"type": "json_object", "schema": "allow/deny decision with reasons"},
++        "Scribe": {"type": "json_object", "schema": "changelog per Scribe schema"},
++        "Apply": {"type": "json_object", "schema": "git operations status"}
++    }
++    
++    output_format = output_formats.get(role, {"type": "json_object", "schema": "role-specific schema"})
++    
++    # Берем пользовательский контент из messages
++    user_intent = ""
++    if messages:
++        user_intent = " ".join([msg.get("content", "") for msg in messages if msg.get("role") == "user"])
++    
++    # Базовые правила по роли
++    role_rules = {
++        "positive": [
++            "Строго соблюдать XML envelope format",
++            "Возвращать только JSON согласно output_format",
++            f"Работать как роль {role} со специализированными обязанностями"
++        ],
++        "negative": [
++            "Не читать/писать секреты в артефакты",
++            "Не изменять код вне разрешенных путей", 
++            "Не отключать guardrails"
++        ]
++    }
++    
++    xml_content = f"""<prompt>
++<role>{role}</role>
++<context>
++<system_knowledge>{context_data or "Standard knowledge base"}</system_knowledge>
++<user_intent>{user_intent}</user_intent>
++<previous_steps>{task_data.get('previous_steps', '') if task_data else ''}</previous_steps>
++</context>
++<task>{task_data.get('description', user_intent) if task_data else user_intent}</task>
++<rules>
++<positive>{'; '.join(role_rules['positive'])}</positive>
++<negative>{'; '.join(role_rules['negative'])}</negative>
++</rules>
++<output_format type="{output_format['type']}">{output_format['schema']}</output_format>
++<code>Implement according to role responsibilities</code>
++</prompt>"""
++    
++    return [{"role": "user", "content": xml_content}]
++
+ def _format_messages_for_prompt(messages: List[Dict[str, str]]) -> str:
+     parts = []
+     for m in messages:

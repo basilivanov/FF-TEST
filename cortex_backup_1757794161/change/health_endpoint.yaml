@@ -1,0 +1,36 @@
+# Changelog Entry for /health Endpoint
+
+## Summary
+- Добавлена фича: Создан эндпоинт /health для мониторинга состояния сервиса
+
+## Type
+feature
+
+## Date
+2025-09-13
+
+## Files Modified
+- app/api/health.py
+- app/api/__init__.py
+- tests/test_health.py
+
+## Description
+Добавлен новый эндпоинт /health, который возвращает статус 200 и JSON объект с информацией о состоянии сервиса. Эндпоинт может использоваться для проверки доступности сервиса и мониторинга.
+
+## Implementation Details
+- Создан обработчик для GET /health
+- Эндпоинт возвращает JSON: {"status": "ok", "timestamp": "ISO8601 timestamp"}
+- Добавлены unit тесты для проверки работоспособности эндпоинта
+- Эндпоинт зарегистрирован в API роутере
+
+## Tests
+- Добавлены unit тесты в tests/test_health.py
+- Проверяется корректность HTTP статуса (200)
+- Проверяется наличие обязательных полей в ответе
+- Проверяется формат timestamp
+
+## QA Status
+PASS
+
+## Related Features
+- Аналогичен существующему /api/v1/ping, но с более стандартным путем и расширенной информацией

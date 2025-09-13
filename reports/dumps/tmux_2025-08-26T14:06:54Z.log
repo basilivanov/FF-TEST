@@ -1,0 +1,74 @@
+root@bivanov:~# # run as root
+set -euo pipefail
+F="/etc/sudoers.d/99-feature-factory-ops"
+cp -a "$F" "${F}.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+sed -i '/^Cmnd_Alias[[:space:]]\+FF_NETDIAG\b/d' "$F"
+visudo -c
+/etc/sudoers: parsed OK
+/etc/sudoers.d/99-feature-factory-ops: parsed OK
+/etc/sudoers.d/99-ff-ops-nginx-t: parsed OK
+/etc/sudoers.d/README: parsed OK
+root@bivanov:~# # run as root
+cat >/opt/feature-factory/bin/ff-ops-acceptance <<'BASH'
+#!/usr/bin/env bash
+set -euo pipefail
+TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+RDIR="/opt/feature-factory/reports/OPS_RBAC_R1/${TS}"
+mkdir -p "$RDIR"/{logs,bin,meta}
+copy(){ cp -a "$1" "$RDIR/$2"; }
+runf(){ local name="$1"; shift; ( set +e; "$@" >"$RDIR/logs/${name}.out" 2>&1; echo $? >"$RDIR/logs/${name}.rc"; ); }
+
+# артефакты
+copy /etc/sudoers.d/99-feature-factory-ops meta/99-feature-factory-ops.sudoers || true
+copy /etc/sudoers.d/99-ff-ops-nginx-t meta/99-ff-ops-nginx-t.sudoers || true
+for f in ff-nginx-reload-safe ff-orch-restart-safe ff-netdiag-8081 ff-free-8081; do
+  [ -x "/opt/feature-factory/bin/$f" ] && copy "/opt/feature-factory/bin/$f" "bin/$f"
+done
+ls -l /opt/feature-factory/bin >"$RDIR/meta/bin-perms.txt" 2>/dev/null || true
+
+# проверки
+runf 01_visudo       visudo -c
+runf 02_nginx_t      sudo -u feature -H bash -lc 'sudo -n /usr/sbin/nginx -t'
+runf 03_nginx_safe   sudo -u feature -H bash -lc 'sudo -n /opt/feature-factory/bin/ff-nginx-reload-safe'
+runf 04_netdiag      sudo -u feature -H bash -lc 'sudo -n /opt/feature-factory/bin/ff-netdiag-8081'
+runf 05_free8081     sudo -u feature -H bash -lc 'sudo -n /opt/feature-factory/bin/ff-free-8081 || true'
+runf 06_orch_safe    sudo -u feature -H bash -lc 'sudo -n /opt/feature-factory/bin/ff-orch-restart-safe'
+runf 07_health_wait  bash -lc '\
+  for i in $(seq 1 20); do \
+    if curl -sS http://127.0.0.1:8081/api/v1/health | grep -q "\"status\":\"ok\""; then echo OK; exit 0; fi; \
+    sleep 0.5; \
+  done; exit 1'
+
+# логи и статусы
+journalctl -u nginx -n 120 --no-pager >"$RDIR/logs/nginx.journal"   || true
+journalctl -u feature-factory-test.service -n 200 --no-pager >"$RDIR/logs/orch.journal" || true
+systemctl status nginx --no-pager >"$RDIR/logs/nginx.status"        || true
+systemctl status feature-factory-test.service --no-pager >"$RDIR/logs/orch.status" || true
+
+# summary
+HEALTH_OK=false; grep -q '"status":"ok"' "$RDIR/logs/07_health_wait.out" 2>/dev/null && HEALTH_OK=true || true
+cat >"$RDIR/summary.json" <<JSON
+{
+  "ts_utc": "${TS}",
+  "host": "$(hostname)",
+  "acceptance": {
+    "visudo_rc": $(cat "$RDIR/logs/01_visudo.rc"),
+    "nginx_t_rc": $(cat "$RDIR/logs/02_nginx_t.rc"),
+    "orch_restart_rc": $(cat "$RDIR/logs/06_orch_safe.rc"),
+    "health_ok": ${HEALTH_OK}
+  },
+  "paths": {
+    "sudoers_main": "meta/99-feature-factory-ops.sudoers",
+    "sudoers_nginx": "meta/99-ff-ops-nginx-t.sudoers",
+    "logs_dir": "logs",
+    "bin_dir": "bin"
+  }
+/opt/feature-factory/bin/ff-ops-acceptance-acceptance)
+^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B
+^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B
+^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B/opt/feature
+-factory/reports/OPS_RBAC_R1/2025-08-26T14:06:31Z
+root@bivanov:~# # run as root — дамп активной панели текущего клиента tmux (если ты внутри tmux)
+D="/opt/feature-factory/reports/dumps"; mkdir -p "$D"
+tmux capture-pane -S - -E - -p > "$D/tmux_$(date -u +%Y-%m-%dT%H:%M:%SZ).log"
+

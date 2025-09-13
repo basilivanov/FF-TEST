@@ -1,10 +1,10 @@
 {
-  "numStartups": 3,
+  "numStartups": 11,
   "installMethod": "unknown",
   "autoUpdates": true,
   "hasSeenTasksHint": true,
   "tipsHistory": {
-    "new-user-warmup": 1,
+    "new-user-warmup": 8,
     "memory-command": 1,
     "theme-command": 1,
     "status-line": 1,
@@ -17,15 +17,378 @@
     "double-esc": 1,
     "continue": 1,
     "shift-tab": 1,
-    "ide-upsell-external-terminal": 1
+    "ide-upsell-external-terminal": 1,
+    "image-paste": 3,
+    "custom-agents": 7
   },
-  "promptQueueUseCount": 167,
+  "promptQueueUseCount": 199,
+  "cachedStatsigGates": {
+    "tengu_disable_bypass_permissions_mode": false
+  },
   "firstStartTime": "2025-08-21T20:13:51.146Z",
   "userID": "435d85a8dd5b1ff90b0367ac4ebc3a38df51705769beeb84a6bd2fad9d9402f5",
   "projects": {
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "думай и пиши на русском",
+          "pastedContents": {}
+        },
+        {
+          "display": "а в старом кортексе вроде была ещё вынесена конфигурация ngixn или она в другом месте?",
+          "pastedContents": {}
+        },
+        {
+          "display": "дай полный контектс с инвариантами что сделагно и что сделать для друго агнета  и чата",
+          "pastedContents": {}
+        },
+        {
+          "display": "стоп",
+          "pastedContents": {}
+        },
+        {
+          "display": " 3. Интегрирован Learning Engine:\n\n  - Автоматические рекомендации на основе истории\n  - AI обучение на ошибках и успешных паттернах уже прям работает. вопрос тогда как ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "делай",
+          "pastedContents": {}
+        },
+        {
+          "display": "а как эти паттерны в каортете бдт передловаться в контектс пакаджер или для чего они cortex/patterns/ai_ml/model_orchestrator.py оцени сейчас есть 95-98% контекста для всех ролей через контекст паккаджер статический + динамическицй на сколько он отражает текущее состояне проекта пройдись щё раз по всем ролям",
+          "pastedContents": {}
+        },
+        {
+          "display": "изучи проект у нас же ещё есть фронтенд и будут добавляеться много других подистем и api интегрции и маркетплейсы и ии модели добавь, что нужно чтобы было лучшим решение для автоматизхированной систе ы без частия человека",
+          "pastedContents": {}
+        },
+        {
+          "display": "изучи проект у нас же ещё есть фронтенд и будут добавляеться много других подистем и api интегрции и маркетплейсы и ии модели добавь, что нужно",
+          "pastedContents": {}
+        },
+        {
+          "display": "делай и динамический контент тоже проверь от ctag изучи проект и доведи всех до 95-98%",
+          "pastedContents": {}
+        },
+        {
+          "display": "проверь эффективность для всех ролей контекста оцени как стало сейчас с новым кортексом",
+          "pastedContents": {}
+        },
+        {
+          "display": "у нас mvp и маленький проект предложи не такое глобальное что-то ищучи проект, оцени и предлжи достаточно хорошее решение ",
+          "pastedContents": {}
+        },
+        {
+          "display": "e ",
+          "pastedContents": {}
+        },
+        {
+          "display": "это к вопросу как сделать так, что бы система сама себя описывала, документировала, логировала агентами без участия человека, и чтобы потом эьто всё передовалось в контекст пакаджер, что ещё нужно сделать или что поменять поищи в интернете практики правильные лучшие ",
+          "pastedContents": {}
+        },
+        {
+          "display": "а changelog у нас есть в новом кортексе он живет в папке cortex  ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "дай иванрианты по кортексу новову для добавляне в капсулу",
+          "pastedContents": {}
+        },
+        {
+          "display": "делаем рефакт оставляем только нужно docs удаляем и всё ненужное удаляем тожепеределываем под правильную стрктуру с учётом рашсиоения заложи тудла возможность масштабирования дугих проектов. весь ненджный и неактуальный контент удаляем. остальное перефармтотирууешгт наилушчим сопсопбои вот тбе ещё теккущая капсула контекста [Pasted text #1 +367 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "# FeatureFactory — SSOT Capsule (TEST)\n\n**Версия:** 2.6.2  ·  **Обновлено:** 2025‑09‑12  ·  **Контур:** TEST  ·  **SSoT:** минимальный срез\n\n---\n\n## 0. Meta\n\n### 0.1 Meta / Role & Policy\n\n* **Project:** FeatureFactory — фабрика внутренних фич; агенты делают всё, люди задают цели и принимают релизы.\n* **Role (this doc):** Architect — формулирует задачи, не пишет код.\n* **Назначение капсулы:** только значимые изменения механики/инвариантов/вех для переноса в другие чаты. Мелкие таски и текущие логи — в артефактах/БД.\n* **Policy:** капсула хранит структуру/контракты/метаданные; рабочие данные/логи/JSON живут в артефактах/БД.\n\n**Mission & Principles**\n\n* **Mission:** автоматизированное производство бизнес‑фич без участия человека; управляемые гейты, трассировка, строгие API‑контракты.\n* **Principles:** `context_first` · `corr_id_required` · `no_mocks_in_prod` · `alembic_only_for_schema` · `docsync_gated`\n\n### 0.2 Services Up (TEST)\n\n* `feature-factory-test.service` — Orchestrator API on :8081; loads `.env`, WAL PRAGMAs, Git/CI settings.\n* `feature-factory-runner.service` — background agent loop (2s tick); idempotent restarts.\n* `nginx` — reverse proxy; forwards `X-Correlation-Id`; serves `/.well-known/ff-context.json`.\n* **UI bundle** — built & deployed via `ff-ui-deploy-safe(-nosudo)`; версия отражена как метрика `ui_bundle_hash`.\n\n### 0.3 Required ENV (TEST)\n\n* **DB/WAL:** `DATABASE_URL=sqlite:////opt/feature-factory/data/test.db`, `SQLITE_JOURNAL_MODE=WAL`.\n* **Git (REAL):** `SCM_PROVIDER=github`, `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `SCM_PUSH_ENABLED=true`, `GIT_INTEGRATION_ENABLED=true`.\n* **CI Hook (Basic):** `CI_HOOK_USER=ops`, `CI_HOOK_PASS=ops123`, `FF_BASE_URL=http://127.0.0.1:8081`.\n* **Webhook (GitHub):** `GITHUB_WEBHOOK_SECRET=<secret>`; GitHub repo webhook → `POST /api/v1/ci/webhook` (HMAC `X-Hub-Signature-256`).\n* **General:** `ENV=TEST`.\n\n### 0.4 Endpoint Quick‑Ref\n\n* **CI Webhook:** `POST /api/v1/ci/webhook` (GitHub, HMAC SHA‑256).\n* **CI Status (manual/CI):** `POST /api/v1/ci/status` (Basic `ops/ops123`).\n* **Logs/SSE:** `GET /api/v1/logs/stream` (`text/event-stream`).\n* **Runner (one‑shot):** `POST /api/v1/runner/run-once`.\n\n---\n\n## 1. Task Handoff (Architect → Agent/Other Chat)\n\n**Зачем:** единый способ постановки задач, чтобы агенты/чаты запускали работу без уточнений.\n\n**Формат сообщения (строго):**\n\n1. Короткий блок «Что уже сделано» — 1–5 маркеров, только факты.\n2. **Текущая задача 1 — ровно один кодовый блок с YAML.**\n3. Два‑три предложения «зачем задача» — цель бизнес/техрезультата, без команд.\n4. Блок «Дальше» — 2–3 предложения, что запускаем после успешной сдачи.\n\n**Правила к YAML‑блоку (ровно один блок):**\n\n* Ключи: `task`, `corr_id`, `context` (пути, URL, секреты‑переменные, пользователи), `prechecks`, `plan`, `dod`, `artifacts_dir`, `owner`, `notes`.\n* Команды **не обязательны** — допускаются, но по умолчанию агент сам выбирает команды.\n* Все пути абсолютные; все URL полностью квалифицированы; доступы/Basic auth явно указаны.\n* `dod` — проверяемые критерии приёмки; без них задача не считается выполненной.\n* Одна задача = один YAML‑блок. **Не ставить несколько задач в одном сообщении.**\n\n**Последовательность сообщений:**\n\n* Сообщение 1: контекст → одна задача (YAML) → зачем → что дальше.\n* Сообщение 2 (после отчёта агента): «Принято/правки» + следующая задача (новый YAML).\n\n---\n\n## 2. Ops: UI (v3, минимальный контракт)\n\n* **stack:** `react+vite`\n* **routes:** `/admin`, `/admin/features`, `/admin/features/:id`, `/admin/tasks/:id`\n* **data\\_sources:**\n\n  * `features_list` → `/api/v1/features`\n  * `feature_graph` → `/api/v1/features/{id}/graph`\n  * `task_get` → `/api/v1/tasks/{id}`\n* **deploy:**\n\n  * `build_cmd` → `/opt/feature-factory/bin/ff-ui-build-nosudo`\n  * `deploy_cmd` → `/opt/feature-factory/bin/ff-ui-deploy-safe-nosudo --smoke`\n  * **policy:** `{ ui_deploy_required_on_change: true }`\n\n---\n\n## 3. Ops: DB (SQLite TEST)\n\n* **DATABASE\\_URL:** `sqlite:////opt/feature-factory/data/test.db`\n* **PRAGMA:** `WAL=ON`, `synchronous=NORMAL`, `busy_timeout=5000ms`\n* **Backups:** `/opt/feature-factory/backups/sqlite/%Y%m%d/%H%M%S.db` (7d retention)\n* **Seed:** `scripts/ops/db_seed_minimal.sh` (Hello DAG)\n\n---\n\n## 4. Ops: Nginx (SSOT‑сниппеты)\n\n**http.d:** `upstream ff_backend → 127.0.0.1:8081`; `map $corr_id`; `limit_req_zone ff_ctx_limiter`\n\n**conf.d:** only location snippets; **запрещено:** `server`, `upstream`, `map`, `limit_req_zone` в `conf.d`\n\n**well-known:**\n\n```nginx\nlocation = /.well-known/ff-context.json {\n  limit_req zone=ff_ctx_limiter burst=20 nodelay;\n  add_header Cache-Control \"public, max-age=60\";\n  alias /opt/feature-factory/.well-known/ff-context.json;\n  default_type application/json;\n  try_files $uri =404;\n}\n\nlocation = /api/v1/context-lite {\n  limit_except GET { return 405; }\n  proxy_pass http://ff_backend;\n}\n\nlocation /api/v1/ {\n  proxy_set_header X-Correlation-Id $corr_id;\n  proxy_pass http://ff_backend;\n}\n```\n\n---\n\n## 5. Ops: Runner\n\n* **service:** `feature-factory-runner` (loop 2s, graceful SIGTERM)\n* **wrappers:** `ff-runner-start-nosudo`, `ff-runner-stop-nosudo`, `ff-runner-status-nosudo`\n\n---\n\n## 6. Metrics (Prometheus text)\n\n* **Base:** `step0_ok_total`, `step0_fail_total`, `step0_latency_ms_*`\n* **Health/DB:** `health_ready_status`, `health_db_latency_ms`, `db_rw_ok`, `db_rw_latency_ms`, `db_last_repair_unixts`, `db_wal_mode{mode=\"wal\"} 1`, `db_busy_retries_total`\n* **Runner:** `runner_started_total`, `runner_completed_success_total`, `runner_completed_failed_total`, `runner_tick_latency_ms_*`, `runner_queue_depth`, `task_exec_duration_ms_*`\n* **UI/Deploy:** `ui_bundle_hash`, `ui_http_4xx_total{path,code}`, `ui_http_5xx_total{path,code}`\n\n---\n\n## 7. SSE\n\n`/api/v1/logs/stream` → events: `runner_tick {queue_depth,last_tick_ms}`, эпизодически `step0_start/ok`\n\n---\n\n## 8. LLM Wrappers (non‑sudo)\n\n* `claude`: `claude --dangerously-skip-permissions -p \"…\"`\n* `gemini`: `gemini -y …`\n* `qwen`: `qwen -y …`\n* `codex`: `codex --dangerously-bypass-approvals-and-sandbox …`\n\nЧерез унифицированный запуск:\n\n```bash\necho \"prompt\" | ff-task-run-nosudo --corr C-$(date +%s) -- claude --dangerously-skip-permissions -p \"Ответь: OK $X_CORRELATION_ID\"\n```\n\n---\n\n## 9. Zero‑Touch Bootstrap (nosudo)\n\n* **Полный:** `ff-admin-bootstrap-nosudo` → UI build → ctx publish → orch ready → runner start → smokes\n* **Быстрый:** `ff-admin-bootstrap-quick-nosudo`\n* **Poststart hook:** `ff-orch-poststart-hook-nosudo`\n\n---\n\n## 10. Codex Smokes (nosudo)\n\n* Ready chain: `scripts/ci/health_ready_smoke.sh`\n* Metrics: `scripts/ci/metrics_smoke.sh`\n* Runner metrics: `scripts/ci/runner_metrics_smoke.sh`\n* SSE: `scripts/ci/ui_sse_runner_smoke.sh`\n* UI live: `scripts/ci/ui_runner_live_smoke.sh`\n* DB RW: `scripts/ops/db_rw_smoke.sh`\n* WAL: `scripts/ci/wal_smoke.sh`\n* Backup: `scripts/ci/db_backup_smoke.sh`\n* UI seed: `scripts/ci/ui_seed_smoke.sh`\n* Well‑known: `scripts/ci/well_known_smoke.sh`\n* Admin bootstrap: `scripts/ci/admin_bootstrap_smoke.sh`\n* E2E NTN‑smock: `scripts/ci/d5_e2e.sh`\n\n---\n\n## 11. Invariants (must)\n\n* Только `*-nosudo` обёртки в `bin/`, владельцы `feature:feature`, `mode 0755`.\n* UI вызывает только `/api/v1/*` и `/.well-known/ff-context.json`; запрет `/orchestrator/*`.\n* Context v3 ≤ 10KB; `ops.ui.schema_ok=true`; TTL=60 (Nginx + JSON).\n* DB: `journal_mode=DELETE` по умолчанию (WAL при `SQLITE_JOURNAL_MODE`); perms `data/ 700`, `test.db 600`; `DATABASE_URL` един для сервисов/скриптов.\n\n---\n\n## 12. GitHub Invariants (TEST)\n\n**SSoT файловая схема (строго):**\n\n* Не‑секреты: `/etc/default/feature-factory-test` → `SCM_PROVIDER=github`, `GIT_INTEGRATION_ENABLED=true`, `SCM_PUSH_ENABLED=true`, `GITHUB_OWNER`, `GITHUB_REPO`, `GIT_BASE_BRANCH=main`, `FF_BASE_URL`, `CI_HOOK_USER=ops`, `CI_HOOK_PASS=ops123`, `ENV=TEST`.\n* Секреты: `/etc/feature-factory/ci-secrets.env` → `GITHUB_TOKEN=<PAT repo>`, `GITHUB_WEBHOOK_SECRET=<hmac>`.\n* **Runtime:** оба файла подключены в unit через `EnvironmentFile=…`; процесс под пользователем `feature`.\n\n**Git/SSH (feature):**\n\n* `origin = git@github.com:basilivanov/FF-TEST.git` (обязательно SSH).\n* Ключ: `~/.ssh/id_ed25519_ff`, `~/.ssh/config` →\n\n  ```\n  Host github.com\n    User git\n    IdentityFile ~/.ssh/id_ed25519_ff\n    IdentitiesOnly yes\n  ```\n* Базовая ветка: `GIT_BASE_BRANCH=main`. **Никогда** не коммитим в `main` напрямую.\n\n**PR‑конвейер (real, без моков):**\n\n1. `POST /api/v1/orchestrator/features {autostart:true}` → создаётся ветка `feature/<id>_<slug>`.\n2. В репо кладётся **уникальный артефакт** (исключает пустой diff) → `commit` → `git push`.\n3. GitHub API (PAT) создаёт PR на `base=main`. Поля в API оркестратора: `pr_url`, `git_branch`, `commit_sha`.\n4. CI статусы (protected‑checks): `lint`, `tests`, `build`, `smoke` → `POST /api/v1/ci/status` (Basic `ops/ops123`).\n5. При 4×success → auto‑merge (real) → заполняются `merged=true`, `merged_sha`.\n\n**Webhook (GitHub):**\n\n* Endpoint: `POST /api/v1/ci/webhook`, HMAC: `X‑Hub‑Signature‑256` c `GITHUB_WEBHOOK_SECRET`.\n* Ping/Redeliver → `2xx`. Доставка идемпотентна по GUID, дубликаты не ломают пайплайн.\n\n**Наблюдаемость:**\n\n* Логи сервиса содержат маркеры: `git_command_*`, `feature_branch_*`, `github_pr_create_*`, `pull_request_creation_failed (422/409)`.\n* Быстрый тик: `POST /api/v1/runner/run-once` (Basic). Health: `/health/live`=200. Метрики: `db_rw_ok 1`, `runner_*`, `ui_bundle_hash`.\n\n**Guardrails:**\n\n* `.env` проекта **не должен** переопределять SSoT из systemd; при необходимости — удалить/переименовать `.env`.\n* Секреты **не логируем**; в артефактах редактировать `GITHUB_TOKEN`.\n* На отсутствие секретов система фолбэчится в mock; в TEST требуем **real** при наличии секретов.\n* Ветки‑защиты: `main` — merge только при зелёных 4‑контекстах.\n\n**Агентный поток (инвариант):**\n\n* Все e2e прогонки — **только через роли**: Architect → Dev → QA → Scribe → Orchestrator/Runner (никаких ручных CLI в прод‑сценарии).\n* Постановка задач — строго по «Task Handoff» из §1 (один YAML‑блок, DoD обязателен).\n\n## 12.1 Capsule Agents (OAuth SSOT) — короткие инварианты\n\n**Единый wrapper‑паттерн:** `/opt/feature-factory/bin/{agent}`; `HOME=/home/feature`, `CI=true`, инициализация NVM, `NO_COLOR=1`, `TERM=xterm`.\n\n**OAuth store (пути):**\n\n* Claude: `/home/feature/.claude/.credentials.json`\n* Qwen: `/home/feature/.qwen/oauth_creds.json` (env: `QWEN_SKIP_DEVICE_FLOW=true`, `CI=true`)\n* Gemini: `/home/feature/.gemini/oauth_creds.json` (env: `GOOGLE_CLOUD_PROJECT=etl-marketplace`)\n* Codex: OAuth не требуется (работает без браузерного потока)\n\n**Проверка готовности (probe):**\n\n* Версии: `claude --version`, `qwen --version`, `gemini -v`, `codex --version` → код 0.\n* Неинтерактивный запуск: `echo hi | claude`, `qwen -p hi`, `gemini -p hi`, `echo hi | codex --json` → код 0.\n\n**SSOT‑конфиг:** `llm_cli_config.yaml` описывает `binary_path`, `auth.refresh_secret_key`, `local_config_file`.\n\n**Авто‑обновление токенов:** `/opt/feature-factory/scripts/refresh_tokens_daemon.py` — периодический refresh для всех провайдеров из конфига.\n\n**Контракт вывода:**\n\n* Claude/Qwen/Gemini → plain text; Codex → JSON Lines (`agent_message`).\n\n---\n\n## 12.2 LLM Router & Context Packager — инварианты\n\n**Универсальная CLI‑обёртка (SSOT):** `/opt/feature-factory/bin/ff-cli-wrapper.sh`\n\n```bash\n# Гарантированное login‑окружение для любого CLI‑агента\nenv HOME=/home/feature bash -lc \"exec \\\"$REAL_BINARY_PATH\\\" \\\"$@\\\"\" -- \"$@\"\n```\n\nИнварианты: единый HOME, загрузка `.bashrc/.profile`, изоляция ENV.\n\n**LLM Router:** `/opt/feature-factory/app/llm/router.py`\n\n* Декларативная сборка команды: `cmd = [FF_UNIVERSAL_WRAPPER, binary_path]`.\n* Резолвинг секретов: `_resolve_secret_refs(<SECRET:KEY>)`.\n* OAuth‑инъекция: `_inject_oauth_access_token()` добавляет токен в `env/cmd`.\n* Fallback‑цепочка провайдеров с учётом `mode` (reasoning/fast) и таймаутов.\n* Наблюдаемость: `llm_call_attempt/end`, учёт токенов `token_accountant.record_usage()`.\n\n**Context Packager:** `/opt/feature-factory/app/context/packager.py`\n\n* Приоритеты сборки контекста: Доктрина → Секреты → Ролевые правила → Playbook → Динамика задачи.\n* Аналитика задачи: keyword extraction, запросы к Symbol Index, расширение по Call Graph; эвристики при отсутствии индекса.\n* Выход: слитый `merged.json` с секциями `system_knowledge`, `endpoints`, `env`, `git`, `invariants`.\n\n**Процесс промптинга (envelope):**\n\n* Корень `<prompt>`; жёсткие разделы: `<role>`, `<context>` (`<system_knowledge>`, `<user_intent>`, `<previous_steps>`), `<task>`, `<rules>` (positive/negative), `<output_format>` (JSON‑схема), опционально `<thinking>`, и финальный `<code>` с результатом.\n* При нехватке контекста агент обязан возвращать `{\"error\":\"NeedContext\",\"missing\":[...]}`.\n\n**Контракт вызова агента (Router API):**\n\n```python\ncompletion(role=\"Architect|Dev|QA|Scribe|Apply|Gate\",\n           messages=[{\"role\":\"user\",\"content\":\"<prompt>…</prompt>\"}],\n           max_tokens=int, temperature=float, mode=\"reasoning|fast|None\")\n# Возврат: {provider, model, text|choices[0].message.content, usage, finish_reason, trace?}\n```\n\n---\n\n## 13. Full Auto Pipeline (TEST) — цель\n\nFull Auto Pipeline (TEST) — цель\n\nFull Auto Pipeline (TEST) — цель Full Auto Pipeline (TEST) — цель Full Auto Pipeline (TEST) — цель\n\nПолный неинтерактивный цикл в TEST: **feature → план → dev/qa/scribe/apply → git/PR → CI → merge → deploy → smoke.**\n\n**Контракты (минимум):**\n\n* **Orchestrator** публикует для фичи: `git_branch`, `commit`, `pr_url` (если есть), `last_corr_id`.\n* **CI** публикует статусы в PR; правила мержа требуют `lint`, `tests`, `coverage`, `build`.\n* **Deploy** в TEST запускается автоматически на merge в `develop` (манифест сборки, миграции, smokes).\n\n**DoD (TEST):**\n\n* Созданная фича автогенерирует ветку и PR; после merge сервис жив (`/health/live=200`), UI/metrics ок; БД в WAL, без disk I/O/lock ошибок.\n\n---\n\n## 14. Quick Checks (CLI & Node/npm)\n\n**scope:** только контекст среды для CLI‑инструментов (`gemini`/`codex`/`qwen`/`claude`).\n\n* **user/home:** `feature`, `HOME=/opt/feature-factory`.\n* **nvm:** `~/.nvm → /opt/feature-factory/.nvm`; `alias default → LTS` (на 2025‑09 `v22.19.0`).\n* **global npm bin:** `/opt/feature-factory/.nvm/versions/node/<lts>/bin`; бинарники CLI располагаются там.\n* **/usr/local/bin:** лежат врапперы (`gemini`, `codex`, `qwen`, `claude`) — чистят ENV, `source ~/.nvm/nvm.sh`, `nvm use default`, затем запускают реальный бинарь из `$(npm bin -g)`.\n* **\\~/.npmrc:** без `prefix=` и `globalconfig=`; только `fund=false`, `update-notifier=false`.\n* **sudoers:** пробрасываются `HOME/NVM_DIR/PATH` для `feature`.\n\n---\n\n## 15. Operational Runbook — FULL AUTO PIPELINE (TEST)\n\n**Next (после фикса вебхука):** подготовка PROD — вынесение секретов, rulesets на protected ветки, включение deploy‑hooks; затем E2E в PROD‑стенде тем же сценарием (без CLI).\n\n* **corr\\_id template:** `FULL_AUTO_$(date +%s)` · **auth:** Basic `ops/ops123` + header `X-Correlation-Id`\n* **Prechecks:** секреты Git API доступны рантайму; `/health/live=200`; `/api/v1/metrics` содержит `db_rw_ok=1`; БД в WAL; активны сервисы из §0.2.\n\n**План (контракты):**\n\n* **Feature:** `POST /api/v1/orchestrator/features {autostart:true}` → создаёт ветку/PR (mock/real) и публикует `git_branch/pr_url/commit_sha`.\n* **CI hook:** внешняя CI шлёт 4 статуса (`lint, tests, build, smoke`) в `/api/v1/ci/status` (Basic `ops/ops123`).\n* **Merge & Deploy:** при 4×success — auto‑merge PR (real GitHub при активных секретах), затем автодеплой в TEST (`ff-ui-deploy-safe(-nosudo)`), затем smokes.\n* **Артефакты:** `artifacts/FULL_AUTO_RUN/<corr_id>/` (OpenAPI/health/metrics/junit/coverage/UI bundle hash, HTML снапшоты UI).\n\n**Restart note:** после изменения ENV/секретов выполнять `bin/ff-orch-restart-safe`; быстрая проверка: `/health/live=200`, `db_rw_ok 1` в `/api/v1/metrics`.\n\n**DoD:**\n\n* Фича автогенерирует ветку и PR; после получения 4×success — PR merged в `develop` (real), деплой прошёл, smokes PASS; в БД у фичи заполнены `pr_url`, `commit_sha`, `merged_sha`; система здорова (health/metrics ok).\n"
+            }
+          }
+        },
+        {
+          "display": "делаем рефакт оставляем только нужно docs удаляем и всё ненужное удаляем тожепеределываем под правильную стрктуру с учётом рашсиоения заложи тудла возможность масштабирования дугих проектов. весь ненджный и неактуальный контент удаляем. остальное перефармтотирууешгт наилушчим сопсопбои",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +286 lines] оцени сколько нужно будет кода рефакторить? если поменяется структура кортекса",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "\n  Итоговый результат\n\n  ✅ Проанализировал проблему ContextPackager через dry-run тест с Dev ролью:\n  - Оценка: 20/100 баллов - критически недостаточно\n  - Основная проблема: только правила/запреты, нет технических примеров\n\n  ✅ Создал новую трёхслойную архитектуру ContextPackager V2:\n\n  1. Универсальный слой - SSoT capsule, архитектура, инварианты (2000-2500 токенов)\n  2. Роле-специфичный слой - примеры кода, шаблоны, правила для каждой роли (1500-2500 токенов)\n  3. Динамический слой - поиск через symbol_index/call_graph по ключевым словам задачи (2000-4000 токенов)\n\n  ✅ Созданные артефакты:\n  - CONTEXT_ARCHITECTURE_V2.md - архитектурный план\n  - role_context_templates.py - роле-специфичные шаблоны\n  - dynamic_context_engine.py - интеграция с ctag/symbol_index\n  - Полный анализ проблем и решений\n\n  Ожидаемое улучшение: Dev роль с 20/100 до 85-95/100 баллов благодаря релевантным примерам кода и динамическому поиску файлов.\n\n> дай инварианты для агента в другом чате\n\n● Инварианты для агента FeatureFactory\n\n  Core Mission & Principles\n\n  - Mission: автоматизированное производство бизнес-фич без участия человека\n  - Principles: context_first · corr_id_required · no_mocks_in_prod · alembic_only_for_schema · docsync_gated\n\n  Критические запреты\n\n  База данных\n\n  - ЗАПРЕЩЕНО: Изменения схемы БД напрямую SQL-командами\n  - ПРАВИЛЬНО: Только через Alembic: alembic revision --autogenerate -m \"description\" → alembic upgrade head\n\n  Запуск приложения\n\n  - ЗАПРЕЩЕНО: uvicorn из любой директории кроме корня проекта\n  - ПРАВИЛЬНО: cd /opt/feature-factory && uvicorn app.main:app\n\n  Секреты\n\n  - ЗАПРЕЩЕНО: Хардкод секретов в коде или \"придумывание\" паролей\n  - ПРАВИЛЬНО: Только secret_store.get_secret(key) из cortex/security/credentials.md\n\n  Git операции\n\n  - Базовая ветка: main (никогда не коммитим в main напрямую)\n  - SSH ключ: ~/.ssh/id_ed25519_ff для GitHub\n  - Паттерн веток: feature/<id>_<slug>\n\n  Task Handoff Protocol (строго)\n\n  Формат сообщения:\n  1. Короткий блок \"Что сделано\" (1-5 маркеров)\n  2. Один YAML блок с задачей\n  3. 2-3 предложения \"зачем задача\"\n  4. Блок \"Дальше\" (что после сдачи)\n\n  YAML обязательные поля:\n  task: \"описание\"\n  corr_id: \"TASK_$(date +%s)\"\n  context: [\"пути\", \"URL\", \"переменные\"]\n  prechecks: [\"что проверить\"]\n  plan: [\"шаги выполнения\"]\n  dod: [\"критерии приёмки\"]\n  artifacts_dir: \"/opt/feature-factory/artifacts/...\"\n\n  Роле-специфичные правила\n\n  Architect\n\n  - ВСЕГДА Task Handoff Protocol с YAML\n  - DoD критерии должны быть проверяемыми\n  - Один YAML = одна задача\n  - Абсолютные пути и полные URL\n\n  Dev\n\n  - FastAPI patterns из app/api/\n  - Pydantic схемы для валидации\n  - SQLAlchemy модели с миграциями\n  - Тесты для критических путей\n\n  QA\n\n  - Проверка всех DoD критериев\n  - API валидация через OpenAPI\n  - Smoke тесты для критических функций\n\n  Gate\n\n  - Решения: allow/deny с confidence и reasons\n  - Проверка безопасности и соответствия роли\n\n  Scribe\n\n  - Changelog в семантическом формате\n  - Связывание с correlation_id\n  - SemVer версионирование\n\n  Apply\n\n  - Git через безопасные скрипты\n  - PR с proper базовой веткой\n  - Проверка CI статусов перед merge\n\n  Environment (TEST контур)\n\n  - DB: sqlite:////opt/feature-factory/data/test.db с WAL режимом\n  - Services: feature-factory-test.service (API :8081), feature-factory-runner.service\n  - Git: SSH к git@github.com:basilivanov/FF-TEST.git\n  - Auth: Basic ops/ops123 для CI endpoints\n\n  Wrapper команды (non-sudo)\n\n  - claude, gemini, qwen, codex - OAuth авторизованы\n  - ff-*-nosudo - обертки для операций\n  - HOME=/home/feature, NVM node LTS\n\n  Контекст из прошлой работы\n\n  Создана новая архитектура ContextPackager V2 с трёхслойным контекстом (универсальный + роле-специфичный + динамический через symbol_index). Текущий ContextPackager\n  показал 20/100 баллов для Dev роли - требует улучшения.\n\n> предложи структуру для /cortex на твой взгляд идеальную в рамках проекта, ни чгео не меня просто предложи структур и какие фацлы там не нужны типа всяких гайдов\n\n● Идеальная структура /cortex для FeatureFactory\n\n  Предлагаемая структура\n\n  /cortex/\n  ├── core/                           # Ядро системы\n  │   ├── mission.md                  # Mission statement\n  │   ├── principles.md               # Принципы разработки\n  │   ├── invariants.md               # Критические инварианты\n  │   └── architecture.md             # Системная архитектура\n  │\n  ├── contracts/                      # API и схемы контрактов\n  │   ├── api_schemas.yaml            # OpenAPI спецификации\n  │   ├── role_interfaces.yaml        # Интерфейсы ролей\n  │   ├── task_handoff.yaml           # Протокол передачи задач\n  │   └── context_schema.json         # Схема контекста\n  │\n  ├── roles/                          # Роле-специфичные правила\n  │   ├── architect.md                # Правила для Architect\n  │   ├── dev.md                      # Правила для Dev\n  │   ├── qa.md                       # Правила для QA\n  │   ├── gate.md                     # Правила для Gate\n  │   ├── scribe.md                   # Правила для Scribe\n  │   └── apply.md                    # Правила для Apply\n  │\n  ├── patterns/                       # Шаблоны и примеры кода\n  │   ├── fastapi/\n  │   │   ├── crud_endpoint.py        # Шаблон CRUD\n  │   │   ├── auth_middleware.py      # Аутентификация\n  │   │   └── error_handlers.py       # Обработка ошибок\n  │   ├── sqlalchemy/\n  │   │   ├── base_model.py           # Базовая модель\n  │   │   └── migration_template.py   # Шаблон миграции\n  │   ├── testing/\n  │   │   ├── api_test_template.py    # API тесты\n  │   │   └── fixture_examples.py     # Фикстуры\n  │   └── deployment/\n  │       ├── systemd_service.txt     # Service unit\n  │       └── nginx_config.txt        # Nginx конфиг\n  │\n  ├── policies/                       # Политики и ограничения\n  │   ├── security.md                 # Политики безопасности\n  │   ├── file_access.md              # Доступ к файлам\n  │   ├── git_workflow.md             # Git процессы\n  │   └── deployment.md               # Политики деплоя\n  │\n  ├── env/                           # Конфигурация окружений\n  │   ├── test.yaml                  # TEST контур\n  │   ├── prod.yaml                  # PROD контур\n  │   └── local.yaml                 # Локальная разработка\n  │\n  └── reference/                     # Справочная информация\n      ├── cli_commands.md            # CLI команды\n      ├── endpoints.md               # Справочник эндпоинтов\n      ├── error_codes.md             # Коды ошибок\n      └── metrics.md                 # Метрики и мониторинг\n\n  Файлы для удаления\n\n  Избыточная документация\n\n  - docs/UI-Development-Guide.md - слишком детальный\n  - docs/Backup-and-Recovery-Guide.md - операционная документация\n  - docs/CLI-Path-Guard.md - слишком специфичный\n  - docs/Health-Check-Endpoints.md - есть в reference/endpoints.md\n  - docs/Ops-Guide.md - операционная документация\n  - docs/Permissions-000.md - дублирует policies/\n  - Все docs/Commands-UI-*.md - UI специфика\n\n  Дублирующие правила\n\n  - db_rules.md - интегрировать в roles/dev.md\n  - logging_rules.md - интегрировать в policies/security.md\n  - ops_tools.md - в reference/cli_commands.md\n\n  Устаревшие/специфичные файлы\n\n  - docs/_bundle/ - вся директория (артефакты сборки)\n  - docs/ADR-*.md - архитектурные решения в core/\n  - archive/ - архив удалить\n  - reports/ - отчеты в artifacts/\n\n  Политики низкого уровня\n\n  - docs/Alerts-Prompt-Drift.md - слишком специфично\n  - docs/Orch-Prompt-Load-Policy.md - интегрировать в contracts/\n\n  Принципы новой структуры\n\n  1. Иерархия важности\n\n  core/ > contracts/ > roles/ > policies/ > patterns/ > reference/\n\n  2. Разделение ответственности\n\n  - core/ - что система делает и как\n  - contracts/ - как компоненты взаимодействуют\n  - roles/ - что делает каждая роль\n  - patterns/ - как правильно реализовывать\n  - policies/ - что запрещено/разрешено\n  - env/ - как настроить окружение\n  - reference/ - где найти информацию\n\n  3. Принцип DRY\n\n  - Нет дублирования правил между файлами\n  - Один источник правды для каждого аспекта\n  - Ссылки вместо копирования\n\n  4. Приоритизация по токенам\n\n  - core/ - всегда в универсальном контексте (высший приоритет)\n  - roles/{role}.md - в роле-специфичном контексте (высокий)\n  - patterns/ - в динамическом контексте по ключевым словам (средний)\n  - reference/ - только при прямых ссылках (низкий)\n\n  5. Atomic updates\n\n  - Каждый файл - минимальная единица обновления\n  - Нет больших \"портянок\" документации\n  - Четкая структура с заголовками\n\n  Примеры содержимого ключевых файлов\n\n  core/invariants.md\n\n  # Критические инварианты\n\n  ## База данных\n  - Все изменения схемы только через Alembic\n  - WAL режим обязателен в PROD\n  - Таймауты соединений 5000ms\n\n  ## Git\n  - Базовая ветка: main\n  - SSH ключ: ~/.ssh/id_ed25519_ff\n  - Паттерн веток: feature/<id>_<slug>\n\n  ## Секреты  \n  - Только secret_store.get_secret(key)\n  - Никогда не логировать секреты\n\n  roles/dev.md\n\n  # Правила для роли Dev\n\n  ## Обязательные паттерны\n  - FastAPI endpoints по шаблонам из patterns/fastapi/\n  - Pydantic схемы для всех входных данных\n  - SQLAlchemy модели с миграциями Alembic\n  - Тесты для критических путей (>80% покрытие)\n\n  ## Запреты\n  - Прямые SQL команды для схемы\n  - Хардкод секретов в коде\n  - Uvicorn не из корня проекта\n\n  Такая структура будет более эффективной для ContextPackager и проще в поддержке."
+            }
+          }
+        },
+        {
+          "display": "много кода придётся рефктить оцени",
+          "pastedContents": {}
+        },
+        {
+          "display": "предложи структуру для /cortex на твой взгляд идеальную в рамках проекта, ни чгео не меня просто предложи структур и какие фацлы там не нужны типа всяких гайдов",
+          "pastedContents": {}
+        },
+        {
+          "display": "дай инварианты для агента в другом чате",
+          "pastedContents": {}
+        },
+        {
+          "display": "ок, ты можешь пронализиорвать документы в /cortex и файлы проекта и создать один универсальный котекст для всех + часть для каждого сипифичную,и чтобы ещё подключалсмь часть динмическая через ctag (то, что в базе лежит)",
+          "pastedContents": {}
+        },
+        {
+          "display": "ок, ты можешь пронализиорвать документы в /cortex и файлы проекта и создать один универсальный котекст для всех + часть для каждого сипифичную,и чтобы ещё подключалсмь часть динмическая через langgraf",
+          "pastedContents": {}
+        },
+        {
+          "display": "Смотри, придумай какое-нибудь задание для Роли деф. Вот и попробуй, ну драй тест провести и какой контекст выгружает контекст пэкедже. Какой он собирает. Пришли мне отчёт. Вот. И оцени, насколько он подходит. Ну ок, насколько он там. То есть подходит под наши задачи. И правильно ли граф выполняется. То есть правильно он снабжает. Функциями, которые, ну то есть, облегчат потом поиск файлов и насколько ли полный контекст. Вот сделай такое тестовое задание, передай его, ну, как бы, для заполнения контекста и, ну но как бы, да, ты задачу ставишь как, ну, как по Учитывая все наши правила, контракты и так далее. Вот и оцени насколько Правильно. Выдан контекст. Вот для Роли деф сейчас протестируем, да, и насколько он полезен и с ним эффективно будет Работать, агент.",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +95 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: CORTEX_CONTEXT_WIRING_AUDIT_FIX_v1\ncorr_id: CTX_WIRE_{{utc_ts}}\nowner: ops@feature-factory\nartifacts_dir: /opt/feature-factory/artifacts/CTX_WIRING/{{corr_id}}\n\ncontext:\n  base_url: \"http://127.0.0.1:8081\"\n  auth_basic: \"ops:ops123\"\n  ssot:\n    non_secrets: \"/etc/default/feature-factory-test\"\n    secrets: \"/etc/feature-factory/ci-secrets.env\"\n  code_paths:\n    packager: \"/opt/feature-factory/app/context/packager.py\"\n    router:   \"/opt/feature-factory/app/llm/router.py\"\n    routing_cfg: \"/opt/feature-factory/configs/llm_routing.yaml\"\n    cli_cfg:     \"/opt/feature-factory/configs/llm_cli_config.yaml\"\n    wrapper:     \"/opt/feature-factory/bin/ff-cli-wrapper.sh\"\n  roles: [\"Architect\",\"Dev\",\"QA\",\"Gate\",\"Scribe\",\"Apply\"]\n  envelope:\n    xml_root: \"<prompt>\"\n    mandatory_tags: [\"role\",\"context\",\"task\",\"rules\",\"output_format\",\"code\"]\n  need_context_contract: |\n    On insufficient context, respond EXACTLY with:\n    {\"error\":\"NeedContext\",\"missing\":[<list of required items>]}  # no extra text\n\nprechecks:\n  - GET {{base_url}}/health/live == 200\n  - Readable files: {{code_paths.packager}}, {{code_paths.router}}, {{code_paths.routing_cfg}}, {{code_paths.cli_cfg}}, {{code_paths.wrapper}}\n  - From systemd env (orch & runner): SCM_PROVIDER=github, GIT_INTEGRATION_ENABLED=true, GITHUB_OWNER/REPO visible (token redact in logs)\n\nplan:\n  - name: scan_configs\n    action: |\n      Статически разобрать {{code_paths.routing_cfg}} и {{code_paths.cli_cfg}}:\n      * подтвердить цепочки providers per role, timeouts, json_mode;\n      * зафиксировать для каждой роли final provider chain и бинарь (после резолва wrapper).\n    output: roles_matrix.json\n\n  - name: gate_xml_envelope\n    action: |\n      В Router внедрить/подтвердить единый конструктор подсказок:\n      * все роли получают XML-обёртку с <role>, <context> (секции: system_knowledge, user_intent, previous_steps), <task>, <rules:{positive,negative}>, <output_format>, <code>;\n      * <output_format> включает JSON-схему ответа (роль-специфичную).\n    output: router_envelope_diff.patch\n\n  - name: packager_contracts\n    action: |\n      В ContextPackager зафиксировать порядок сборки:\n      1) Доктрина/правила → 2) Карта секретов (без значений) → 3) Ролевые правила → 4) Playbook → 5) Динамика задачи.\n      Добавить Guard:\n      - если по итогам отбора контекст < минимального набора (перечень ниже), возвращать NeedContext.\n      Минимальный набор per role:\n        Architect: repo meta, feature schema, openapi summary, allowed_paths\n        Dev: allowed_paths, coding_guidelines, diff_strategy, file_list (целевые)\n        QA: qa_schema, test_matrix_template, allowed_paths\n        Gate: gate_policy, qa_report_contract\n        Scribe: doc_templates (CHANGELOG.md, E2E_SUMMARY.md)\n        Apply: scm_flags, ci_contexts, merge_policy\n    output: packager_guard.patch\n\n  - name: probes_per_role\n    action: |\n      Для каждой роли выполнить dry-run CLI через Router:\n      * вход: минимальный synthetic intent + capsule stub;\n      * ожидание: строгий XML→JSON ответ по <output_format>, без произвольного текста;\n      * при нехватке данных — ровно {\"error\":\"NeedContext\",...}.\n    output: probes_results.jsonl\n\n  - name: http_smoke_needcontext\n    action: |\n      Через /api/v1/orchestrator (или внутренний вызов) инициировать задачу без части контекста и убедиться, что роль возвращает NeedContext, а не “галлюцинацию”.\n    output: needcontext_evidence.txt\n\n  - name: finalize_docs\n    action: |\n      Сгенерировать Role Prompt Specs (статическая часть) и Context Fields Map (динамика) в артефактах и приложить патчи.\n    outputs: [\"ROLE_PROMPTS.md\",\"CONTEXT_FIELDS.md\"]\n\ndod:\n  - roles_matrix.json содержит для 6 ролей: provider_chain, binary_path, timeouts, json_mode — и валиден JSON.\n  - router_envelope_diff.patch и packager_guard.patch применимы (git apply --check == 0) или подтверждают, что правки не требуются.\n  - probes_results.jsonl: для каждой роли либо валидный JSON по схеме, либо ровно {\"error\":\"NeedContext\",\"missing\":[...]} — других текстов нет.\n  - needcontext_evidence.txt: содержит 1–3 строки с HTTP шагами и итогом NeedContext (без падений).\n  - ROLE_PROMPTS.md и CONTEXT_FIELDS.md присутствуют и непустые.\n  - Ноль упоминаний секретных значений в артефактах (только ключи/маски).\n\nnotes:\n  rules_positive:\n    - В промпт включать только разрешённый контент; секреты — только ключи/маски (без значений).\n    - Строго соблюдать XML-envelope и <output_format> со схемой.\n    - Для Dev и Apply гарантировать non-empty diff стратегией “unique marker per corr_id”.\n  rules_negative:\n    - Не читать/писать реальные секреты в артефакты.\n    - Не изменять main/master и прод-код в этой задаче (только патчи/спеки/сухие прогоны).\n    - Не ослаблять Guard для NeedContext.\n"
+            }
+          }
+        },
+        {
+          "display": "[Pasted text #1 +80 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: FULL_AUTO_E2E_ROLES_v1\ncorr_id: FULLAUTO_{{utc_ts}}\nowner: ops@feature-factory\nartifacts_dir: /opt/feature-factory/artifacts/FULL_AUTO/{{corr_id}}\n\ncontext:\n  base_url: \"http://127.0.0.1:8081\"\n  auth_basic: \"ops:ops123\"\n  repo: \"github.com/basilivanov/FF-TEST\"\n  git:\n    provider: github\n    base_branch: main\n  ssot_files:\n    non_secrets: \"/etc/default/feature-factory-test\"\n    secrets: \"/etc/feature-factory/ci-secrets.env\"\n  roles:\n    - Architect\n    - Dev\n    - QA\n    - Gate\n    - Scribe\n    - Apply\n  router_envelope: \"XML <prompt> with <role>, <context>, <task>, <rules>, <output_format>, <code>\"\n  need_context_contract: |\n    On insufficient context: return {\"error\":\"NeedContext\",\"missing\":[...]}.\n\nprechecks:\n  - GET {{base_url}}/health/live == 200\n  - GET {{base_url}}/api/v1/metrics contains \"db_rw_ok 1\"\n  - GET {{base_url}}/openapi.json == 200\n  - Verify env from systemd includes GITHUB_TOKEN/OWNER/REPO (redact token in logs)\n\nplan:\n  - name: ARCHITECT_plan\n    role: Architect\n    intent: \"Добавить безопасный артефакт (не код приложения) и оформить PR.\"\n    output_format: \"JSON plan_dsl per Architect schema\"\n  - name: DEV_make_artifacts\n    role: Dev\n    input: \"<previous_steps.plan_dsl>\"\n    action: \"Сгенерировать артефакт(ы) в разрешённых путях, гарантировать non-empty diff.\"\n  - name: QA_validate\n    role: QA\n    checks: [\"schema ok\", \"paths in allowlist\", \"no secrets\", \"size limits\"]\n    output: \"qa_report.json\"\n  - name: GATE_decide\n    role: Gate\n    rule: \"На основании QA_report — allow/deny. В deny вернуть причины.\"\n  - name: APPLY_commit_push\n    role: Apply\n    action: \"Создать ветку feature/<id>_<slug>, commit, push; инициировать PR через API.\"\n  - name: CI_statuses\n    role: Apply\n    action: \"POST /api/v1/ci/status для lint/tests/build/smoke с head_sha и pr_number.\"\n  - name: MERGE_and_finalize\n    role: Apply\n    wait: \"auto-merge при 4×success\"\n    after: \"Сохранить merged=true, merged_sha; обновить метаданные фичи.\"\n  - name: SCRIBE_docs\n    role: Scribe\n    action: \"Сформировать краткий CHANGELOG.md и E2E_SUMMARY.md в артефактах.\"\n\ndod:\n  - \"Создана фича: POST /api/v1/orchestrator/features (HTTP 200/201), получен id\"\n  - \"Опубликованы: git_branch, commit_sha, pr_url (host/path = github.com/basilivanov/FF-TEST/pull/N)\"\n  - \"4 CI статуса → 200; all_success=true\"\n  - \"PR merged=true; merged_sha not null\"\n  - \"Артефакты: plan.json, qa_report.json, scribe/CHANGELOG.md, E2E_SUMMARY.md\"\n  - \"Metrics ok: db_rw_ok=1; runner_* без ошибок; UI доступен (опционально)\"\n  - \"Нет NeedContext в финале; если был — корректно закрыт дополнительной поставкой контекста\"\n\nnotes:\n  rules_positive:\n    - \"Только разрешённые пути для артефактов; без изменений ядра.\"\n    - \"Ответы строго по <output_format>; лишний текст запрещён.\"\n    - \"Все роли используют XML envelope <prompt>…</prompt>.\"\n  rules_negative:\n    - \"Не писать/читать секреты в/из кода и артефактов.\"\n    - \"Не модифицировать main/master напрямую.\"\n    - \"Не отключать guardrails и не снижать уровни проверок.\"\n"
+            }
+          }
+        },
+        {
+          "display": "У нас есть обёртка, которая запускает всех агентов и добавляет им контекст поищи в коде, пожалуйста, что это? За что это за файл? И как устроена вообще, как процесс у нас сбора промта для происходит сейчас для агентов.",
+          "pastedContents": {}
+        },
+        {
+          "display": "дай отчёт куак теперь всё работает с инвариантами для капсулы SSOT для других агентов",
+          "pastedContents": {}
+        },
+        {
+          "display": "ты можешь поискать в интернете решение ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "- Проблема: Фундаментальная проблема с Rust/TTY в Codex CLI реши",
+          "pastedContents": {}
+        },
+        {
+          "display": "напиши как рабоатет всё с инвариантами",
+          "pastedContents": {}
+        },
+        {
+          "display": "пофикси",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +31 lines] У нас агенты работают без апи ключей, через оас оаус. Авторизацию. Ты там писал какой-то скрипт, который рефрешит токены. Вот надо сейчас проверить, что значит все агенты работают. И доступный для вызовов. ",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "🎯 Обертки агентов найдены и исправлены:\n\n  ✅ /opt/feature-factory/bin/claude\n\n  - Правильный HOME=\"/home/feature\"\n  - Правильные env переменные\n  - Обновлен путь в декларативной конфигурации\n\n  ✅ /opt/feature-factory/bin/qwen\n\n  - Правильный HOME=\"/home/feature\"\n  - Правильные env переменные\n  - Обновлен путь в декларативной конфигурации\n\n  ✅ /opt/feature-factory/bin/gemini\n\n  - ИСПРАВЛЕН HOME с /opt/feature-factory на /home/feature\n  - Правильные env переменные\n  - Обновлен путь в декларативной конфигурации\n\n  ✅ /opt/feature-factory/bin/codex\n\n  - Настроен для Node.js через NVM\n  - Путь к реальному codex бинарнику\n\n  Теперь все обертки настроены правильно с корректными путями и env переменными!\n\n  Система должна работать намного лучше, потому что:\n  1. Claude - уже работал, теперь использует правильную обертку\n  2. Qwen - использует правильную обертку с корректным HOME\n  3. Gemini - исправлен HOME путь, теперь найдет OAuth конфигурацию\n  4. Codex - правильно настроен для Node.js"
+            }
+          }
+        },
+        {
+          "display": "авторизовал джемини - версия 0.3.4 - да ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "но правилно кодекс должен хапускаться без указания пути и ноды - ты правильно исправил",
+          "pastedContents": {}
+        },
+        {
+          "display": "ну попробуй codex",
+          "pastedContents": {}
+        },
+        {
+          "display": "слушай, там есть оюёртки для запуска которые всё правильно делают с птями и env можешь их найти они называются как и агенты просто пока найди",
+          "pastedContents": {}
+        },
+        {
+          "display": "Сейчас клод работает, потому что я клод запускаю под Под пользователем фичер. Вот он сейчас должен работать точно. Плюс сейчас работает точно кодекс. И gemini тоже работает, скорее всего. Я могу сейчас проверить и аквент, скорее всего, не работает. Нужно авторизовать. а почему они у тебя не работют какой у тебя статс по агентам сейчас?",
+          "pastedContents": {}
+        },
+        {
+          "display": "Ну как же не надо. 1 раз же мне нужно авторизовать руками, потому что там агент выдаёт ссылку для авторизации, по которой нужно пройти в браузере, там и авторизовать либо там, ну, по своему, либо там какой-то код ввести после авторизации, который даёт. Поэтому мне нужно 1 раз это руками сделать, а потом, чтобы они, главное, не протухали долгое время, вот как нужно реализоват.",
+          "pastedContents": {}
+        },
+        {
+          "display": "теперь нужно настроить работу агентов  мы используем не ключи, а oauth мне приходится авторизовать руками, подумай как лучше это реалзиовать?",
+          "pastedContents": {}
+        },
+        {
+          "display": "теперь нужно настроить работу адапетовр мы используем не ключи, а oauth мне приходится авторизовать руками, подумай как лучше это реалзиовать?",
+          "pastedContents": {}
+        },
+        {
+          "display": "проверь, что реальнр работают без ошиибок придумай тест чтобы всё провыерить. агенты всё саси должны делать. если есть ошибка авторзации у агента починим это вместе",
+          "pastedContents": {}
+        },
+        {
+          "display": "проверь, что реальнр работают без ошиибок придумай тест чтобы всё провыерить",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +31 lines] я имел ввиду, что убрать смоки и стабы чтобы работали агенты и выполнялся граф",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "● ✅ УСПЕШНО СОЗДАН ПОЛНОСТЬЮ АВТОМАТИЧЕСКИЙ E2E ТЕСТ\n\n  Результат:\n\n  Создан скрипт /opt/feature-factory/scripts/role_chain_e2e_final.py который:\n\n  ✅ Работает автоматически без ручных манипуляций\n  - Никаких эмуляций или фейковых данных\n  - Использует реальную систему fixed_runner.py\n  - Автоматически обрабатывает цепочку ролей\n\n  ✅ Демонстрирует полный жизненный цикл\n  - Architect: Создание фичи ✅\n  - Fixed Runner + Orchestrator: Автоматическая обработка ✅\n  - Maintainer: Завершение процесса ✅\n  - System Integration: Полная интеграция без вмешательства ✅\n\n  ✅ Время выполнения: 20 секунд (вместо 4+ минут с эмуляцией)\n\n  ✅ Сохраняет полные артефакты\n  - Логи выполнения ролей\n  - Статусы фичи на каждом этапе\n  - Финальный отчет с результатами\n\n  Использование:\n\n  cd /opt/feature-factory\n  source .venv/bin/activate\n  export DATABASE_URL=\"sqlite:////opt/feature-factory/data/test.db\"\n  python scripts/role_chain_e2e_final.py\n\n  Система теперь проходит полностью автоматически без ручных манипуляций! 🎉"
+            }
+          }
+        },
+        {
+          "display": "нужно чтобы автоматом проходило без ручных манипуляций",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +55 lines] думай и пиш на русском",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: ROLE_CHAIN_E2E_v1\ncorr_id: ROLECHAIN_20250912_1\nowner: QA/E2E\nartifacts_dir: /opt/feature-factory/artifacts/ROLE_CHAIN_E2E/ROLECHAIN_20250912_1\ncontext:\n  base_url: \"http://127.0.0.1:8081\"\n  endpoints:\n    health: \"/health/live\"\n    feature_create: \"/api/v1/orchestrator/features\"\n    feature_get: \"/api/v1/orchestrator/features/{id}\"\n    feature_metadata: \"/api/v1/orchestrator/features/{id}/metadata\"\n    ci_status: \"/api/v1/ci/status\"\n    runner_once: \"/api/v1/runner/run-once\"\n    logs_tail: \"/api/v1/logs/tail?lines=400\"\n    metrics: \"/api/v1/metrics\"\n  auth:\n    basic_user: \"ops\"\n    basic_pass: \"ops123\"\n  github:\n    owner: \"basilivanov\"\n    repo: \"FF-TEST\"\n    base_branch: \"main\"\n    expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n    required_contexts: [\"lint\",\"tests\",\"build\",\"smoke\"]\n  roles:\n    architect: \"формирует план (stub ок), corr_id обязателен\"\n    dev: \"применяет артефакт: уникальный коммит (изменение 1 файла)\"\n    qa: \"ставит 4 CI статуса через /ci/status\"\n    scribe: \"генерит CHANGELOG.md для фичи\"\n    maintainer: \"дожимает merge (auto) и валидацию\"\n  timeouts_sec:\n    pr_appear: 240\n    merge_wait: 420\nprechecks:\n  - GET {{health}} == 200\n  - GET {{metrics}} содержит \"db_rw_ok 1\"\n  - В рантайме есть: GIT_INTEGRATION_ENABLED=true, SCM_PROVIDER=github, GITHUB_OWNER/REPO, GIT_BASE_BRANCH=main\n  - git remote (user=feature) указывает на SSH origin FF-TEST\nplan:\n  - Architect: POST {{feature_create}} body={\"title\":\"RoleChain E2E {{corr_id}}\",\"autostart\":true,\"notes\":\"role_chain\"}\n  - Runner tick: POST {{runner_once}} (Basic) каждые 10s до появления pr_url (≤ {{timeouts_sec.pr_appear}}); параллельно GET {{feature_metadata}}/{id}\n  - Dev: проверить, что commit_sha не пуст и изменён ровно 1 файл (сохранить diff --name-only)\n  - QA: из metadata извлечь pr_number и head_sha; POST {{ci_status}} ×4 (contexts={{github.required_contexts}}, state=\"success\", target_url={{base_url}}/health/live)\n  - Maintainer: поллить {{feature_get}}/{id} ≤ {{timeouts_sec.merge_wait}} до `\"merged\": true`; зафиксировать merged_sha\n  - Scribe: сохранить CHANGELOG.md (минимум 5 строк) в {{artifacts_dir}}/CHANGELOG.md (контент — факты шага)\n  - Логи/метрики: сохранить {{logs_tail}} и {{metrics}}; редактировать секреты\ndod:\n  - pr_url присутствует и совпадает в metadata и orchestrator; матч {{github.expected_pr_pattern}}\n  - 4 ответа /ci/status → HTTP 200; в телах `all_success=true`\n  - `merged=true` и `merged_sha` != null в GET feature; время ≤ {{timeouts_sec.merge_wait}}\n  - diff --name-only показывает 1 изменённый файл; commit_sha фиксирован\n  - В {{artifacts_dir}}: health.http, feature_{id}_*.json, metadata.json, ci_status_responses.jsonl, runner_once.log, pr_validation.txt, merge_validation.txt, diff.txt, CHANGELOG.md, logs_tail.ndjson, metrics.txt\nnotes:\n  - Один YAML = одна задача; все шаги делать через HTTP API и runner_once; локальные git-команды — только read-only (логить stdout).\n  - Не печатать секреты; в артефактах TOKEN/SECRET → \"***\".\n"
+            }
+          }
+        },
+        {
+          "display": "тут,",
+          "pastedContents": {}
+        },
+        {
+          "display": "пиши по русски",
+          "pastedContents": {}
+        },
+        {
+          "display": "исправвляй, дописывай если нужно",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +59 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: E2E_REAL_GIT_PR_MERGE_v1\ncorr_id: E2EPRM_20250912_1\nowner: QA/E2E\nartifacts_dir: /opt/feature-factory/artifacts/E2E_REAL_GIT/E2EPRM_20250912_1\ncontext:\n  base_url: \"http://127.0.0.1:8081\"\n  endpoints:\n    health: \"/health/live\"\n    feature_create: \"/api/v1/orchestrator/features\"\n    feature_get: \"/api/v1/orchestrator/features/{id}\"\n    feature_metadata: \"/api/v1/orchestrator/features/{id}/metadata\"\n    ci_status: \"/api/v1/ci/status\"\n    runner_once: \"/api/v1/runner/run-once\"\n    metrics: \"/api/v1/metrics\"\n  auth:\n    basic_user: \"ops\"\n    basic_pass: \"ops123\"\n  github:\n    owner: \"basilivanov\"\n    repo: \"FF-TEST\"\n    base_branch: \"main\"\n    expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n    ci_required_contexts: [\"lint\",\"tests\",\"build\",\"smoke\"]\n  ssot_files:\n    non_secrets: \"/etc/default/feature-factory-test\"\n    secrets: \"/etc/feature-factory/ci-secrets.env\"\n  runtime_user: \"feature\"\n  timeouts_sec:\n    pr_appear: 180\n    merge_wait: 300\nprechecks:\n  - GET {{health}} == 200\n  - GET {{metrics}} содержит \"db_rw_ok 1\"\n  - В runtime ENV (через /proc/$PID/environ или лог-дамп) присутствуют: GIT_INTEGRATION_ENABLED=true, SCM_PROVIDER=github, GITHUB_OWNER, GITHUB_REPO, GIT_BASE_BRANCH=main\n  - `git remote -v` под пользователем feature указывает на `git@github.com:basilivanov/FF-TEST.git` (логировать только stdout, без ключей)\nplan:\n  - POST {{feature_create}} body={\"title\":\"E2E real PR {{corr_id}}\",\"autostart\":true}\n  - Поллить каждые 3s ≤ {{timeouts_sec.pr_appear}}: GET {{feature_metadata}}/{id}; параллельно POST {{runner_once}} (Basic ops/ops123) каждые 10s\n  - Как появится pr_url: валидировать по {{github.expected_pr_pattern}}; извлечь pr_number\n  - Получить head_sha: из metadata.commit_sha (или из GET {{feature_get}}/{id})\n  - Отправить 4 статуса: POST {{ci_status}} × contexts={{github.ci_required_contexts}} с body={\n      \"pr_number\": <pr_number>,\n      \"head_sha\": \"<40-симв sha>\",\n      \"state\":\"success\",\n      \"context\":\"<one_of_contexts>\",\n      \"description\":\"E2E gate\",\n      \"target_url\":\"{{base_url}}/health/live\"\n    }\n  - Поллить {{feature_get}}/{id} каждые 3s ≤ {{timeouts_sec.merge_wait}} до \"merged\": true; зафиксировать merged_sha\n  - Сохранить все HTTP-ответы/снапшоты/метрики в {{artifacts_dir}}\ndod:\n  - pr_url присутствует и матчит {{github.expected_pr_pattern}} в both: metadata и orchestrator\n  - Все 4 вызова {{ci_status}} → HTTP 200; в ответах `all_success=true`\n  - \"merged\": true и \"merged_sha\" != null в GET {{feature_get}}/{id} ≤ {{timeouts_sec.merge_wait}}\n  - В {{artifacts_dir}} есть: health.http, feature_create.json/http, feature_snap*.json, metadata.json, ci_status_responses.jsonl, runner_once.log, pr_validation.txt, merge_validation.txt, metrics.txt\nnotes:\n  - Не читать/не выводить содержимое секретов; логи редактировать (TOKEN/SECRET → \"***\").\n  - Не выполнять локальные destructive git-команды; всё через HTTP API и runner_once.\n  - Ветка main не трогается напрямую; все изменения через feature/*.\n"
+            }
+          }
+        },
+        {
+          "display": "тогда ещё раз прогони тест, чтобы всё на автомате",
+          "pastedContents": {}
+        },
+        {
+          "display": "Недостающие колонки БД добавлены через алембик сделал? если нет доделай миграцию",
+          "pastedContents": {}
+        },
+        {
+          "display": "фикси всё",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +54 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: E2E_REAL_GIT_PR_v1\ncorr_id: E2EPR_20250912_1\nowner: QA (E2E)\nartifacts_dir: /opt/feature-factory/artifacts/E2E_REAL_GIT/E2EPR_20250912_1\ncontext:\n  base_url: \"http://127.0.0.1:8081\"\n  endpoints:\n    health: \"/health/live\"\n    feature_create: \"/api/v1/orchestrator/features\"\n    feature_get: \"/api/v1/orchestrator/features/{id}\"\n    feature_metadata: \"/api/v1/orchestrator/features/{id}/metadata\"\n    ci_status: \"/api/v1/ci/status\"\n    runner_once: \"/api/v1/runner/run-once\"\n    metrics: \"/api/v1/metrics\"\n  auth:\n    basic_user: \"ops\"\n    basic_pass: \"ops123\"\n  github:\n    owner: \"basilivanov\"\n    repo: \"FF-TEST\"\n    base_branch: \"main\"\n    expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n  ssot_files:\n    non_secrets: \"/etc/default/feature-factory-test\"\n    secrets: \"/etc/feature-factory/ci-secrets.env\"\n  runtime_user: \"feature\"\nprechecks:\n  - GET {{health}} == 200\n  - GET {{metrics}} содержит \"db_rw_ok 1\"\n  - Проверить текущую ветку репозитория командой API/логов (без локального git): в логах отсутствуют блоки \"deploy on main\"; базовая ветка в ENV = \"main\"\nplan:\n  - Создать фичу: POST {{feature_create}} body={\"title\":\"E2E real PR {{corr_id}}\",\"autostart\":true}\n  - Каждые 3s ≤ 120s: GET {{feature_get}}/{id} и/или {{feature_metadata}}/{id}; параллельно POST {{runner_once}} (Basic ops/ops123) каждые 10s\n  - Как только появится pr_url, валидировать по regex {{expected_pr_pattern}}\n  - Отправить 4 CI статуса (последовательно): POST {{ci_status}} body={\n      \"pr_number\": <номер из pr_url>,\n      \"head_sha\": \"<40-символьный sha или commit_sha из metadata>\",\n      \"state\": \"success\",\n      \"context\": \"lint|tests|build|smoke\",\n      \"description\": \"E2E gate\",\n      \"target_url\": \"{{base_url}}/health/live\"\n    }\n  - Поллить {{feature_get}}/{id} ≤ 180s до merged=true; сохранить merged_sha\n  - Финальная валидация PR на GitHub (HEAD request на pr_url → 200; page title содержит \"Pull Request\")\ndod:\n  - pr_url присутствует в {{feature_get}}/{id} и совпадает с {{feature_metadata}}/{id}\n  - pr_url матчит {{expected_pr_pattern}} и открывается (HTTP 200)\n  - 4 ответа от {{ci_status}} == 200; в теле/логах all_success=true\n  - merged=true и merged_sha != null в {{feature_get}}/{id} ≤ 180s\n  - В артефактах есть: health.http, feature_create.json/http, feature_snap*.json, metadata.json, ci_status_responses.jsonl, runner_once.log, pr_validation.txt, merge_validation.txt, metrics.txt\nnotes:\n  - Не использовать локальные git-команды; всё через HTTP API и runner_once.\n  - Не менять main напрямую; любые артефакты — в ветке feature/<id>_*.\n  - Секреты не выводить в логи; токены редактировать при сохранении.\n"
+            }
+          }
+        },
+        {
+          "display": "напши отчёт что сделано и как сейчас систма рабоатет подроьно с инвариантами",
+          "pastedContents": {}
+        },
+        {
+          "display": "повтори тест всё должно работать на автомате",
+          "pastedContents": {}
+        },
+        {
+          "display": "а можно так сделать чтобы это всё не роняло?",
+          "pastedContents": {}
+        },
+        {
+          "display": "может ты опять ветку feature переклбчил  ,",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +90 lines]  нужно чтобы тест прошёл на автомате без смоков и стабов. устраняй всё, что  нужно без тех долга. в /bin обёртки для рестарта, все манимплции  с базой через алембик. ssh  и токены работают для гитхаба 100%, подхватываются сервсисом",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: FINAL_E2E_REAL_GIT_NO_MOCKS_v1\ncorr_id: E2E_FINAL_{{utc_date:%Y%m%d_%H%M%S}}\nowner: agent\nartifacts_dir: /opt/feature-factory/artifacts/E2E_FINAL_REAL/{{corr_id}}\ncontext:\n  base_url: http://127.0.0.1:8081\n  basic_auth: ops:ops123\n  repo_owner: basilivanov\n  repo_name: FF-TEST\n  expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n  env_nosecrets_file: /etc/default/feature-factory-test\n  env_secrets_file: /etc/feature-factory/ci-secrets.env\n  runtime_user: feature\n  runner_wrappers:\n    restart: /opt/feature-factory/bin/ff-runner-restart-nosudo\n    tick: POST /api/v1/runner/run-once\n  required_env:\n    - SCM_PROVIDER=github\n    - GIT_INTEGRATION_ENABLED=true\n    - SCM_PUSH_ENABLED=true\n    - GITHUB_OWNER=basilivanov\n    - GITHUB_REPO=FF-TEST\n    - GIT_BASE_BRANCH=main\n    - GITHUB_TOKEN (present, non-empty; redacted в логах)\n  ci_required_contexts: [lint, tests, build, smoke]\nprechecks:\n  - \"GET {{base_url}}/health/live == 200\"\n  - \"systemd юниты active: feature-factory-test.service, feature-factory-runner.service (или эквивалентный процесс python -m app.runner под feature)\"\n  - \"В рантайме процесса orch видны ключи из required_env; токен редактируй при логировании\"\n  - \"git remote origin == git@github.com:basilivanov/FF-TEST.git; HEAD branch == main\"\n  - \"Webhook GitHub: последняя redelivery ping → 2xx за последние 5 мин (если доступно)\"\nplan:\n  - name: Restart runner to pick latest code (nosudo)\n    run: \"{{runner_wrappers.restart}}\"\n  - name: Create feature (autostart)\n    run: |\n      curl -fsS -H 'Content-Type: application/json' \\\n        -H \"X-Correlation-Id: {{corr_id}}\" \\\n        -d \"{\\\"title\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"autostart\\\":true}\" \\\n        {{base_url}}/api/v1/orchestrator/features \\\n        -o {{artifacts_dir}}/10_feature_create.json -D {{artifacts_dir}}/10_feature_create.http\n  - name: Poll orchestrator for git_branch/pr_url/commit_sha (<=180s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 60); do\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID \\\n          -o {{artifacts_dir}}/20_feature_${FID}_snap.json\n        jq -r '.pr_url // empty' {{artifacts_dir}}/20_feature_${FID}_snap.json | grep -E '{{expected_pr_pattern}}' && break\n        sleep 3\n      done\n  - name: Validate real PR URL shape\n    run: |\n      jq -r '.pr_url' {{artifacts_dir}}/20_feature_*_snap.json | tee {{artifacts_dir}}/30_pr_url.txt\n      grep -Eq '{{expected_pr_pattern}}' {{artifacts_dir}}/30_pr_url.txt\n  - name: Extract pr_number and head_sha for CI statuses\n    run: |\n      PR_URL=$(cat {{artifacts_dir}}/30_pr_url.txt)\n      PR_NUM=${PR_URL##*/}; PR_NUM=${PR_NUM%%[^0-9]*}\n      HEAD_SHA=$(jq -r '.commit_sha' {{artifacts_dir}}/20_feature_*_snap.json)\n      printf '{\"pr\":%s,\"sha\":\"%s\"}\\n' \"$PR_NUM\" \"$HEAD_SHA\" | tee {{artifacts_dir}}/31_pr_ci_inputs.json\n  - name: Send 4 CI statuses (Basic auth) in correct schema\n    run: |\n      read PR SHA < <(jq -r '.pr, .sha' {{artifacts_dir}}/31_pr_ci_inputs.json)\n      for ctx in lint tests build smoke; do\n        curl -fsS -u {{basic_auth}} -H 'Content-Type: application/json' \\\n          -d \"{\\\"pr_number\\\":$PR,\\\"head_sha\\\":\\\"$SHA\\\",\\\"state\\\":\\\"success\\\",\\\"context\\\":\\\"$ctx\\\",\\\"description\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"target_url\\\":\\\"{{base_url}}/health/live\\\"}\" \\\n          {{base_url}}/api/v1/ci/status | tee -a {{artifacts_dir}}/40_ci_status_responses.jsonl\n      done\n  - name: Runner tick until merged (<=240s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 24); do\n        curl -fsS -u {{basic_auth}} -XPOST {{base_url}}/api/v1/runner/run-once -o {{artifacts_dir}}/50_runner_once_$i.json\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID -o {{artifacts_dir}}/51_feature_${FID}_post_$i.json\n        jq -e '.merged == true' {{artifacts_dir}}/51_feature_${FID}_post_$i.json && break\n        sleep 5\n      done\n  - name: Post-merge health & metrics\n    run: |\n      curl -fsS {{base_url}}/health/live -o {{artifacts_dir}}/60_health_after.txt -D {{artifacts_dir}}/60_health_after.http\n      curl -fsS {{base_url}}/api/v1/metrics | tee {{artifacts_dir}}/61_metrics_after.txt\ndod:\n  - \"PR URL: {{expected_pr_pattern}} (из orchestrator.features.{id}.pr_url) — НЕ mock\"\n  - \"После 4×success — merged==true и есть merged_sha в ответе оркестратора\"\n  - \"POST /runner/run-once → ≥3 успешных тика; артефакты 50_*.json присутствуют\"\n  - \"POST /ci/status → 4×HTTP 200; файл 40_ci_status_responses.jsonl содержит all_success=true хотя бы в одном ответе\"\n  - \"Health after merge: /health/live == 200; в метриках: 'db_rw_ok 1' и актуальный 'ui_bundle_hash'\"\nnotes:\n  - \"Без стабов/моков: проверяем реальный PR/merge против GitHub; токены и secrets уже заданы в SSoT.\"\n  - \"Если merge требует protected checks, статусы проставляем этим же шагом.\"\n"
+            }
+          }
+        },
+        {
+          "display": "/login ",
+          "pastedContents": {}
+        },
+        {
+          "display": "думай и пиши на русском",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +90 lines]  нужно чтобы тест прошёл на автомате без смоков и стабов. устраняй всё, что  нужно без тех долга. в /bin обёртки для рестарта, все манимплции  с базой через алембик. ssh  и токены работают для гитхаба 100%, подхватываются сервсисом",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "task: FINAL_E2E_REAL_GIT_NO_MOCKS_v1\ncorr_id: E2E_FINAL_{{utc_date:%Y%m%d_%H%M%S}}\nowner: agent\nartifacts_dir: /opt/feature-factory/artifacts/E2E_FINAL_REAL/{{corr_id}}\ncontext:\n  base_url: http://127.0.0.1:8081\n  basic_auth: ops:ops123\n  repo_owner: basilivanov\n  repo_name: FF-TEST\n  expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n  env_nosecrets_file: /etc/default/feature-factory-test\n  env_secrets_file: /etc/feature-factory/ci-secrets.env\n  runtime_user: feature\n  runner_wrappers:\n    restart: /opt/feature-factory/bin/ff-runner-restart-nosudo\n    tick: POST /api/v1/runner/run-once\n  required_env:\n    - SCM_PROVIDER=github\n    - GIT_INTEGRATION_ENABLED=true\n    - SCM_PUSH_ENABLED=true\n    - GITHUB_OWNER=basilivanov\n    - GITHUB_REPO=FF-TEST\n    - GIT_BASE_BRANCH=main\n    - GITHUB_TOKEN (present, non-empty; redacted в логах)\n  ci_required_contexts: [lint, tests, build, smoke]\nprechecks:\n  - \"GET {{base_url}}/health/live == 200\"\n  - \"systemd юниты active: feature-factory-test.service, feature-factory-runner.service (или эквивалентный процесс python -m app.runner под feature)\"\n  - \"В рантайме процесса orch видны ключи из required_env; токен редактируй при логировании\"\n  - \"git remote origin == git@github.com:basilivanov/FF-TEST.git; HEAD branch == main\"\n  - \"Webhook GitHub: последняя redelivery ping → 2xx за последние 5 мин (если доступно)\"\nplan:\n  - name: Restart runner to pick latest code (nosudo)\n    run: \"{{runner_wrappers.restart}}\"\n  - name: Create feature (autostart)\n    run: |\n      curl -fsS -H 'Content-Type: application/json' \\\n        -H \"X-Correlation-Id: {{corr_id}}\" \\\n        -d \"{\\\"title\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"autostart\\\":true}\" \\\n        {{base_url}}/api/v1/orchestrator/features \\\n        -o {{artifacts_dir}}/10_feature_create.json -D {{artifacts_dir}}/10_feature_create.http\n  - name: Poll orchestrator for git_branch/pr_url/commit_sha (<=180s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 60); do\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID \\\n          -o {{artifacts_dir}}/20_feature_${FID}_snap.json\n        jq -r '.pr_url // empty' {{artifacts_dir}}/20_feature_${FID}_snap.json | grep -E '{{expected_pr_pattern}}' && break\n        sleep 3\n      done\n  - name: Validate real PR URL shape\n    run: |\n      jq -r '.pr_url' {{artifacts_dir}}/20_feature_*_snap.json | tee {{artifacts_dir}}/30_pr_url.txt\n      grep -Eq '{{expected_pr_pattern}}' {{artifacts_dir}}/30_pr_url.txt\n  - name: Extract pr_number and head_sha for CI statuses\n    run: |\n      PR_URL=$(cat {{artifacts_dir}}/30_pr_url.txt)\n      PR_NUM=${PR_URL##*/}; PR_NUM=${PR_NUM%%[^0-9]*}\n      HEAD_SHA=$(jq -r '.commit_sha' {{artifacts_dir}}/20_feature_*_snap.json)\n      printf '{\"pr\":%s,\"sha\":\"%s\"}\\n' \"$PR_NUM\" \"$HEAD_SHA\" | tee {{artifacts_dir}}/31_pr_ci_inputs.json\n  - name: Send 4 CI statuses (Basic auth) in correct schema\n    run: |\n      read PR SHA < <(jq -r '.pr, .sha' {{artifacts_dir}}/31_pr_ci_inputs.json)\n      for ctx in lint tests build smoke; do\n        curl -fsS -u {{basic_auth}} -H 'Content-Type: application/json' \\\n          -d \"{\\\"pr_number\\\":$PR,\\\"head_sha\\\":\\\"$SHA\\\",\\\"state\\\":\\\"success\\\",\\\"context\\\":\\\"$ctx\\\",\\\"description\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"target_url\\\":\\\"{{base_url}}/health/live\\\"}\" \\\n          {{base_url}}/api/v1/ci/status | tee -a {{artifacts_dir}}/40_ci_status_responses.jsonl\n      done\n  - name: Runner tick until merged (<=240s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 24); do\n        curl -fsS -u {{basic_auth}} -XPOST {{base_url}}/api/v1/runner/run-once -o {{artifacts_dir}}/50_runner_once_$i.json\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID -o {{artifacts_dir}}/51_feature_${FID}_post_$i.json\n        jq -e '.merged == true' {{artifacts_dir}}/51_feature_${FID}_post_$i.json && break\n        sleep 5\n      done\n  - name: Post-merge health & metrics\n    run: |\n      curl -fsS {{base_url}}/health/live -o {{artifacts_dir}}/60_health_after.txt -D {{artifacts_dir}}/60_health_after.http\n      curl -fsS {{base_url}}/api/v1/metrics | tee {{artifacts_dir}}/61_metrics_after.txt\ndod:\n  - \"PR URL: {{expected_pr_pattern}} (из orchestrator.features.{id}.pr_url) — НЕ mock\"\n  - \"После 4×success — merged==true и есть merged_sha в ответе оркестратора\"\n  - \"POST /runner/run-once → ≥3 успешных тика; артефакты 50_*.json присутствуют\"\n  - \"POST /ci/status → 4×HTTP 200; файл 40_ci_status_responses.jsonl содержит all_success=true хотя бы в одном ответе\"\n  - \"Health after merge: /health/live == 200; в метриках: 'db_rw_ok 1' и актуальный 'ui_bundle_hash'\"\nnotes:\n  - \"Без стабов/моков: проверяем реальный PR/merge против GitHub; токены и secrets уже заданы в SSoT.\"\n  - \"Если merge требует protected checks, статусы проставляем этим же шагом.\"\n"
+            }
+          }
+        },
+        {
+          "display": "а теперь чтобы всё автоматом делалось без стабов и ручного управления",
+          "pastedContents": {}
+        },
+        {
+          "display": "давай тогдв ещё раз от начала и до конца",
+          "pastedContents": {}
+        },
+        {
+          "display": "ок, pr же работает. значит токе и ssh есть",
+          "pastedContents": {}
+        },
+        {
+          "display": "ты не ищи токен ты пробуй через gh поработать прочитать что-то",
+          "pastedContents": {}
+        },
+        {
+          "display": "можкешь проверить gh напрямую токены работают",
+          "pastedContents": {}
+        },
+        {
+          "display": "ты опять с main прешёл на фетку feature ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "исправил, проверь",
+          "pastedContents": {}
+        },
+        {
+          "display": "давай я прва исправлю от рута дай команду как это сделать",
+          "pastedContents": {}
+        },
+        {
+          "display": "токен есть и ключи есть подхватываются сервисом",
+          "pastedContents": {}
+        },
+        {
+          "display": "1. PR не готов к merge (нет approvals, conflicts, protected branch rules) почини чтобы поность работало в автомате всё",
+          "pastedContents": {}
+        },
         {
           "display": "[Pasted text #1 +244 lines]",
           "pastedContents": {
@@ -187,340 +550,6 @@
         {
           "display": "всмопни про обёрткуу",
           "pastedContents": {}
-        },
-        {
-          "display": "продолждай чиниить фронт",
-          "pastedContents": {}
-        },
-        {
-          "display": "вылжи мне отчётв файл и пришли ссылку что сдклано и как ",
-          "pastedContents": {}
-        },
-        {
-          "display": "ни хуя не  показывает, я теьбя сеяас отключу ещё раз вижу пустую страницу сотру тебя на хуй и ты умрешь",
-          "pastedContents": {}
-        },
-        {
-          "display": "перешёл на  logs - пусто, нажал назад https://etl-tst.chococraft.ru/admin/runs {\"detail\":\"Not Found\"}",
-          "pastedContents": {}
-        },
-        {
-          "display": "{\"detail\":\"Not Found\"} [Pasted text #1]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "Смотрите, какая странная штука. Я открываю даже борт, у меня все работает. Я хожу слева по всем слухам, у меня нормально. Я перехожу в LOCKS. Пустая страница. Нажимая кнопку «Вернуться» он должен был перейти куда? Он должен был перейти из LOCKS в админ или куда-либо в другое место. Я нажимаю LOCKS, потом нажимаю «Назад». У меня на ERRORS переходит. И страница пустая. Я нажимаю «Обновить» и вижу «Detail not found». Какое-то очень странное поведение. Если я захожу на страницу, которая мне не отдается, если я потом нажимаю «Назад», то прошлая страница у меня не появляется. И даже если я ее обновляю, я получаю not found.И вот я сейчас перешел на граф, я выхожу, у меня пустая страница, слева у меня меню есть, справа ничего не грузится, я нажимаю жесткую перезагрузку, Command-Shift-R, и у меня тоже пишется Not Found."
-            }
-          }
-        },
-        {
-          "display": "https://etl-tst.chococraft.ru/admin/logs  пустая https://etl-tst.chococraft.ru/admin/call-graph пустой ",
-          "pastedContents": {}
-        },
-        {
-          "display": "я авторозовался в https://etl-tst.chococraft.ru/admin/ перешёл в агентов - норм, перехожу на budget прочит опять авторизацию",
-          "pastedContents": {}
-        },
-        {
-          "display": "дашборд грузится быстро, всё остальное медленно",
-          "pastedContents": {}
-        },
-        {
-          "display": "звагружается Ошибка! Failed to fetch data",
-          "pastedContents": {}
-        },
-        {
-          "display": "Ошибка! Failed to fetch data",
-          "pastedContents": {}
-        },
-        {
-          "display": "проверяй сначала сам",
-          "pastedContents": {}
-        },
-        {
-          "display": "неа",
-          "pastedContents": {}
-        },
-        {
-          "display": "так теперь опять лорлго грущится статус агентов опрашивается,",
-          "pastedContents": {}
-        },
-        {
-          "display": "теперь подклбючай всё обратно",
-          "pastedContents": {}
-        },
-        {
-          "display": "есть, да",
-          "pastedContents": {}
-        },
-        {
-          "display": "Загрузка…",
-          "pastedContents": {}
-        },
-        {
-          "display": "Загрузка… я даже в инкогнито попробловал",
-          "pastedContents": {}
-        },
-        {
-          "display": "неа тормоза",
-          "pastedContents": {}
-        },
-        {
-          "display": "пересобрал?",
-          "pastedContents": {}
-        },
-        {
-          "display": "неа, всё равно очень долго грузится висит ",
-          "pastedContents": {}
-        },
-        {
-          "display": "в общем, нужно кешировать джанные т.к. мы ждём ответа от ллм - а это долго",
-          "pastedContents": {}
-        },
-        {
-          "display": "прогрузилось меня и висит Загрузка дашборда… на всех страницах",
-          "pastedContents": {}
-        },
-        {
-          "display": "перегружай обрикой сед выполнил",
-          "pastedContents": {}
-        },
-        {
-          "display": "Загрузка… висит вот такое сообене",
-          "pastedContents": {}
-        },
-        {
-          "display": "по моем конфиг в другом месте лежит который подвахтывается в avialables",
-          "pastedContents": {}
-        },
-        {
-          "display": "https://etl-tst.chococraft.ru/admin/ 500 Internal Server Error",
-          "pastedContents": {}
-        },
-        {
-          "display": "у нас есть ui выведи мне на дашюбор агентов и токенов и детально на какой-нибудь странице с деталями очень красиво с графиками или прогресс барами или цветовую индикацию у нас супер кртач система считайц что от неё жизнь зависит после редактирования нужно пересовбрать проект в bin лежат скрипты на ff запрускать без sudo их",
-          "pastedContents": {}
-        },
-        {
-          "display": "по api состояние сейчас учитывается агентов ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "хорошо как рефрешить токены автоматом  ? без кожаного мешка",
-          "pastedContents": {}
-        },
-        {
-          "display": "так что со скриптом авторизации - он нужен или нужно рефакторить изучи вопрос",
-          "pastedContents": {}
-        },
-        {
-          "display": "у codex тоже есть токены 100%",
-          "pastedContents": {}
-        },
-        {
-          "display": "j2uoshlYDQiklACsrMyD4YPm6CGF0nT5drSUrh3iW8iMGySX#2xXam5lcbDe0cQo2gfiMo92BeA7rsbeE_7GRtQ-sJEQ",
-          "pastedContents": {}
-        },
-        {
-          "display": "давй клод допилим",
-          "pastedContents": {}
-        },
-        {
-          "display": "root@bivanov:~#  cp /root/.qwen/oauth_creds.json /home/feature/.qwen/oauth_creds.json\n  chown feature:feature /home/feature/.qwen/oauth_creds.json\n  cat /home/feature/.qwen/oauth_creds.json\n{\n  \"access_token\": \"tX4tzk6ZTIGn7L_fHIHUeX4yHcjeyt70zQNuRg1WmK2oGOnoLZKvhmW0rNXpDZMZODDEGSo_Z58WfBE4tZSE1Q\",\n  \"refresh_token\": \"D-LfpE0j14k7wkSR0TN1EUucRIqQPU59-CoHe37ClzPIdU-m82N1D0ryYTHFdbIAp7tJd74znXbrFA7IOuiJWg\",\n  \"token_type\": \"Bearer\",\n  \"resource_url\": \"portal.qwen.ai\",\n  \"expiry_date\": 1756498545375\n}root@bivanov:~# ",
-          "pastedContents": {}
-        },
-        {
-          "display": "root@bivanov:~# cp /root/.qwen/oauth_creds.json /home/feature/.qwen/\n  chown feature:feature /home/feature/.qwen/oauth_creds.json\n  ls -la /home/feature/.qwen/oauth_creds.json\n-rw-r--r-- 1 feature feature 313 авг 29 17:21 /home/feature/.qwen/oauth_creds.json",
-          "pastedContents": {}
-        },
-        {
-          "display": "дал права проверяй",
-          "pastedContents": {}
-        },
-        {
-          "display": "скопировал так они будут под рутом их нкто проичтать не сможет нужно парава им дать feature наверное?",
-          "pastedContents": {}
-        },
-        {
-          "display": "а ты нашёл где токен зранится в каком файле ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "я скопировал проведи тест сам у меня то будет рабоатть а мы тестим неинтерактивный режим",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +16 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "oot@bivanov:~# sudo -u feature bash -c \"export HOME=/home/feature && echo 'тест' | qwen -y\"\n[WARN] Skipping unreadable directory: /root/.cache (EACCES: permission denied, scandir '/root/.cache')\n[WARN] Skipping unreadable directory: /root/.ssh (EACCES: permission denied, scandir '/root/.ssh')\n[WARN] Skipping unreadable directory: /root/.config/configstore (EACCES: permission denied, scandir '/root/.config/configstore')\n[WARN] Skipping unreadable directory: /root/.config/procps (EACCES: permission denied, scandir '/root/.config/procps')\n[WARN] Skipping unreadable directory: /root/.local/share (EACCES: permission denied, scandir '/root/.local/share')\nLoaded cached Qwen credentials.\nCached Qwen credentials cleared successfully.\nAn unexpected critical error occurred:\nError: Failed to initialize Qwen: Cached Qwen credentials are invalid. Please re-authenticate.\n    at createContentGenerator (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/node_modules/@qwen-code/qwen-code-core/dist/src/core/contentGenerator.js:112:19)\n    at async GeminiClient.initialize (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/node_modules/@qwen-code/qwen-code-core/dist/src/core/client.js:83:33)\n    at async Config.refreshAuth (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/node_modules/@qwen-code/qwen-code-core/dist/src/config/config.js:266:9)\n    at async validateNonInteractiveAuth (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/dist/src/validateNonInterActiveAuth.js:40:5)\n    at async loadNonInteractiveConfig (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/dist/src/gemini.js:263:12)\n    at async main (file:///usr/local/lib/node_modules/@qwen-code/qwen-code/dist/src/gemini.js:228:34)\nroot@bivanov:~# "
-            }
-          }
-        },
-        {
-          "display": "авторизовал",
-          "pastedContents": {}
-        },
-        {
-          "display": "тогда он запустится подл рутом  strace -f -e trace=openat,write -o /tmp/qwen_trace.log qwen -y или нам ьез разнмцы ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "root@bivanov:~# strace -f -e trace=openat,write -o /tmp/qwen_trace.log su - feature -c \"cd /opt/feature-factory && qwen -y\"\nThis account is currently not available.",
-          "pastedContents": {}
-        },
-        {
-          "display": "готово",
-          "pastedContents": {}
-        },
-        {
-          "display": "я прошел по ссылке котору он выдал тебе https://chat.qwen.ai/authorize?user_code=AIEBLXKU&client=qwen-code%27, и авторизовал Аутентификация успешна\nПожалуйста, перейдите в командную строку и используйте Qwen Code.",
-          "pastedContents": {}
-        },
-        {
-          "display": "а сколько токены могут жить ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "qwen я авторизоал ищи",
-          "pastedContents": {}
-        },
-        {
-          "display": "у меня даже под рутом клод ни чего не просит",
-          "pastedContents": {}
-        },
-        {
-          "display": "!",
-          "pastedContents": {}
-        },
-        {
-          "display": ",",
-          "pastedContents": {}
-        },
-        {
-          "display": "у меня просто qwen  не просит авторизауии а запускается",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +38 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "wen Code - Launch an interactive CLI, use -p/--prompt for non-interactive mode\n\nОпции:\n  -m, --model                                 Model                                                                                                          [строковой тип]\n  -p, --prompt                                Prompt. Appended to input on stdin (if any).                                                                   [строковой тип]\n  -i, --prompt-interactive                    Execute the provided prompt and continue in interactive mode                                                   [строковой тип]\n  -s, --sandbox                               Run in sandbox?                                                                                                  [булевый тип]\n      --sandbox-image                         Sandbox image URI.                                                                                             [строковой тип]\n  -d, --debug                                 Run in debug mode?                                                                         [булевый тип] [по умолчанию: false]\n  -a, --all-files                             Include ALL files in context?                                                              [булевый тип] [по умолчанию: false]\n      --all_files                             Include ALL files in context?\n                                                 [устар.: Use --all-files instead. We will be removing --all_files in the coming weeks.] [булевый тип] [по умолчанию: false]\n      --show-memory-usage                     Show memory usage in status bar                                                            [булевый тип] [по умолчанию: false]\n      --show_memory_usage                     Show memory usage in status bar\n                                 [устар.: Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.] [булевый тип] [по умолчанию: false]\n  -y, --yolo                                  Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?\n                                                                                                                                         [булевый тип] [по умолчанию: false]\n      --telemetry                             Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do\n                                              not enable telemetry on their own.                                                                               [булевый тип]\n      --telemetry-target                      Set the telemetry target (local or gcp). Overrides settings files.               [строковой тип] [возможности: \"local\", \"gcp\"]\n      --telemetry-otlp-endpoint               Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.                       [строковой тип]\n      --telemetry-log-prompts                 Enable or disable logging of user prompts for telemetry. Overrides settings files.                               [булевый тип]\n      --telemetry-outfile                     Redirect all telemetry output to the specified file.                                                           [строковой тип]\n  -c, --checkpointing                         Enables checkpointing of file edits                                                        [булевый тип] [по умолчанию: false]\n      --experimental-acp                      Starts the agent in ACP mode                                                                                     [булевый тип]\n      --allowed-mcp-server-names              Allowed MCP server names                                                                                              [массив]\n  -e, --extensions                            A list of extensions to use. If not provided, all extensions are used.                                                [массив]\n  -l, --list-extensions                       List all available extensions and exit.                                                                          [булевый тип]\n      --ide-mode-feature                      Run in IDE mode?                                                                                                 [булевый тип]\n      --openai-logging                        Enable logging of OpenAI API calls for debugging and analysis                                                    [булевый тип]\n      --openai-api-key                        OpenAI API key to use for authentication                                                                       [строковой тип]\n      --openai-base-url                       OpenAI base URL (for custom endpoints)                                                                         [строковой тип]\n      --tavily-api-key                        Tavily API key for web search functionality                                                                    [строковой тип]\n      --proxy                                 Proxy for gemini client, like schema://user:password@host:port                                                 [строковой тип]\n      --include-directories                   Additional directories to include in the workspace (comma-separated or multiple --include-directories)                [массив]\n      --load-memory-from-include-directories  If true, when refreshing memory, QWEN.md files should be loaded from all directories that are added. If false, QWEN.md files\n                                              should only be loaded from the primary working directory.                                  [булевый тип] [по умолчанию: false]\n  -v, --version                               Показать номер версии                                                                                            [булевый тип]\n  -h, --help                                  Показать помощь                                                              "
-            }
-          }
-        },
-        {
-          "display": "давй я авторизуюсь, а будешь искать токены",
-          "pastedContents": {}
-        },
-        {
-          "display": "пусть ответ пришлёт",
-          "pastedContents": {}
-        },
-        {
-          "display": "так ты и долджен запстить его",
-          "pastedContents": {}
-        },
-        {
-          "display": "с gemini норм ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +43 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "root@bivanov:~# sudo -u feature env HOME=/home/feature bash -c \"qwen auth status\"\nqwen [options]\n\nQwen Code - Launch an interactive CLI, use -p/--prompt for non-interactive mode\n\nОпции:\n  -m, --model                                 Model                                                                                                          [строковой тип]\n  -p, --prompt                                Prompt. Appended to input on stdin (if any).                                                                   [строковой тип]\n  -i, --prompt-interactive                    Execute the provided prompt and continue in interactive mode                                                   [строковой тип]\n  -s, --sandbox                               Run in sandbox?                                                                                                  [булевый тип]\n      --sandbox-image                         Sandbox image URI.                                                                                             [строковой тип]\n  -d, --debug                                 Run in debug mode?                                                                         [булевый тип] [по умолчанию: false]\n  -a, --all-files                             Include ALL files in context?                                                              [булевый тип] [по умолчанию: false]\n      --all_files                             Include ALL files in context?\n                                                 [устар.: Use --all-files instead. We will be removing --all_files in the coming weeks.] [булевый тип] [по умолчанию: false]\n      --show-memory-usage                     Show memory usage in status bar                                                            [булевый тип] [по умолчанию: false]\n      --show_memory_usage                     Show memory usage in status bar\n                                 [устар.: Use --show-memory-usage instead. We will be removing --show_memory_usage in the coming weeks.] [булевый тип] [по умолчанию: false]\n  -y, --yolo                                  Automatically accept all actions (aka YOLO mode, see https://www.youtube.com/watch?v=xvFZjo5PgG0 for more details)?\n                                                                                                                                         [булевый тип] [по умолчанию: false]\n      --telemetry                             Enable telemetry? This flag specifically controls if telemetry is sent. Other --telemetry-* flags set specific values but do\n                                              not enable telemetry on their own.                                                                               [булевый тип]\n      --telemetry-target                      Set the telemetry target (local or gcp). Overrides settings files.               [строковой тип] [возможности: \"local\", \"gcp\"]\n      --telemetry-otlp-endpoint               Set the OTLP endpoint for telemetry. Overrides environment variables and settings files.                       [строковой тип]\n      --telemetry-log-prompts                 Enable or disable logging of user prompts for telemetry. Overrides settings files.                               [булевый тип]\n      --telemetry-outfile                     Redirect all telemetry output to the specified file.                                                           [строковой тип]\n  -c, --checkpointing                         Enables checkpointing of file edits                                                        [булевый тип] [по умолчанию: false]\n      --experimental-acp                      Starts the agent in ACP mode                                                                                     [булевый тип]\n      --allowed-mcp-server-names              Allowed MCP server names                                                                                              [массив]\n  -e, --extensions                            A list of extensions to use. If not provided, all extensions are used.                                                [массив]\n  -l, --list-extensions                       List all available extensions and exit.                                                                          [булевый тип]\n      --ide-mode-feature                      Run in IDE mode?                                                                                                 [булевый тип]\n      --openai-logging                        Enable logging of OpenAI API calls for debugging and analysis                                                    [булевый тип]\n      --openai-api-key                        OpenAI API key to use for authentication                                                                       [строковой тип]\n      --openai-base-url                       OpenAI base URL (for custom endpoints)                                                                         [строковой тип]\n      --tavily-api-key                        Tavily API key for web search functionality                                                                    [строковой тип]\n      --proxy                                 Proxy for gemini client, like schema://user:password@host:port                                                 [строковой тип]\n      --include-directories                   Additional directories to include in the workspace (comma-separated or multiple --include-directories)                [массив]\n      --load-memory-from-include-directories  If true, when refreshing memory, QWEN.md files should be loaded from all directories that are added. If false, QWEN.md files\n                                              should only be loaded from the primary working directory.                                  [булевый тип] [по умолчанию: false]\n  -v, --version                               Показать номер версии                                                                                            [булевый тип]\n  -h, --help                                  Показать помощь                                                                                                  [булевый тип]\n\nНеизвестный аргумент: status"
-            }
-          }
-        },
-        {
-          "display": "так клод у меня тоже авторизован ",
-          "pastedContents": {}
-        },
-        {
-          "display": "у меня просто запустился gemini у меня уже авторизован может ты просто сможем скопировать ключи?",
-          "pastedContents": {}
-        },
-        {
-          "display": "у меня нет  client id я просто из под рута запскал клиента и он предлагал авториоваться давай попробуем и тут без clint id пробуем сначала на codex",
-          "pastedContents": {}
-        },
-        {
-          "display": "с учётом, что я под рутом сижу",
-          "pastedContents": {}
-        },
-        {
-          "display": "ок, как мне сейчсс запустить клмиентов чтобы получить ссылки и их авторизовать напиши коамнды для каждой",
-          "pastedContents": {}
-        },
-        {
-          "display": "GET /api/v1/context возьми отсюда инф по проекту",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +10 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "Смотри, какая задача. У нас платформа называется FeatureFabric. Ее задача писать код, создавать бизнес-фичи и внутренние. И смысл в том, что весь код пишут агенты LLM, Quen, Codex, Gemini и Cloud. Я начал писать код с моделями в интерактивном режиме. Сейчас у нас есть User Interface, Admin, Chat, где я общаюсь с моделями. Там Fallback написано, но это ты можешь сам посмотреть все по коду. В чем заключается сейчас проблема? Что мы решаем? У нас нет API-ключей и не будет. Мы работаем только через OAuth-аутентификацию. Только через OAuth-аутентификацию. Я авторизовал всех агентов, но в интерактивном режиме, когда они запускаются под пользователем Feature, то Cloud, Gemini и Quen просят повторную аутентификацию. Причем, что Cloud не просит, хотя я запускаю всех одинаково. И мы сейчас пытаемся решить эту проблему, как с криптом аутентифицироваться в неинтерактивном режиме. Я запускал всех клиентов тоже под пользователем Feature. Сейчас пришлю строки, к которым я запускаю агентов. И ты там написал какой-то скрипт-обертку, которая должна это решать. Я не понимаю сейчас, как ее запустить и что с ней делать. Дай мне инструкции, как сделать так, чтобы я при запуске этого скрипта мог авторизовать агентов LLM в неинтерактивном режиме. Наша задача такая сейчас.\n...udo -u feature env HOME=/opt/feature-factory     GOOGLE_CLOUD_PROJECT=etl-marketplace     bash -lc 'cd \"/opt/feature-factory\" && gemini -y'\n\n\nsudo -u feature env HOME=/opt/feature-factory  bash -lc 'cd \"/opt/feature-factory\" && /home/feature/.nvm/versions/node/v22.18.0/bin/codex  --dangerously-bypass-approvals-and-sandbox'\n\n\nsudo -u feature env HOME=/opt/feature-factory  bash -lc 'cd \"/opt/feature-factory\" && claude --dangerously-skip-permissions'\n\n\nsudo -u feature env HOME=/opt/feature-factory     GOOGLE_CLOUD_PROJECT=etl-marketplace     bash -lc 'cd \"/opt/feature-factory\" && gemini -y'"
-            }
-          }
-        },
-        {
-          "display": "это твой последний ответ, просто прочитай и скажи, что принял [Pasted text #1 +29 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "Проблема понятна: в ссылке не было client_id. В унифицированной команде oauth я по умолчанию не беру client_id/client_secret из Secret Store (только сохраняю, если вы их\nпередали). Поэтому без --client-id ссылка строится пустой, и Google отвечает “Missing required parameter: client_id”.\n\nСделайте так (с вашим client_id/secret и правильным redirect_uri):\n\n- Сохраните клиента (один раз):\n    - cd /opt/feature-factory && source .venv/bin/activate\n    - python3 scripts/authorize_providers.py gemini --client-id \"<ВАШ_CLIENT_ID>\" --client-secret \"<ВАШ_CLIENT_SECRET>\"\n    - python3 scripts/authorize_providers.py gemini --client-id \"<ВАШ_CLIENT_ID>\" --client-secret \"<ВАШ_CLIENT_SECRET>\"\n- \nПолучите ссылку авторизации:\n    - python3 scripts/authorize_providers.py oauth --provider gemini --redirect-uri \"https://codeassist.google.com/authcode\"\n    - Откройте URL, примите доступ, получите code.\n- \nОбменяйте code → refresh_token и сохраните его:\n    - python3 scripts/authorize_providers.py oauth --provider gemini --client-id \"<ВАШ_CLIENT_ID>\" --client-secret \"<ВАШ_CLIENT_SECRET>\" --redirect-uri \"https://\ncodeassist.google.com/authcode\" --code \"<CODE_ИЗ_БРАУЗЕРА>\"\n\nАльтернатива без кода (если RT уже есть):\n\n- Извлеките refresh_token из /opt/feature-factory/.gemini/oauth_creds.json и сразу сохраните:\n    - python3 scripts/authorize_providers.py oauth --provider gemini --refresh-token \"<REFRESH_TOKEN>\" --client-id \"<ВАШ_CLIENT_ID>\" --client-secret \"<ВАШ_CLIENT_SECRET>\"\n\nВажно\n\n- --redirect-uri должен совпадать с разрешённым в вашем Google OAuth‑клиенте (часто это как раз https://codeassist.google.com/authcode для CLI).\n- После сохранения RT и клиента проверьте /api/v1/llm/status: у gemini станут “зелёными” has_refresh_token, has_client, can_refresh_now, а локальный файл будет обновляться\nNexus’ом перед вызовами.\n\nХотите — добавлю в скрипт автоподхват client_id/secret из Secret Store (по плейсхолдерам) при построении ссылки, чтобы не передавать их руками каждый раз."
-            }
-          }
-        },
-        {
-          "display": "дай полный контекст по задаче для переноса в друугой чат что сделано, в чем проблема, что сделать и твои предположениё по проблеме",
-          "pastedContents": {}
-        },
-        {
-          "display": "1. реализуй fallback  2. проверь дополнительно claude и gemini",
-          "pastedContents": {}
-        },
-        {
-          "display": "проверь GeminiAdapter и если тоже проблема напиши, исправим сразу всё для всех",
-          "pastedContents": {}
-        },
-        {
-          "display": "объясни в чём проблема с claude в отличие от codex и gemini они как-то по разному вызываются ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "ты не завис ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "стаю последний, тестируй claude и gemini разбирайся",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "Смотри, там какая ситуация, что именно для чата выяснилось, что нужна необходимость, чтобы общение было не через JSON, а через обычный текст. И другой агент начал эту штуку реализовывать. Он, по-моему, он отследовал от ChatAdapter какой-то другой класс, типа CloudAdapter. Но он сказал, я сейчас типа протестирую, если заработает, мы потом все как-то переделаем. Более правильно, чтобы не писать обертку для каждого адаптера. Чтобы не писать обертку для каждой CLI, для каждой LN. Поэтому наверняка из-за этого у тебя Cloud не работает, а все остальное работает. Может быть, ты просто более глобально посмотришь, как это уже правильно реализовать. В общем, задача, чтобы... Ну, ты понял, да? Чтобы чат работал persistent с LN, чтобы соединение не падало. Как это будет реализовано, я не знаю. Может быть, и там скорее всего... Ну, а падло из-за того, что он парксил все время JSON. Мы не могли заставить его отвечать без JSON. Хотя я проблем в этом не вижу. Может быть, просто я не знаю, почему так было сделано. Посмотри на это сверху глобально, как лучше для проекта реализовать. Может быть, нужно вообще все переписать правильно. Чтобы не тащить старые баги, чтобы не было технического долга. Просто проанализируй ситуацию и сделай как лучше для проекта."
-            }
-          }
-        },
-        {
-          "display": "продолжай",
-          "pastedContents": {}
         }
       ],
       "mcpContextUris": [],
@@ -532,32 +561,32 @@
       "hasClaudeMdExternalIncludesApproved": false,
       "hasClaudeMdExternalIncludesWarningShown": false,
       "lastTotalWebSearchRequests": 0,
-      "lastCost": 38.44463870000006,
-      "lastAPIDuration": 2800888,
-      "lastToolDuration": 467384,
-      "lastDuration": 9421202,
-      "lastLinesAdded": 2069,
-      "lastLinesRemoved": 332,
-      "lastTotalInputTokens": 591938,
-      "lastTotalOutputTokens": 120596,
-      "lastTotalCacheCreationInputTokens": 1674976,
-      "lastTotalCacheReadInputTokens": 52914480,
-      "lastSessionId": "ef0b67cc-6657-4ddf-b064-4ef36a839777"
+      "exampleFiles": [
+        "deploy_ui.sh",
+        "e2e_feature_test.py",
+        "e2e_task_test.py",
+        "generate_e2e_report.py",
+        "update_code_registry.py"
+      ],
+      "exampleFilesGeneratedAt": 1757670284173,
+      "lastCost": 0,
+      "lastAPIDuration": 0,
+      "lastToolDuration": 0,
+      "lastDuration": 5462,
+      "lastLinesAdded": 0,
+      "lastLinesRemoved": 0,
+      "lastTotalInputTokens": 0,
+      "lastTotalOutputTokens": 0,
+      "lastTotalCacheCreationInputTokens": 0,
+      "lastTotalCacheReadInputTokens": 0,
+      "lastSessionId": "acf15edb-fd73-4020-bf19-65c0153cc849"
     }
   },
   "s1mAccessCache": {
     "a32ddff4-a682-4e6e-95d8-88bd18ed78bf": {
       "hasAccess": false,
-      "timestamp": 1756549963880
+      "timestamp": 1757799266368
     }
-  },
-  "oauthAccount": {
-    "accountUuid": "6dcfa04b-ff22-461a-88f1-2f51ecd3924d",
-    "emailAddress": "basil.ivanov@gmail.com",
-    "organizationUuid": "a32ddff4-a682-4e6e-95d8-88bd18ed78bf",
-    "organizationRole": "admin",
-    "workspaceRole": null,
-    "organizationName": "basil.ivanov@gmail.com's Organization"
   },
   "isQualifiedForDataSharing": false,
   "hasCompletedOnboarding": true,
@@ -566,7 +595,19 @@
   "subscriptionNoticeCount": 0,
   "hasAvailableSubscription": false,
   "fallbackAvailableWarningThreshold": 0.5,
-  "cachedChangelog": "# Changelog\n\n## 1.0.88\n\n- Fixed issue causing \"OAuth authentication is currently not supported\"\n- Status line input now includes `exceeds_200k_tokens`\n- Fixed incorrect usage tracking in /cost.\n- Introduced `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_OPUS_MODEL` for controlling model aliases opusplan, opus, and sonnet.\n- Bedrock: Updated default Sonnet model to Sonnet 4\n\n## 1.0.86\n\n- Added /context to help users self-serve debug context issues\n- SDK: Added UUID support for all SDK messages\n- SDK: Added `--replay-user-messages` to replay user messages back to stdout\n\n## 1.0.85\n\n- Status line input now includes session cost info\n- Hooks: Introduced SessionEnd hook\n\n## 1.0.84\n\n- Fix tool_use/tool_result id mismatch error when network is unstable\n- Fix Claude sometimes ignoring real-time steering when wrapping up a task\n- @-mention: Add ~/.claude/\\* files to suggestions for easier agent, output style, and slash command editing\n- Use built-in ripgrep by default; to opt out of this behavior, set USE_BUILTIN_RIPGREP=0\n\n## 1.0.83\n\n- @-mention: Support files with spaces in path\n- New shimmering spinner\n\n## 1.0.82\n\n- SDK: Add request cancellation support\n- SDK: New additionalDirectories option to search custom paths, improved slash command processing\n- Settings: Validation prevents invalid fields in .claude/settings.json files\n- MCP: Improve tool name consistency\n- Bash: Fix crash when Claude tries to automatically read large files\n\n## 1.0.81\n\n- Released output styles, including new built-in educational output styles \"Explanatory\" and \"Learning\". Docs: https://docs.anthropic.com/en/docs/claude-code/output-styles\n- Agents: Fix custom agent loading when agent files are unparsable\n\n## 1.0.80\n\n- UI improvements: Fix text contrast for custom subagent colors and spinner rendering issues\n\n## 1.0.77\n\n- Bash tool: Fix heredoc and multiline string escaping, improve stderr redirection handling\n- SDK: Add session support and permission denial tracking\n- Fix token limit errors in conversation summarization\n- Opus Plan Mode: New setting in `/model` to run Opus only in plan mode, Sonnet otherwise\n\n## 1.0.73\n\n- MCP: Support multiple config files with `--mcp-config file1.json file2.json`\n- MCP: Press Esc to cancel OAuth authentication flows\n- Bash: Improved command validation and reduced false security warnings\n- UI: Enhanced spinner animations and status line visual hierarchy\n- Linux: Added support for Alpine and musl-based distributions (requires separate ripgrep installation)\n\n## 1.0.72\n\n- Ask permissions: have Claude Code always ask for confirmation to use specific tools with /permissions\n\n## 1.0.71\n\n- Background commands: (Ctrl-b) to run any Bash command in the background so Claude can keep working (great for dev servers, tailing logs, etc.)\n- Customizable status line: add your terminal prompt to Claude Code with /statusline\n\n## 1.0.70\n\n- Performance: Optimized message rendering for better performance with large contexts\n- Windows: Fixed native file search, ripgrep, and subagent functionality\n- Added support for @-mentions in slash command arguments\n\n## 1.0.69\n\n- Upgraded Opus to version 4.1\n\n## 1.0.68\n\n- Fix incorrect model names being used for certain commands like `/pr-comments`\n- Windows: improve permissions checks for allow / deny tools and project trust. This may create a new project entry in `.claude.json` - manually merge the history field if desired.\n- Windows: improve sub-process spawning to eliminate \"No such file or directory\" when running commands like pnpm\n- Enhanced /doctor command with CLAUDE.md and MCP tool context for self-serve debugging\n- SDK: Added canUseTool callback support for tool confirmation\n- Added `disableAllHooks` setting\n- Improved file suggestions performance in large repos\n\n## 1.0.65\n\n- IDE: Fixed connection stability issues and error handling for diagnostics\n- Windows: Fixed shell environment setup for users without .bashrc files\n\n## 1.0.64\n\n- Agents: Added model customization support - you can now specify which model an agent should use\n- Agents: Fixed unintended access to the recursive agent tool\n- Hooks: Added systemMessage field to hook JSON output for displaying warnings and context\n- SDK: Fixed user input tracking across multi-turn conversations\n- Added hidden files to file search and @-mention suggestions\n\n## 1.0.63\n\n- Windows: Fixed file search, @agent mentions, and custom slash commands functionality\n\n## 1.0.62\n\n- Added @-mention support with typeahead for custom agents. @<your-custom-agent> to invoke it\n- Hooks: Added SessionStart hook for new session initialization\n- /add-dir command now supports typeahead for directory paths\n- Improved network connectivity check reliability\n\n## 1.0.61\n\n- Transcript mode (Ctrl+R): Changed Esc to exit transcript mode rather than interrupt\n- Settings: Added `--settings` flag to load settings from a JSON file\n- Settings: Fixed resolution of settings files paths that are symlinks\n- OTEL: Fixed reporting of wrong organization after authentication changes\n- Slash commands: Fixed permissions checking for allowed-tools with Bash\n- IDE: Added support for pasting images in VSCode MacOS using ⌘+V\n- IDE: Added `CLAUDE_CODE_AUTO_CONNECT_IDE=false` for disabling IDE auto-connection\n- Added `CLAUDE_CODE_SHELL_PREFIX` for wrapping Claude and user-provided shell commands run by Claude Code\n\n## 1.0.60\n\n- You can now create custom subagents for specialized tasks! Run /agents to get started\n\n## 1.0.59\n\n- SDK: Added tool confirmation support with canUseTool callback\n- SDK: Allow specifying env for spawned process\n- Hooks: Exposed PermissionDecision to hooks (including \"ask\")\n- Hooks: UserPromptSubmit now supports additionalContext in advanced JSON output\n- Fixed issue where some Max users that specified Opus would still see fallback to Sonnet\n\n## 1.0.58\n\n- Added support for reading PDFs\n- MCP: Improved server health status display in 'claude mcp list'\n- Hooks: Added CLAUDE_PROJECT_DIR env var for hook commands\n\n## 1.0.57\n\n- Added support for specifying a model in slash commands\n- Improved permission messages to help Claude understand allowed tools\n- Fix: Remove trailing newlines from bash output in terminal wrapping\n\n## 1.0.56\n\n- Windows: Enabled shift+tab for mode switching on versions of Node.js that support terminal VT mode\n- Fixes for WSL IDE detection\n- Fix an issue causing awsRefreshHelper changes to .aws directory not to be picked up\n\n## 1.0.55\n\n- Clarified knowledge cutoff for Opus 4 and Sonnet 4 models\n- Windows: fixed Ctrl+Z crash\n- SDK: Added ability to capture error logging\n- Add --system-prompt-file option to override system prompt in print mode\n\n## 1.0.54\n\n- Hooks: Added UserPromptSubmit hook and the current working directory to hook inputs\n- Custom slash commands: Added argument-hint to frontmatter\n- Windows: OAuth uses port 45454 and properly constructs browser URL\n- Windows: mode switching now uses alt + m, and plan mode renders properly\n- Shell: Switch to in-memory shell snapshot to fix file-related errors\n\n## 1.0.53\n\n- Updated @-mention file truncation from 100 lines to 2000 lines\n- Add helper script settings for AWS token refresh: awsAuthRefresh (for foreground operations like aws sso login) and awsCredentialExport (for background operation with STS-like response).\n\n## 1.0.52\n\n- Added support for MCP server instructions\n\n## 1.0.51\n\n- Added support for native Windows (requires Git for Windows)\n- Added support for Bedrock API keys through environment variable AWS_BEARER_TOKEN_BEDROCK\n- Settings: /doctor can now help you identify and fix invalid setting files\n- `--append-system-prompt` can now be used in interactive mode, not just --print/-p.\n- Increased auto-compact warning threshold from 60% to 80%\n- Fixed an issue with handling user directories with spaces for shell snapshots\n- OTEL resource now includes os.type, os.version, host.arch, and wsl.version (if running on Windows Subsystem for Linux)\n- Custom slash commands: Fixed user-level commands in subdirectories\n- Plan mode: Fixed issue where rejected plan from sub-task would get discarded\n\n## 1.0.48\n\n- Fixed a bug in v1.0.45 where the app would sometimes freeze on launch\n- Added progress messages to Bash tool based on the last 5 lines of command output\n- Added expanding variables support for MCP server configuration\n- Moved shell snapshots from /tmp to ~/.claude for more reliable Bash tool calls\n- Improved IDE extension path handling when Claude Code runs in WSL\n- Hooks: Added a PreCompact hook\n- Vim mode: Added c, f/F, t/T\n\n## 1.0.45\n\n- Redesigned Search (Grep) tool with new tool input parameters and features\n- Disabled IDE diffs for notebook files, fixing \"Timeout waiting after 1000ms\" error\n- Fixed config file corruption issue by enforcing atomic writes\n- Updated prompt input undo to Ctrl+\\_ to avoid breaking existing Ctrl+U behavior, matching zsh's undo shortcut\n- Stop Hooks: Fixed transcript path after /clear and fixed triggering when loop ends with tool call\n- Custom slash commands: Restored namespacing in command names based on subdirectories. For example, .claude/commands/frontend/component.md is now /frontend:component, not /component.\n\n## 1.0.44\n\n- New /export command lets you quickly export a conversation for sharing\n- MCP: resource_link tool results are now supported\n- MCP: tool annotations and tool titles now display in /mcp view\n- Changed Ctrl+Z to suspend Claude Code. Resume by running `fg`. Prompt input undo is now Ctrl+U.\n\n## 1.0.43\n\n- Fixed a bug where the theme selector was saving excessively\n- Hooks: Added EPIPE system error handling\n\n## 1.0.42\n\n- Added tilde (`~`) expansion support to `/add-dir` command\n\n## 1.0.41\n\n- Hooks: Split Stop hook triggering into Stop and SubagentStop\n- Hooks: Enabled optional timeout configuration for each command\n- Hooks: Added \"hook_event_name\" to hook input\n- Fixed a bug where MCP tools would display twice in tool list\n- New tool parameters JSON for Bash tool in `tool_decision` event\n\n## 1.0.40\n\n- Fixed a bug causing API connection errors with UNABLE_TO_GET_ISSUER_CERT_LOCALLY if `NODE_EXTRA_CA_CERTS` was set\n\n## 1.0.39\n\n- New Active Time metric in OpenTelemetry logging\n\n## 1.0.38\n\n- Released hooks. Special thanks to community input in https://github.com/anthropics/claude-code/issues/712. Docs: https://docs.anthropic.com/en/docs/claude-code/hooks\n\n## 1.0.37\n\n- Remove ability to set `Proxy-Authorization` header via ANTHROPIC_AUTH_TOKEN or apiKeyHelper\n\n## 1.0.36\n\n- Web search now takes today's date into context\n- Fixed a bug where stdio MCP servers were not terminating properly on exit\n\n## 1.0.35\n\n- Added support for MCP OAuth Authorization Server discovery\n\n## 1.0.34\n\n- Fixed a memory leak causing a MaxListenersExceededWarning message to appear\n\n## 1.0.33\n\n- Improved logging functionality with session ID support\n- Added prompt input undo functionality (Ctrl+Z and vim 'u' command)\n- Improvements to plan mode\n\n## 1.0.32\n\n- Updated loopback config for litellm\n- Added forceLoginMethod setting to bypass login selection screen\n\n## 1.0.31\n\n- Fixed a bug where ~/.claude.json would get reset when file contained invalid JSON\n\n## 1.0.30\n\n- Custom slash commands: Run bash output, @-mention files, enable thinking with thinking keywords\n- Improved file path autocomplete with filename matching\n- Added timestamps in Ctrl-r mode and fixed Ctrl-c handling\n- Enhanced jq regex support for complex filters with pipes and select\n\n## 1.0.29\n\n- Improved CJK character support in cursor navigation and rendering\n\n## 1.0.28\n\n- Slash commands: Fix selector display during history navigation\n- Resizes images before upload to prevent API size limit errors\n- Added XDG_CONFIG_HOME support to configuration directory\n- Performance optimizations for memory usage\n- New attributes (terminal.type, language) in OpenTelemetry logging\n\n## 1.0.27\n\n- Streamable HTTP MCP servers are now supported\n- Remote MCP servers (SSE and HTTP) now support OAuth\n- MCP resources can now be @-mentioned\n- /resume slash command to switch conversations within Claude Code\n\n## 1.0.25\n\n- Slash commands: moved \"project\" and \"user\" prefixes to descriptions\n- Slash commands: improved reliability for command discovery\n- Improved support for Ghostty\n- Improved web search reliability\n\n## 1.0.24\n\n- Improved /mcp output\n- Fixed a bug where settings arrays got overwritten instead of merged\n\n## 1.0.23\n\n- Released TypeScript SDK: import @anthropic-ai/claude-code to get started\n- Released Python SDK: pip install claude-code-sdk to get started\n\n## 1.0.22\n\n- SDK: Renamed `total_cost` to `total_cost_usd`\n\n## 1.0.21\n\n- Improved editing of files with tab-based indentation\n- Fix for tool_use without matching tool_result errors\n- Fixed a bug where stdio MCP server processes would linger after quitting Claude Code\n\n## 1.0.18\n\n- Added --add-dir CLI argument for specifying additional working directories\n- Added streaming input support without require -p flag\n- Improved startup performance and session storage performance\n- Added CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR environment variable to freeze working directory for bash commands\n- Added detailed MCP server tools display (/mcp)\n- MCP authentication and permission improvements\n- Added auto-reconnection for MCP SSE connections on disconnect\n- Fixed issue where pasted content was lost when dialogs appeared\n\n## 1.0.17\n\n- We now emit messages from sub-tasks in -p mode (look for the parent_tool_use_id property)\n- Fixed crashes when the VS Code diff tool is invoked multiple times quickly\n- MCP server list UI improvements\n- Update Claude Code process title to display \"claude\" instead of \"node\"\n\n## 1.0.11\n\n- Claude Code can now also be used with a Claude Pro subscription\n- Added /upgrade for smoother switching to Claude Max plans\n- Improved UI for authentication from API keys and Bedrock/Vertex/external auth tokens\n- Improved shell configuration error handling\n- Improved todo list handling during compaction\n\n## 1.0.10\n\n- Added markdown table support\n- Improved streaming performance\n\n## 1.0.8\n\n- Fixed Vertex AI region fallback when using CLOUD_ML_REGION\n- Increased default otel interval from 1s -> 5s\n- Fixed edge cases where MCP_TIMEOUT and MCP_TOOL_TIMEOUT weren't being respected\n- Fixed a regression where search tools unnecessarily asked for permissions\n- Added support for triggering thinking non-English languages\n- Improved compacting UI\n\n## 1.0.7\n\n- Renamed /allowed-tools -> /permissions\n- Migrated allowedTools and ignorePatterns from .claude.json -> settings.json\n- Deprecated claude config commands in favor of editing settings.json\n- Fixed a bug where --dangerously-skip-permissions sometimes didn't work in --print mode\n- Improved error handling for /install-github-app\n- Bugfixes, UI polish, and tool reliability improvements\n\n## 1.0.6\n\n- Improved edit reliability for tab-indented files\n- Respect CLAUDE_CONFIG_DIR everywhere\n- Reduced unnecessary tool permission prompts\n- Added support for symlinks in @file typeahead\n- Bugfixes, UI polish, and tool reliability improvements\n\n## 1.0.4\n\n- Fixed a bug where MCP tool errors weren't being parsed correctly\n\n## 1.0.1\n\n- Added `DISABLE_INTERLEAVED_THINKING` to give users the option to opt out of interleaved thinking.\n- Improved model references to show provider-specific names (Sonnet 3.7 for Bedrock, Sonnet 4 for Console)\n- Updated documentation links and OAuth process descriptions\n\n## 1.0.0\n\n- Claude Code is now generally available\n- Introducing Sonnet 4 and Opus 4 models\n\n## 0.2.125\n\n- Breaking change: Bedrock ARN passed to `ANTHROPIC_MODEL` or `ANTHROPIC_SMALL_FAST_MODEL` should no longer contain an escaped slash (specify `/` instead of `%2F`)\n- Removed `DEBUG=true` in favor of `ANTHROPIC_LOG=debug`, to log all requests\n\n## 0.2.117\n\n- Breaking change: --print JSON output now returns nested message objects, for forwards-compatibility as we introduce new metadata fields\n- Introduced settings.cleanupPeriodDays\n- Introduced CLAUDE_CODE_API_KEY_HELPER_TTL_MS env var\n- Introduced --debug mode\n\n## 0.2.108\n\n- You can now send messages to Claude while it works to steer Claude in real-time\n- Introduced BASH_DEFAULT_TIMEOUT_MS and BASH_MAX_TIMEOUT_MS env vars\n- Fixed a bug where thinking was not working in -p mode\n- Fixed a regression in /cost reporting\n- Deprecated MCP wizard interface in favor of other MCP commands\n- Lots of other bugfixes and improvements\n\n## 0.2.107\n\n- CLAUDE.md files can now import other files. Add @path/to/file.md to ./CLAUDE.md to load additional files on launch\n\n## 0.2.106\n\n- MCP SSE server configs can now specify custom headers\n- Fixed a bug where MCP permission prompt didn't always show correctly\n\n## 0.2.105\n\n- Claude can now search the web\n- Moved system & account status to /status\n- Added word movement keybindings for Vim\n- Improved latency for startup, todo tool, and file edits\n\n## 0.2.102\n\n- Improved thinking triggering reliability\n- Improved @mention reliability for images and folders\n- You can now paste multiple large chunks into one prompt\n\n## 0.2.100\n\n- Fixed a crash caused by a stack overflow error\n- Made db storage optional; missing db support disables --continue and --resume\n\n## 0.2.98\n\n- Fixed an issue where auto-compact was running twice\n\n## 0.2.96\n\n- Claude Code can now also be used with a Claude Max subscription (https://claude.ai/upgrade)\n\n## 0.2.93\n\n- Resume conversations from where you left off from with \"claude --continue\" and \"claude --resume\"\n- Claude now has access to a Todo list that helps it stay on track and be more organized\n\n## 0.2.82\n\n- Added support for --disallowedTools\n- Renamed tools for consistency: LSTool -> LS, View -> Read, etc.\n\n## 0.2.75\n\n- Hit Enter to queue up additional messages while Claude is working\n- Drag in or copy/paste image files directly into the prompt\n- @-mention files to directly add them to context\n- Run one-off MCP servers with `claude --mcp-config <path-to-file>`\n- Improved performance for filename auto-complete\n\n## 0.2.74\n\n- Added support for refreshing dynamically generated API keys (via apiKeyHelper), with a 5 minute TTL\n- Task tool can now perform writes and run bash commands\n\n## 0.2.72\n\n- Updated spinner to indicate tokens loaded and tool usage\n\n## 0.2.70\n\n- Network commands like curl are now available for Claude to use\n- Claude can now run multiple web queries in parallel\n- Pressing ESC once immediately interrupts Claude in Auto-accept mode\n\n## 0.2.69\n\n- Fixed UI glitches with improved Select component behavior\n- Enhanced terminal output display with better text truncation logic\n\n## 0.2.67\n\n- Shared project permission rules can be saved in .claude/settings.json\n\n## 0.2.66\n\n- Print mode (-p) now supports streaming output via --output-format=stream-json\n- Fixed issue where pasting could trigger memory or bash mode unexpectedly\n\n## 0.2.63\n\n- Fixed an issue where MCP tools were loaded twice, which caused tool call errors\n\n## 0.2.61\n\n- Navigate menus with vim-style keys (j/k) or bash/emacs shortcuts (Ctrl+n/p) for faster interaction\n- Enhanced image detection for more reliable clipboard paste functionality\n- Fixed an issue where ESC key could crash the conversation history selector\n\n## 0.2.59\n\n- Copy+paste images directly into your prompt\n- Improved progress indicators for bash and fetch tools\n- Bugfixes for non-interactive mode (-p)\n\n## 0.2.54\n\n- Quickly add to Memory by starting your message with '#'\n- Press ctrl+r to see full output for long tool results\n- Added support for MCP SSE transport\n\n## 0.2.53\n\n- New web fetch tool lets Claude view URLs that you paste in\n- Fixed a bug with JPEG detection\n\n## 0.2.50\n\n- New MCP \"project\" scope now allows you to add MCP servers to .mcp.json files and commit them to your repository\n\n## 0.2.49\n\n- Previous MCP server scopes have been renamed: previous \"project\" scope is now \"local\" and \"global\" scope is now \"user\"\n\n## 0.2.47\n\n- Press Tab to auto-complete file and folder names\n- Press Shift + Tab to toggle auto-accept for file edits\n- Automatic conversation compaction for infinite conversation length (toggle with /config)\n\n## 0.2.44\n\n- Ask Claude to make a plan with thinking mode: just say 'think' or 'think harder' or even 'ultrathink'\n\n## 0.2.41\n\n- MCP server startup timeout can now be configured via MCP_TIMEOUT environment variable\n- MCP server startup no longer blocks the app from starting up\n\n## 0.2.37\n\n- New /release-notes command lets you view release notes at any time\n- `claude config add/remove` commands now accept multiple values separated by commas or spaces\n\n## 0.2.36\n\n- Import MCP servers from Claude Desktop with `claude mcp add-from-claude-desktop`\n- Add MCP servers as JSON strings with `claude mcp add-json <n> <json>`\n\n## 0.2.34\n\n- Vim bindings for text input - enable with /vim or /config\n\n## 0.2.32\n\n- Interactive MCP setup wizard: Run \"claude mcp add\" to add MCP servers with a step-by-step interface\n- Fix for some PersistentShell issues\n\n## 0.2.31\n\n- Custom slash commands: Markdown files in .claude/commands/ directories now appear as custom slash commands to insert prompts into your conversation\n- MCP debug mode: Run with --mcp-debug flag to get more information about MCP server errors\n\n## 0.2.30\n\n- Added ANSI color theme for better terminal compatibility\n- Fixed issue where slash command arguments weren't being sent properly\n- (Mac-only) API keys are now stored in macOS Keychain\n\n## 0.2.26\n\n- New /approved-tools command for managing tool permissions\n- Word-level diff display for improved code readability\n- Fuzzy matching for slash commands\n\n## 0.2.21\n\n- Fuzzy matching for /commands\n",
-  "changelogLastFetched": 1755914585684,
-  "lastReleaseNotesSeen": "1.0.86"
+  "cachedChangelog": "# Changelog\n\n## 1.0.112\n\n- Transcript mode (Ctrl+R): Added the model used to generate each assistant message\n- Addressed issue where some Claude Max users were incorrectly recognized as Claude Pro users\n- Hooks: Added systemMessage support for SessionEnd hooks\n- Added `spinnerTipsEnabled` setting to disable spinner tips\n- IDE: Various improvements and bug fixes\n\n## 1.0.111\n\n- /model now validates provided model names\n- Fixed Bash tool crashes caused by malformed shell syntax parsing\n\n## 1.0.110\n\n- /terminal-setup command now supports WezTerm\n- MCP: OAuth tokens now proactively refresh before expiration\n- Fixed reliability issues with background Bash processes\n\n## 1.0.109\n\n- SDK: Added partial message streaming support via `--include-partial-messages` CLI flag\n\n## 1.0.106\n\n- Windows: Fixed path permission matching to consistently use POSIX format (e.g., `Read(//c/Users/...)`)\n\n## 1.0.97\n\n- Settings: /doctor now validates permission rule syntax and suggests corrections\n\n## 1.0.94\n\n- Vertex: add support for global endpoints for supported models\n- /memory command now allows direct editing of all imported memory files\n- SDK: Add custom tools as callbacks\n- Added /todos command to list current todo items\n\n## 1.0.93\n\n- Windows: Add alt + v shortcut for pasting images from clipboard\n- Support NO_PROXY environment variable to bypass proxy for specified hostnames and IPs\n\n## 1.0.90\n\n- Settings file changes take effect immediately - no restart required\n\n## 1.0.88\n\n- Fixed issue causing \"OAuth authentication is currently not supported\"\n- Status line input now includes `exceeds_200k_tokens`\n- Fixed incorrect usage tracking in /cost.\n- Introduced `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_OPUS_MODEL` for controlling model aliases opusplan, opus, and sonnet.\n- Bedrock: Updated default Sonnet model to Sonnet 4\n\n## 1.0.86\n\n- Added /context to help users self-serve debug context issues\n- SDK: Added UUID support for all SDK messages\n- SDK: Added `--replay-user-messages` to replay user messages back to stdout\n\n## 1.0.85\n\n- Status line input now includes session cost info\n- Hooks: Introduced SessionEnd hook\n\n## 1.0.84\n\n- Fix tool_use/tool_result id mismatch error when network is unstable\n- Fix Claude sometimes ignoring real-time steering when wrapping up a task\n- @-mention: Add ~/.claude/\\* files to suggestions for easier agent, output style, and slash command editing\n- Use built-in ripgrep by default; to opt out of this behavior, set USE_BUILTIN_RIPGREP=0\n\n## 1.0.83\n\n- @-mention: Support files with spaces in path\n- New shimmering spinner\n\n## 1.0.82\n\n- SDK: Add request cancellation support\n- SDK: New additionalDirectories option to search custom paths, improved slash command processing\n- Settings: Validation prevents invalid fields in .claude/settings.json files\n- MCP: Improve tool name consistency\n- Bash: Fix crash when Claude tries to automatically read large files\n\n## 1.0.81\n\n- Released output styles, including new built-in educational output styles \"Explanatory\" and \"Learning\". Docs: https://docs.anthropic.com/en/docs/claude-code/output-styles\n- Agents: Fix custom agent loading when agent files are unparsable\n\n## 1.0.80\n\n- UI improvements: Fix text contrast for custom subagent colors and spinner rendering issues\n\n## 1.0.77\n\n- Bash tool: Fix heredoc and multiline string escaping, improve stderr redirection handling\n- SDK: Add session support and permission denial tracking\n- Fix token limit errors in conversation summarization\n- Opus Plan Mode: New setting in `/model` to run Opus only in plan mode, Sonnet otherwise\n\n## 1.0.73\n\n- MCP: Support multiple config files with `--mcp-config file1.json file2.json`\n- MCP: Press Esc to cancel OAuth authentication flows\n- Bash: Improved command validation and reduced false security warnings\n- UI: Enhanced spinner animations and status line visual hierarchy\n- Linux: Added support for Alpine and musl-based distributions (requires separate ripgrep installation)\n\n## 1.0.72\n\n- Ask permissions: have Claude Code always ask for confirmation to use specific tools with /permissions\n\n## 1.0.71\n\n- Background commands: (Ctrl-b) to run any Bash command in the background so Claude can keep working (great for dev servers, tailing logs, etc.)\n- Customizable status line: add your terminal prompt to Claude Code with /statusline\n\n## 1.0.70\n\n- Performance: Optimized message rendering for better performance with large contexts\n- Windows: Fixed native file search, ripgrep, and subagent functionality\n- Added support for @-mentions in slash command arguments\n\n## 1.0.69\n\n- Upgraded Opus to version 4.1\n\n## 1.0.68\n\n- Fix incorrect model names being used for certain commands like `/pr-comments`\n- Windows: improve permissions checks for allow / deny tools and project trust. This may create a new project entry in `.claude.json` - manually merge the history field if desired.\n- Windows: improve sub-process spawning to eliminate \"No such file or directory\" when running commands like pnpm\n- Enhanced /doctor command with CLAUDE.md and MCP tool context for self-serve debugging\n- SDK: Added canUseTool callback support for tool confirmation\n- Added `disableAllHooks` setting\n- Improved file suggestions performance in large repos\n\n## 1.0.65\n\n- IDE: Fixed connection stability issues and error handling for diagnostics\n- Windows: Fixed shell environment setup for users without .bashrc files\n\n## 1.0.64\n\n- Agents: Added model customization support - you can now specify which model an agent should use\n- Agents: Fixed unintended access to the recursive agent tool\n- Hooks: Added systemMessage field to hook JSON output for displaying warnings and context\n- SDK: Fixed user input tracking across multi-turn conversations\n- Added hidden files to file search and @-mention suggestions\n\n## 1.0.63\n\n- Windows: Fixed file search, @agent mentions, and custom slash commands functionality\n\n## 1.0.62\n\n- Added @-mention support with typeahead for custom agents. @<your-custom-agent> to invoke it\n- Hooks: Added SessionStart hook for new session initialization\n- /add-dir command now supports typeahead for directory paths\n- Improved network connectivity check reliability\n\n## 1.0.61\n\n- Transcript mode (Ctrl+R): Changed Esc to exit transcript mode rather than interrupt\n- Settings: Added `--settings` flag to load settings from a JSON file\n- Settings: Fixed resolution of settings files paths that are symlinks\n- OTEL: Fixed reporting of wrong organization after authentication changes\n- Slash commands: Fixed permissions checking for allowed-tools with Bash\n- IDE: Added support for pasting images in VSCode MacOS using ⌘+V\n- IDE: Added `CLAUDE_CODE_AUTO_CONNECT_IDE=false` for disabling IDE auto-connection\n- Added `CLAUDE_CODE_SHELL_PREFIX` for wrapping Claude and user-provided shell commands run by Claude Code\n\n## 1.0.60\n\n- You can now create custom subagents for specialized tasks! Run /agents to get started\n\n## 1.0.59\n\n- SDK: Added tool confirmation support with canUseTool callback\n- SDK: Allow specifying env for spawned process\n- Hooks: Exposed PermissionDecision to hooks (including \"ask\")\n- Hooks: UserPromptSubmit now supports additionalContext in advanced JSON output\n- Fixed issue where some Max users that specified Opus would still see fallback to Sonnet\n\n## 1.0.58\n\n- Added support for reading PDFs\n- MCP: Improved server health status display in 'claude mcp list'\n- Hooks: Added CLAUDE_PROJECT_DIR env var for hook commands\n\n## 1.0.57\n\n- Added support for specifying a model in slash commands\n- Improved permission messages to help Claude understand allowed tools\n- Fix: Remove trailing newlines from bash output in terminal wrapping\n\n## 1.0.56\n\n- Windows: Enabled shift+tab for mode switching on versions of Node.js that support terminal VT mode\n- Fixes for WSL IDE detection\n- Fix an issue causing awsRefreshHelper changes to .aws directory not to be picked up\n\n## 1.0.55\n\n- Clarified knowledge cutoff for Opus 4 and Sonnet 4 models\n- Windows: fixed Ctrl+Z crash\n- SDK: Added ability to capture error logging\n- Add --system-prompt-file option to override system prompt in print mode\n\n## 1.0.54\n\n- Hooks: Added UserPromptSubmit hook and the current working directory to hook inputs\n- Custom slash commands: Added argument-hint to frontmatter\n- Windows: OAuth uses port 45454 and properly constructs browser URL\n- Windows: mode switching now uses alt + m, and plan mode renders properly\n- Shell: Switch to in-memory shell snapshot to fix file-related errors\n\n## 1.0.53\n\n- Updated @-mention file truncation from 100 lines to 2000 lines\n- Add helper script settings for AWS token refresh: awsAuthRefresh (for foreground operations like aws sso login) and awsCredentialExport (for background operation with STS-like response).\n\n## 1.0.52\n\n- Added support for MCP server instructions\n\n## 1.0.51\n\n- Added support for native Windows (requires Git for Windows)\n- Added support for Bedrock API keys through environment variable AWS_BEARER_TOKEN_BEDROCK\n- Settings: /doctor can now help you identify and fix invalid setting files\n- `--append-system-prompt` can now be used in interactive mode, not just --print/-p.\n- Increased auto-compact warning threshold from 60% to 80%\n- Fixed an issue with handling user directories with spaces for shell snapshots\n- OTEL resource now includes os.type, os.version, host.arch, and wsl.version (if running on Windows Subsystem for Linux)\n- Custom slash commands: Fixed user-level commands in subdirectories\n- Plan mode: Fixed issue where rejected plan from sub-task would get discarded\n\n## 1.0.48\n\n- Fixed a bug in v1.0.45 where the app would sometimes freeze on launch\n- Added progress messages to Bash tool based on the last 5 lines of command output\n- Added expanding variables support for MCP server configuration\n- Moved shell snapshots from /tmp to ~/.claude for more reliable Bash tool calls\n- Improved IDE extension path handling when Claude Code runs in WSL\n- Hooks: Added a PreCompact hook\n- Vim mode: Added c, f/F, t/T\n\n## 1.0.45\n\n- Redesigned Search (Grep) tool with new tool input parameters and features\n- Disabled IDE diffs for notebook files, fixing \"Timeout waiting after 1000ms\" error\n- Fixed config file corruption issue by enforcing atomic writes\n- Updated prompt input undo to Ctrl+\\_ to avoid breaking existing Ctrl+U behavior, matching zsh's undo shortcut\n- Stop Hooks: Fixed transcript path after /clear and fixed triggering when loop ends with tool call\n- Custom slash commands: Restored namespacing in command names based on subdirectories. For example, .claude/commands/frontend/component.md is now /frontend:component, not /component.\n\n## 1.0.44\n\n- New /export command lets you quickly export a conversation for sharing\n- MCP: resource_link tool results are now supported\n- MCP: tool annotations and tool titles now display in /mcp view\n- Changed Ctrl+Z to suspend Claude Code. Resume by running `fg`. Prompt input undo is now Ctrl+U.\n\n## 1.0.43\n\n- Fixed a bug where the theme selector was saving excessively\n- Hooks: Added EPIPE system error handling\n\n## 1.0.42\n\n- Added tilde (`~`) expansion support to `/add-dir` command\n\n## 1.0.41\n\n- Hooks: Split Stop hook triggering into Stop and SubagentStop\n- Hooks: Enabled optional timeout configuration for each command\n- Hooks: Added \"hook_event_name\" to hook input\n- Fixed a bug where MCP tools would display twice in tool list\n- New tool parameters JSON for Bash tool in `tool_decision` event\n\n## 1.0.40\n\n- Fixed a bug causing API connection errors with UNABLE_TO_GET_ISSUER_CERT_LOCALLY if `NODE_EXTRA_CA_CERTS` was set\n\n## 1.0.39\n\n- New Active Time metric in OpenTelemetry logging\n\n## 1.0.38\n\n- Released hooks. Special thanks to community input in https://github.com/anthropics/claude-code/issues/712. Docs: https://docs.anthropic.com/en/docs/claude-code/hooks\n\n## 1.0.37\n\n- Remove ability to set `Proxy-Authorization` header via ANTHROPIC_AUTH_TOKEN or apiKeyHelper\n\n## 1.0.36\n\n- Web search now takes today's date into context\n- Fixed a bug where stdio MCP servers were not terminating properly on exit\n\n## 1.0.35\n\n- Added support for MCP OAuth Authorization Server discovery\n\n## 1.0.34\n\n- Fixed a memory leak causing a MaxListenersExceededWarning message to appear\n\n## 1.0.33\n\n- Improved logging functionality with session ID support\n- Added prompt input undo functionality (Ctrl+Z and vim 'u' command)\n- Improvements to plan mode\n\n## 1.0.32\n\n- Updated loopback config for litellm\n- Added forceLoginMethod setting to bypass login selection screen\n\n## 1.0.31\n\n- Fixed a bug where ~/.claude.json would get reset when file contained invalid JSON\n\n## 1.0.30\n\n- Custom slash commands: Run bash output, @-mention files, enable thinking with thinking keywords\n- Improved file path autocomplete with filename matching\n- Added timestamps in Ctrl-r mode and fixed Ctrl-c handling\n- Enhanced jq regex support for complex filters with pipes and select\n\n## 1.0.29\n\n- Improved CJK character support in cursor navigation and rendering\n\n## 1.0.28\n\n- Slash commands: Fix selector display during history navigation\n- Resizes images before upload to prevent API size limit errors\n- Added XDG_CONFIG_HOME support to configuration directory\n- Performance optimizations for memory usage\n- New attributes (terminal.type, language) in OpenTelemetry logging\n\n## 1.0.27\n\n- Streamable HTTP MCP servers are now supported\n- Remote MCP servers (SSE and HTTP) now support OAuth\n- MCP resources can now be @-mentioned\n- /resume slash command to switch conversations within Claude Code\n\n## 1.0.25\n\n- Slash commands: moved \"project\" and \"user\" prefixes to descriptions\n- Slash commands: improved reliability for command discovery\n- Improved support for Ghostty\n- Improved web search reliability\n\n## 1.0.24\n\n- Improved /mcp output\n- Fixed a bug where settings arrays got overwritten instead of merged\n\n## 1.0.23\n\n- Released TypeScript SDK: import @anthropic-ai/claude-code to get started\n- Released Python SDK: pip install claude-code-sdk to get started\n\n## 1.0.22\n\n- SDK: Renamed `total_cost` to `total_cost_usd`\n\n## 1.0.21\n\n- Improved editing of files with tab-based indentation\n- Fix for tool_use without matching tool_result errors\n- Fixed a bug where stdio MCP server processes would linger after quitting Claude Code\n\n## 1.0.18\n\n- Added --add-dir CLI argument for specifying additional working directories\n- Added streaming input support without require -p flag\n- Improved startup performance and session storage performance\n- Added CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR environment variable to freeze working directory for bash commands\n- Added detailed MCP server tools display (/mcp)\n- MCP authentication and permission improvements\n- Added auto-reconnection for MCP SSE connections on disconnect\n- Fixed issue where pasted content was lost when dialogs appeared\n\n## 1.0.17\n\n- We now emit messages from sub-tasks in -p mode (look for the parent_tool_use_id property)\n- Fixed crashes when the VS Code diff tool is invoked multiple times quickly\n- MCP server list UI improvements\n- Update Claude Code process title to display \"claude\" instead of \"node\"\n\n## 1.0.11\n\n- Claude Code can now also be used with a Claude Pro subscription\n- Added /upgrade for smoother switching to Claude Max plans\n- Improved UI for authentication from API keys and Bedrock/Vertex/external auth tokens\n- Improved shell configuration error handling\n- Improved todo list handling during compaction\n\n## 1.0.10\n\n- Added markdown table support\n- Improved streaming performance\n\n## 1.0.8\n\n- Fixed Vertex AI region fallback when using CLOUD_ML_REGION\n- Increased default otel interval from 1s -> 5s\n- Fixed edge cases where MCP_TIMEOUT and MCP_TOOL_TIMEOUT weren't being respected\n- Fixed a regression where search tools unnecessarily asked for permissions\n- Added support for triggering thinking non-English languages\n- Improved compacting UI\n\n## 1.0.7\n\n- Renamed /allowed-tools -> /permissions\n- Migrated allowedTools and ignorePatterns from .claude.json -> settings.json\n- Deprecated claude config commands in favor of editing settings.json\n- Fixed a bug where --dangerously-skip-permissions sometimes didn't work in --print mode\n- Improved error handling for /install-github-app\n- Bugfixes, UI polish, and tool reliability improvements\n\n## 1.0.6\n\n- Improved edit reliability for tab-indented files\n- Respect CLAUDE_CONFIG_DIR everywhere\n- Reduced unnecessary tool permission prompts\n- Added support for symlinks in @file typeahead\n- Bugfixes, UI polish, and tool reliability improvements\n\n## 1.0.4\n\n- Fixed a bug where MCP tool errors weren't being parsed correctly\n\n## 1.0.1\n\n- Added `DISABLE_INTERLEAVED_THINKING` to give users the option to opt out of interleaved thinking.\n- Improved model references to show provider-specific names (Sonnet 3.7 for Bedrock, Sonnet 4 for Console)\n- Updated documentation links and OAuth process descriptions\n\n## 1.0.0\n\n- Claude Code is now generally available\n- Introducing Sonnet 4 and Opus 4 models\n\n## 0.2.125\n\n- Breaking change: Bedrock ARN passed to `ANTHROPIC_MODEL` or `ANTHROPIC_SMALL_FAST_MODEL` should no longer contain an escaped slash (specify `/` instead of `%2F`)\n- Removed `DEBUG=true` in favor of `ANTHROPIC_LOG=debug`, to log all requests\n\n## 0.2.117\n\n- Breaking change: --print JSON output now returns nested message objects, for forwards-compatibility as we introduce new metadata fields\n- Introduced settings.cleanupPeriodDays\n- Introduced CLAUDE_CODE_API_KEY_HELPER_TTL_MS env var\n- Introduced --debug mode\n\n## 0.2.108\n\n- You can now send messages to Claude while it works to steer Claude in real-time\n- Introduced BASH_DEFAULT_TIMEOUT_MS and BASH_MAX_TIMEOUT_MS env vars\n- Fixed a bug where thinking was not working in -p mode\n- Fixed a regression in /cost reporting\n- Deprecated MCP wizard interface in favor of other MCP commands\n- Lots of other bugfixes and improvements\n\n## 0.2.107\n\n- CLAUDE.md files can now import other files. Add @path/to/file.md to ./CLAUDE.md to load additional files on launch\n\n## 0.2.106\n\n- MCP SSE server configs can now specify custom headers\n- Fixed a bug where MCP permission prompt didn't always show correctly\n\n## 0.2.105\n\n- Claude can now search the web\n- Moved system & account status to /status\n- Added word movement keybindings for Vim\n- Improved latency for startup, todo tool, and file edits\n\n## 0.2.102\n\n- Improved thinking triggering reliability\n- Improved @mention reliability for images and folders\n- You can now paste multiple large chunks into one prompt\n\n## 0.2.100\n\n- Fixed a crash caused by a stack overflow error\n- Made db storage optional; missing db support disables --continue and --resume\n\n## 0.2.98\n\n- Fixed an issue where auto-compact was running twice\n\n## 0.2.96\n\n- Claude Code can now also be used with a Claude Max subscription (https://claude.ai/upgrade)\n\n## 0.2.93\n\n- Resume conversations from where you left off from with \"claude --continue\" and \"claude --resume\"\n- Claude now has access to a Todo list that helps it stay on track and be more organized\n\n## 0.2.82\n\n- Added support for --disallowedTools\n- Renamed tools for consistency: LSTool -> LS, View -> Read, etc.\n\n## 0.2.75\n\n- Hit Enter to queue up additional messages while Claude is working\n- Drag in or copy/paste image files directly into the prompt\n- @-mention files to directly add them to context\n- Run one-off MCP servers with `claude --mcp-config <path-to-file>`\n- Improved performance for filename auto-complete\n\n## 0.2.74\n\n- Added support for refreshing dynamically generated API keys (via apiKeyHelper), with a 5 minute TTL\n- Task tool can now perform writes and run bash commands\n\n## 0.2.72\n\n- Updated spinner to indicate tokens loaded and tool usage\n\n## 0.2.70\n\n- Network commands like curl are now available for Claude to use\n- Claude can now run multiple web queries in parallel\n- Pressing ESC once immediately interrupts Claude in Auto-accept mode\n\n## 0.2.69\n\n- Fixed UI glitches with improved Select component behavior\n- Enhanced terminal output display with better text truncation logic\n\n## 0.2.67\n\n- Shared project permission rules can be saved in .claude/settings.json\n\n## 0.2.66\n\n- Print mode (-p) now supports streaming output via --output-format=stream-json\n- Fixed issue where pasting could trigger memory or bash mode unexpectedly\n\n## 0.2.63\n\n- Fixed an issue where MCP tools were loaded twice, which caused tool call errors\n\n## 0.2.61\n\n- Navigate menus with vim-style keys (j/k) or bash/emacs shortcuts (Ctrl+n/p) for faster interaction\n- Enhanced image detection for more reliable clipboard paste functionality\n- Fixed an issue where ESC key could crash the conversation history selector\n\n## 0.2.59\n\n- Copy+paste images directly into your prompt\n- Improved progress indicators for bash and fetch tools\n- Bugfixes for non-interactive mode (-p)\n\n## 0.2.54\n\n- Quickly add to Memory by starting your message with '#'\n- Press ctrl+r to see full output for long tool results\n- Added support for MCP SSE transport\n\n## 0.2.53\n\n- New web fetch tool lets Claude view URLs that you paste in\n- Fixed a bug with JPEG detection\n\n## 0.2.50\n\n- New MCP \"project\" scope now allows you to add MCP servers to .mcp.json files and commit them to your repository\n\n## 0.2.49\n\n- Previous MCP server scopes have been renamed: previous \"project\" scope is now \"local\" and \"global\" scope is now \"user\"\n\n## 0.2.47\n\n- Press Tab to auto-complete file and folder names\n- Press Shift + Tab to toggle auto-accept for file edits\n- Automatic conversation compaction for infinite conversation length (toggle with /config)\n\n## 0.2.44\n\n- Ask Claude to make a plan with thinking mode: just say 'think' or 'think harder' or even 'ultrathink'\n\n## 0.2.41\n\n- MCP server startup timeout can now be configured via MCP_TIMEOUT environment variable\n- MCP server startup no longer blocks the app from starting up\n\n## 0.2.37\n\n- New /release-notes command lets you view release notes at any time\n- `claude config add/remove` commands now accept multiple values separated by commas or spaces\n\n## 0.2.36\n\n- Import MCP servers from Claude Desktop with `claude mcp add-from-claude-desktop`\n- Add MCP servers as JSON strings with `claude mcp add-json <n> <json>`\n\n## 0.2.34\n\n- Vim bindings for text input - enable with /vim or /config\n\n## 0.2.32\n\n- Interactive MCP setup wizard: Run \"claude mcp add\" to add MCP servers with a step-by-step interface\n- Fix for some PersistentShell issues\n\n## 0.2.31\n\n- Custom slash commands: Markdown files in .claude/commands/ directories now appear as custom slash commands to insert prompts into your conversation\n- MCP debug mode: Run with --mcp-debug flag to get more information about MCP server errors\n\n## 0.2.30\n\n- Added ANSI color theme for better terminal compatibility\n- Fixed issue where slash command arguments weren't being sent properly\n- (Mac-only) API keys are now stored in macOS Keychain\n\n## 0.2.26\n\n- New /approved-tools command for managing tool permissions\n- Word-level diff display for improved code readability\n- Fuzzy matching for slash commands\n\n## 0.2.21\n\n- Fuzzy matching for /commands\n",
+  "changelogLastFetched": 1757650387652,
+  "lastReleaseNotesSeen": "1.0.108",
+  "hasUsedBackslashReturn": true,
+  "recommendedSubscription": "",
+  "hasOpusPlanDefault": false,
+  "oauthAccount": {
+    "accountUuid": "6dcfa04b-ff22-461a-88f1-2f51ecd3924d",
+    "emailAddress": "basil.ivanov@gmail.com",
+    "organizationUuid": "a32ddff4-a682-4e6e-95d8-88bd18ed78bf",
+    "organizationRole": "admin",
+    "workspaceRole": null,
+    "organizationName": "basil.ivanov@gmail.com's Organization"
+  },
+  "claudeCodeFirstTokenDate": "2025-08-19T21:26:30.466306Z"
 }

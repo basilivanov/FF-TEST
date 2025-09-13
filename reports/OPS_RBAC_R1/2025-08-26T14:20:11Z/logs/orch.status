@@ -1,0 +1,21 @@
+● feature-factory-test.service - Feature Factory (test)
+     Loaded: loaded (/etc/systemd/system/feature-factory-test.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/feature-factory-test.service.d
+             └─10-llm.conf
+     Active: active (running) since Tue 2025-08-26 17:20:17 MSK; 1s ago
+   Main PID: 357407 (uvicorn)
+      Tasks: 7 (limit: 2085)
+     Memory: 66.2M (peak: 66.4M)
+        CPU: 647ms
+     CGroup: /system.slice/feature-factory-test.service
+             └─357407 /opt/feature-factory/.venv/bin/python3 /opt/feature-factory/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8081
+
+авг 26 17:20:17 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T14:20:18.190036Z"}
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T14:20:18.253964Z"}
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: INFO:     Started server process [357407]
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: INFO:     Waiting for application startup.
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: INFO:     Application startup complete.
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: INFO:     Uvicorn running on http://0.0.0.0:8081 (Press CTRL+C to quit)
+авг 26 17:20:18 bivanov.fvds.ru uvicorn[357407]: INFO:     127.0.0.1:36598 - "GET /api/v1/health HTTP/1.1" 200 OK

@@ -1,0 +1,4 @@
+/etc/sudoers: parsed OK
+/etc/sudoers.d/99-feature-factory-ops: parsed OK
+/etc/sudoers.d/99-ff-ops-nginx-t: parsed OK
+/etc/sudoers.d/README: parsed OK

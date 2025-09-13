@@ -178,7 +178,7 @@ async def dev_code_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 )
                 response_text = "LLM fallback mode"
                 artifact_manifest = {"files": ["main.py"], "package_contract": {"package_id": f"PKG-{feature_id.upper().replace('-', '_')}-v1"}}
-                files = {"main.py": f'''print("Hello from {feature_id}")''')}
+                files = {"main.py": f'''print("Hello from {feature_id}")'''}
                 
             artifacts_dir = f"/opt/feature-factory/tmp/{run_id}"
             os.makedirs(artifacts_dir, exist_ok=True)

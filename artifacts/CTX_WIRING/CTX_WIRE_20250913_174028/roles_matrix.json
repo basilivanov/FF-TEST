@@ -1,0 +1,177 @@
+{
+  "analysis_timestamp": "2025-09-13T17:40:28Z",
+  "source_configs": {
+    "routing": "/opt/feature-factory/configs/llm_routing.yaml",
+    "cli": "/opt/feature-factory/configs/llm_cli_config.yaml"
+  },
+  "roles": {
+    "Architect": {
+      "provider_chain": ["anthropic_opus41", "openai_gpt5_via_codex", "gemini_25_pro"],
+      "resolved_providers": [
+        {
+          "alias": "anthropic_opus41",
+          "provider": "claude",
+          "model": "sonnet4",
+          "binary_path": "/opt/feature-factory/bin/claude",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "openai_gpt5_via_codex",
+          "provider": "codex", 
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/codex",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "gemini_25_pro",
+          "provider": "gemini",
+          "model": "pro", 
+          "binary_path": "/opt/feature-factory/bin/gemini",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 60,
+      "json_mode": "json_object",
+      "reasoning_effort": "high",
+      "extended_thinking": true,
+      "adaptive_thinking": true
+    },
+    "Dev": {
+      "provider_chain": ["qwen_code", "gemini_25_flash", "openai_gpt5_mini"],
+      "resolved_providers": [
+        {
+          "alias": "qwen_code",
+          "provider": "qwen",
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/qwen",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "gemini_25_flash",
+          "provider": "gemini",
+          "model": "flash",
+          "binary_path": "/opt/feature-factory/bin/gemini", 
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "openai_gpt5_mini",
+          "provider": "codex",
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/codex",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 30,
+      "json_mode": "off",
+      "reasoning_effort": "minimal"
+    },
+    "QA": {
+      "provider_chain": ["qwen_code", "openai_gpt5_mini", "gemini_25_flash"],
+      "resolved_providers": [
+        {
+          "alias": "qwen_code", 
+          "provider": "qwen",
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/qwen",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "openai_gpt5_mini",
+          "provider": "codex",
+          "model": "default", 
+          "binary_path": "/opt/feature-factory/bin/codex",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "gemini_25_flash",
+          "provider": "gemini",
+          "model": "flash",
+          "binary_path": "/opt/feature-factory/bin/gemini",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 30,
+      "json_mode": "json_object",
+      "json_schema_ref": "configs/schemas/qa.report.schema.json",
+      "reasoning_effort": "minimal"
+    },
+    "Gate": {
+      "provider_chain": ["anthropic_opus41", "gemini_25_pro"],
+      "resolved_providers": [
+        {
+          "alias": "anthropic_opus41",
+          "provider": "claude",
+          "model": "sonnet4",
+          "binary_path": "/opt/feature-factory/bin/claude",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "gemini_25_pro",
+          "provider": "gemini", 
+          "model": "pro",
+          "binary_path": "/opt/feature-factory/bin/gemini",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 45,
+      "json_mode": "json_object",
+      "reasoning_effort": "high"
+    },
+    "Scribe": {
+      "provider_chain": ["qwen_code", "openai_gpt5_mini"],
+      "resolved_providers": [
+        {
+          "alias": "qwen_code",
+          "provider": "qwen",
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/qwen",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "openai_gpt5_mini",
+          "provider": "codex",
+          "model": "default",
+          "binary_path": "/opt/feature-factory/bin/codex",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 25,
+      "json_mode": "json_object",
+      "json_schema_ref": "configs/schemas/scribe.changelog.schema.json",
+      "reasoning_effort": "minimal"
+    },
+    "Apply": {
+      "provider_chain": ["qwen_code", "gemini_25_flash"],
+      "resolved_providers": [
+        {
+          "alias": "qwen_code",
+          "provider": "qwen",
+          "model": "default", 
+          "binary_path": "/opt/feature-factory/bin/qwen",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        },
+        {
+          "alias": "gemini_25_flash",
+          "provider": "gemini",
+          "model": "flash",
+          "binary_path": "/opt/feature-factory/bin/gemini",
+          "wrapper_path": "/opt/feature-factory/bin/ff-cli-wrapper.sh"
+        }
+      ],
+      "timeout_sec": 30,
+      "json_mode": "json_object",
+      "reasoning_effort": "minimal"
+    }
+  },
+  "wrapper_config": {
+    "universal_wrapper": "/opt/feature-factory/bin/ff-cli-wrapper.sh",
+    "wrapper_pattern": "env HOME=/home/feature bash -lc \"exec \\\"$REAL_BINARY_PATH\\\" \\\"\\$@\\\"\" -- \"$@\"",
+    "home_isolation": "/home/feature"
+  },
+  "validation": {
+    "all_roles_have_providers": true,
+    "all_binaries_exist": true,
+    "wrapper_exists": true,
+    "json_modes_defined": true
+  }
+}

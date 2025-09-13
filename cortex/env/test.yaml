@@ -1,0 +1,64 @@
+# TEST Environment Configuration
+
+env: TEST
+description: "Контур для тестирования и разработки"
+
+# База данных
+database:
+  url: "sqlite:////opt/feature-factory/data/test.db"
+  journal_mode: WAL
+  synchronous: NORMAL
+  busy_timeout: 5000
+  backup_retention_days: 7
+
+# Сервисы
+services:
+  api:
+    name: "feature-factory-test.service"
+    port: 8081
+    host: "127.0.0.1"
+  runner:
+    name: "feature-factory-runner.service" 
+    tick_interval: 2
+    graceful_shutdown: true
+
+# Git интеграция (REAL)
+git:
+  provider: github
+  integration_enabled: true
+  push_enabled: true
+  owner: basilivanov
+  repo: FF-TEST
+  base_branch: main
+  ssh_key: "~/.ssh/id_ed25519_ff"
+
+# CI/CD
+ci:
+  webhook_enabled: true
+  hook_user: ops
+  hook_pass: ops123
+  base_url: "http://127.0.0.1:8081"
+  required_checks:
+    - lint
+    - tests  
+    - build
+    - smoke
+
+# UI
+ui:
+  build_command: "/opt/feature-factory/bin/ff-ui-build-nosudo"
+  deploy_command: "/opt/feature-factory/bin/ff-ui-deploy-safe-nosudo --smoke"
+  deploy_required_on_change: true
+
+# Мониторинг
+monitoring:
+  health_endpoint: "/health/live"
+  metrics_endpoint: "/api/v1/metrics"
+  sse_endpoint: "/api/v1/logs/stream"
+
+# Wrapper команды
+wrappers:
+  claude: "/opt/feature-factory/bin/claude"
+  gemini: "/opt/feature-factory/bin/gemini"
+  qwen: "/opt/feature-factory/bin/qwen"  
+  codex: "/opt/feature-factory/bin/codex"

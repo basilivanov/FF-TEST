@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Создать автоматический OAuth менеджер для refresh token'ов",
+    "status": "completed",
+    "activeForm": "Создан автоматический OAuth менеджер"
+  },
+  {
+    "content": "Настроить интеграцию с существующими token файлами",
+    "status": "completed",
+    "activeForm": "Настроена интеграция с существующими token файлами"
+  },
+  {
+    "content": "Найти и настроить правильные обертки агентов",
+    "status": "completed",
+    "activeForm": "Найдены и настроены обертки агентов"
+  },
+  {
+    "content": "Проверить и исправить функцию _resolve_secret_refs",
+    "status": "in_progress",
+    "activeForm": "Проверяю и исправляю функцию _resolve_secret_refs"
+  },
+  {
+    "content": "Довести Gemini OAuth до рабочего состояния",
+    "status": "pending",
+    "activeForm": "Доводим Gemini OAuth до рабочего состояния"
+  }
+]

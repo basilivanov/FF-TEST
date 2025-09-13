@@ -1,0 +1,2 @@
+== repo remote and inferred owner/repo ==
+remote.origin.url=git@github.com:basilivanov/FF-TEST.git

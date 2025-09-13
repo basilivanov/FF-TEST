@@ -1,0 +1,189 @@
+# Architect Role Examples - Concrete Task Handoff Scenarios
+
+# Example 1: API Endpoint Creation
+example_api_endpoint:
+  task: "Создать API endpoint для управления фичами"
+  corr_id: "TASK_1705123456"
+  context:
+    - "/opt/feature-factory/app/api/"
+    - "https://github.com/basilivanov/FF-TEST"
+    - "DATABASE_URL"
+    - "FastAPI framework patterns"
+  prechecks:
+    - "Проверить доступность БД (sqlite WAL режим активен)"
+    - "Убедиться что FastAPI сервер запущен на :8081"
+    - "Проверить существование базовых API routes в app/api/"
+  plan:
+    - "Создать Pydantic модели для Feature (schemas/feature_schemas.py)"
+    - "Реализовать CRUD операции в app/api/features.py"
+    - "Добавить роуты в main router с correlation_id middleware"
+    - "Написать тесты с использованием TestClient"
+    - "Обновить OpenAPI документацию"
+  dod:
+    - "GET /api/v1/features возвращает 200 и список фич"
+    - "POST /api/v1/features создает запись в БД с валидацией"
+    - "PUT /api/v1/features/{id} обновляет существующую фичу"
+    - "DELETE /api/v1/features/{id} помечает фичу как удаленную"
+    - "Все endpoints логируют events с correlation_id"
+    - "Тесты покрывают happy path и error cases (>85%)"
+    - "OpenAPI schema обновлена и валидна"
+  artifacts_dir: "/opt/feature-factory/artifacts/feature_api_1705123456/"
+  owner: "Dev"
+  priority: "high"
+
+# Example 2: Database Schema Migration
+example_db_migration:
+  task: "Добавить таблицу для хранения метрик производительности"
+  corr_id: "TASK_1705234567"
+  context:
+    - "/opt/feature-factory/app/db/models/"
+    - "/opt/feature-factory/app/db/migrations/"
+    - "SQLAlchemy ORM patterns"
+    - "Alembic migration system"
+  prechecks:
+    - "Проверить текущую схему БД через alembic current"
+    - "Убедиться что нет незакоммиченных миграций"
+    - "Проверить доступность БД для записи"
+  plan:
+    - "Создать модель PerformanceMetric в app/db/models/metrics.py"
+    - "Добавить связи с существующими моделями (Feature, Task)"
+    - "Сгенерировать миграцию через alembic revision --autogenerate"
+    - "Проверить SQL в generated migration file"
+    - "Применить миграцию в тестовом окружении"
+    - "Создать базовые CRUD операции для метрик"
+  dod:
+    - "Модель PerformanceMetric создана с полями: id, feature_id, metric_name, value, timestamp"
+    - "Foreign key связь с таблицей features настроена"
+    - "Миграция создана и применяется без ошибок"
+    - "alembic upgrade head выполняется успешно"
+    - "alembic downgrade -1 откатывает изменения"
+    - "Индексы созданы для часто используемых полей"
+    - "Базовые query методы работают корректно"
+  artifacts_dir: "/opt/feature-factory/artifacts/metrics_migration_1705234567/"
+  owner: "Dev"
+  notes: "Учесть производительность при больших объемах метрик"
+
+# Example 3: Integration with External Service  
+example_external_integration:
+  task: "Интегрировать систему с внешним сервисом уведомлений"
+  corr_id: "TASK_1705345678"
+  context:
+    - "/opt/feature-factory/app/integrations/"
+    - "webhook URLs и authentication"
+    - "async/await patterns для HTTP calls"
+    - "retry policies и circuit breaker"
+  prechecks:
+    - "Получить API credentials для внешнего сервиса"
+    - "Проверить доступность webhook endpoints"
+    - "Убедиться что secret_store настроен корректно"
+  plan:
+    - "Создать client класс для внешнего API в app/integrations/notifications.py"
+    - "Реализовать асинхронные методы для отправки уведомлений"
+    - "Добавить retry logic с exponential backoff"
+    - "Создать webhook handler для входящих уведомлений"
+    - "Интегрировать с основным workflow через events"
+    - "Добавить мониторинг и логирование всех calls"
+  dod:
+    - "NotificationClient отправляет уведомления успешно"
+    - "Обрабатывает ошибки сети с retry (max 3 attempts)"
+    - "Webhook endpoint принимает и валидирует входящие events"
+    - "Все HTTP calls логируются с correlation_id и response time"
+    - "Circuit breaker предотвращает cascade failures"
+    - "Integration тесты покрывают success и failure scenarios"
+    - "Секреты не попадают в логи или error messages"
+  artifacts_dir: "/opt/feature-factory/artifacts/notifications_integration_1705345678/"
+  owner: "Dev"
+  deadline: "PT72H"
+
+# Example 4: Performance Optimization
+example_performance_optimization:
+  task: "Оптимизировать производительность Context Packager"
+  corr_id: "TASK_1705456789"
+  context:
+    - "/opt/feature-factory/app/context/packager.py"
+    - "symbol_index и call_graph queries"
+    - "caching strategies"
+    - "profiling results"
+  prechecks:
+    - "Запустить profiler для текущего Context Packager"
+    - "Измерить baseline производительность (время сборки контекста)"
+    - "Проверить размеры индексов в БД"
+  plan:
+    - "Добавить Redis кэширование для frequently accessed content"
+    - "Оптимизировать SQL queries для symbol_index поиска"
+    - "Реализовать parallel loading контента из разных источников"
+    - "Добавить content compression для больших файлов"
+    - "Создать benchmark тесты для measurement"
+  dod:
+    - "Время сборки контекста уменьшено минимум на 40%"
+    - "Memory usage не увеличивается более чем на 10%"
+    - "Cache hit rate составляет минимум 70% для repeated queries"
+    - "SQL queries выполняются менее чем за 50ms каждый"
+    - "Benchmark тесты показывают стабильные результаты"
+    - "Никаких performance regressions в других компонентах"
+    - "Monitoring metrics добавлены для tracking performance"
+  artifacts_dir: "/opt/feature-factory/artifacts/context_optimization_1705456789/"
+  owner: "Dev"
+  priority: "medium"
+
+# Example 5: Security Enhancement
+example_security_enhancement:
+  task: "Усилить безопасность API endpoints с rate limiting"
+  corr_id: "TASK_1705567890"
+  context:
+    - "/opt/feature-factory/app/api/middleware.py"
+    - "nginx rate limiting config"
+    - "security best practices"
+    - "authentication и authorization"
+  prechecks:
+    - "Провести security audit текущих endpoints"
+    - "Проверить existing authentication mechanisms"
+    - "Убедиться что nginx proxy настроен корректно"
+  plan:
+    - "Реализовать rate limiting middleware с Redis backend"
+    - "Добавить endpoint-specific rate limits"
+    - "Усилить validation всех input данных"
+    - "Добавить security headers (CORS, CSP, etc.)"
+    - "Создать monitoring для suspicious activity"
+    - "Написать security тесты"
+  dod:
+    - "Rate limiting работает: 100 req/min для /api/v1/features"
+    - "429 Too Many Requests возвращается при превышении лимитов"
+    - "Security headers присутствуют во всех responses"
+    - "Input validation предотвращает injection attacks"
+    - "Все security events логируются с высоким приоритетом"
+    - "Penetration testing не выявляет критичных уязвимостей"
+    - "Performance degradation менее 5% при включенных security мерах"
+  artifacts_dir: "/opt/feature-factory/artifacts/security_enhancement_1705567890/"
+  owner: "Dev"
+  severity: "high"
+
+# Template for new tasks
+task_template:
+  task: "Описание задачи в императивной форме"
+  corr_id: "TASK_$(date +%s)"
+  context:
+    - "Абсолютные пути к релевантным файлам и директориям"
+    - "URL к документации или внешним ресурсам"
+    - "Environment variables и configuration"
+    - "Технические паттерны и frameworks"
+  prechecks:
+    - "Что должно быть проверено перед началом работы"
+    - "Доступность ресурсов и зависимостей"
+    - "Baseline measurements или текущее состояние"
+  plan:
+    - "Конкретные шаги выполнения в логическом порядке"
+    - "Создание файлов, изменения кода, настройки"
+    - "Тестирование и валидация changes"
+    - "Документирование и cleanup"
+  dod:
+    - "Проверяемые критерии приёмки"
+    - "Количественные метрики (производительность, покрытие)"
+    - "Функциональные требования с примерами"
+    - "Качественные требования (логирование, security)"
+  artifacts_dir: "/opt/feature-factory/artifacts/task_name_timestamp/"
+  owner: "Role ответственного за выполнение"
+  priority: "low|medium|high"
+  severity: "low|med|high"
+  deadline: "ISO8601 duration или timestamp"
+  notes: "Дополнительная информация, ограничения, dependencies"

@@ -16,6 +16,8 @@ from app.api.logs import router as logs_router
 from app.api.logs_errors_endpoints import router as logs_errors_router
 from app.api.tokens import router as tokens_router
 from app.api.tokens_stats_endpoints import router as tokens_stats_router
+from app.api.runner_endpoints import router as runner_router
+from app.api.ci_debug import router as ci_debug_router
 from app.api.docs_status import router as docs_status_router
 from app.api.chat import router as chat_router
 from app.api.chat_websocket import router as chat_websocket_router # Новый импорт
@@ -28,6 +30,7 @@ from app.api.analyst import router as analyst_router
 from app.api.context import router as context_router
 from app.api.agents_status import router as agents_status_router
 from app.api.tasks import router as tasks_router
+from app.api.ci_status import router as ci_status_router
 
 # Импортируем модуль защиты БД
 try:
@@ -81,6 +84,8 @@ app.include_router(tokens_router)
 
 # Подключаем маршруты статистики токенов
 app.include_router(tokens_stats_router)
+app.include_router(runner_router)
+app.include_router(ci_debug_router)
 
 # Подключаем маршруты health check
 app.include_router(health_router)
@@ -108,6 +113,9 @@ app.include_router(agents_status_router, tags=["Agents"])
 
 # Подключаем маршруты tasks
 app.include_router(tasks_router, prefix="/api/v1/tasks", tags=["Tasks"])
+
+# Подключаем маршруты CI status
+app.include_router(ci_status_router, prefix="/api/v1", tags=["CI"])
 
 # Подключаем маршруты трассировки
 from app.api.trace import router as trace_router

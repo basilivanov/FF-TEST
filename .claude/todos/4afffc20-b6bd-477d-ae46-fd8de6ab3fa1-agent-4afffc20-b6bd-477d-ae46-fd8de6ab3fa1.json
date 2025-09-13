@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Проверить и исправить конфигурацию сервисов для полной автоматизации",
+    "status": "in_progress",
+    "activeForm": "Настраиваю полную автоматизацию"
+  },
+  {
+    "content": "Запустить все сервисы с реальными токенами",
+    "status": "pending",
+    "activeForm": "Запускаю сервисы"
+  },
+  {
+    "content": "Создать фичу с autostart через API",
+    "status": "pending",
+    "activeForm": "Создаю фичу с autostart"
+  },
+  {
+    "content": "Проверить автоматическое создание PR",
+    "status": "pending",
+    "activeForm": "Проверяю создание PR"
+  },
+  {
+    "content": "Отправить CI статусы и проверить автомерж",
+    "status": "pending",
+    "activeForm": "Тестирую автомерж"
+  }
+]

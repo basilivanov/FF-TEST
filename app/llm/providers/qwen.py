@@ -23,7 +23,7 @@ class QwenAdapter(LLMProviderAdapter):
         Формирует команду CLI и переменные окружения для вызова Qwen.
         """
         # Базовая команда из конфигурации
-        cmd = self.provider_config.get("cmd", ["qwen", "run"])
+        cmd = self.provider_config.get("cmd", ["qwen"])
         
         # Переменные окружения
         env_vars = self.provider_config.get("env_required", [])
@@ -32,10 +32,6 @@ class QwenAdapter(LLMProviderAdapter):
         # Добавляем параметры/флаги
         flags = self.provider_config.get("flags", [])
         cmd.extend(flags)
-        cmd.extend([
-            "--max-tokens", str(max_tokens),
-            "--temperature", str(temperature)
-        ])
 
         if stop:
             cmd.extend(["--stop", ",".join(stop)])

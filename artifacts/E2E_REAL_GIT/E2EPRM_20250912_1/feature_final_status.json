@@ -1,0 +1,10 @@
+{
+  "id": 6,
+  "title": "E2E real PR E2EPRM_20250912_1",
+  "intent_json": "{}",
+  "status": "DONE",
+  "priority": 0,
+  "created_at": "2025-09-12T15:20:26Z",
+  "created_by": "API",
+  "env": "test"
+}

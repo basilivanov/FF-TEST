@@ -22,6 +22,8 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from sqlalchemy import create_engine, text
 import structlog
+import sys
+import importlib.util
 
 
 REPO_ROOT = "/opt/feature-factory"
@@ -48,7 +50,7 @@ class ContextPackager:
 
     def _load_playbook(self) -> str:
         try:
-            with open("/opt/feature-factory/cortex/playbook/main.md", "r", encoding="utf-8") as f:
+            with open("/opt/feature-factory/cortex/core/mission.md", "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return ""
@@ -56,7 +58,7 @@ class ContextPackager:
     def _load_doctrine(self) -> str:
         """Загружает общие правила и анти-паттерны из доктрины."""
         try:
-            with open("/opt/feature-factory/cortex/doctrine/common_rules.md", "r", encoding="utf-8") as f:
+            with open("/opt/feature-factory/cortex/core/invariants.md", "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return ""
@@ -71,7 +73,7 @@ class ContextPackager:
             return ""
             
         try:
-            with open("/opt/feature-factory/cortex/security/credentials.md", "r", encoding="utf-8") as f:
+            with open("/opt/feature-factory/cortex/policies/security.md", "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return ""
@@ -81,19 +83,58 @@ class ContextPackager:
             return ""
 
         cortex_paths = []
-        if role == "Dev":
+        
+        if role == "Architect":
             cortex_paths.extend([
-                "/opt/feature-factory/cortex/db/rules.md",
-                "/opt/feature-factory/cortex/logging_rules.md",
+                "/opt/feature-factory/cortex/roles/architect.md",
+                "/opt/feature-factory/cortex/core/subsystems.md", 
+                "/opt/feature-factory/cortex/core/zero_human_architecture.md",
+                "/opt/feature-factory/cortex/patterns/subsystems/api_gateway.yaml",
+                "/opt/feature-factory/cortex/contracts/architect_examples.yaml"
+            ])
+        elif role == "Dev":
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/roles/dev.md",
+                "/opt/feature-factory/cortex/core/invariants.md",
+                "/opt/feature-factory/cortex/patterns/ai_ml/model_orchestrator.py", 
+                "/opt/feature-factory/cortex/patterns/integrations/marketplace_client.py",
+                "/opt/feature-factory/cortex/patterns/testing/api_test_template.py"
+            ])
+        elif role == "QA":
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/roles/qa.md",
+                "/opt/feature-factory/cortex/patterns/testing/playwright_config.ts",
+                "/opt/feature-factory/cortex/patterns/testing/e2e_base.ts",
+                "/opt/feature-factory/cortex/patterns/testing/coverage_rules.md", 
+                "/opt/feature-factory/cortex/patterns/testing/fixture_examples.py"
+            ])
+        elif role == "Gate":
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/roles/gate.md",
+                "/opt/feature-factory/cortex/patterns/validation/gate_examples.py",
+                "/opt/feature-factory/cortex/policies/security.md"
+            ])
+        elif role == "Scribe":
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/roles/scribe.md",
+                "/opt/feature-factory/cortex/CHANGELOG.md"
+            ])
+        elif role == "Apply":
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/roles/apply.md",
+                "/opt/feature-factory/cortex/patterns/subsystems/api_gateway.yaml",
+                "/opt/feature-factory/cortex/policies/git_workflow.md"
             ])
         elif role == "Ops":
-            cortex_paths.append("/opt/feature-factory/cortex/ops_tools.md")
+            cortex_paths.extend([
+                "/opt/feature-factory/cortex/reference/cli_commands.md"
+            ])
 
         content = []
         for path in cortex_paths:
             try:
                 with open(path, "r", encoding="utf-8") as f:
-                    content.append(f.read())
+                    content.append(f"## {path}\n\n" + f.read())
             except Exception:
                 pass
         
@@ -102,13 +143,97 @@ class ContextPackager:
 
         return "\n\n".join(content)
 
+    def _load_dynamic_content(self, task_description: str, dsl: Dict[str, Any], role: Optional[str]) -> str:
+        """Загружает динамический контент на основе анализа задачи и symbol_index"""
+        content = ""
+        
+        try:
+            # Попытка загрузить и использовать DynamicContextEngine
+            spec = importlib.util.spec_from_file_location(
+                "dynamic_context", 
+                "/opt/feature-factory/cortex/patterns/dynamic_context.py"
+            )
+            if spec and spec.loader:
+                dynamic_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(dynamic_module)
+                
+                # Создаем экземпляр движка
+                engine = dynamic_module.DynamicContextEngine()
+                
+                # Извлекаем контекстные подсказки из dsl
+                context_hints = []
+                if isinstance(dsl, dict):
+                    context_hints.extend(dsl.get("context", []))
+                    context_hints.extend(dsl.get("files", []))
+                    context_hints.extend(dsl.get("modules", []))
+                
+                # Генерируем динамический контент
+                content = engine.generate_dynamic_content(
+                    task_description, 
+                    context_hints, 
+                    role or "Dev"
+                )
+                
+                self.logger.info("dynamic_content_loaded", 
+                                content_length=len(content),
+                                role=role)
+                
+        except Exception as e:
+            self.logger.warning("dynamic_content_failed", error=str(e))
+        
+        # Дополняем Learning Engine рекомендациями
+        try:
+            # Используем LearningDataCollector который работает без ML зависимостей
+            spec = importlib.util.spec_from_file_location(
+                "learning_collector",
+                "/opt/feature-factory/app/services/learning_data_collector.py"
+            )
+            if spec and spec.loader:
+                collector_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(collector_module)
+                
+                collector = collector_module.LearningDataCollector()
+                
+                # Синхронный вызов для совместимости с ContextPackager
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                    recommendations = loop.run_until_complete(
+                        collector.get_recommendations_for_task({
+                            'task': task_description,
+                            'role': role,
+                            'context': dsl
+                        })
+                    )
+                except RuntimeError:
+                    # Если event loop уже запущен, используем fallback
+                    recommendations = collector._get_fallback_recommendations({
+                        'task': task_description,
+                        'role': role,
+                        'context': dsl
+                    })
+                
+                if recommendations:
+                    content += f"\n\n## AI Learning Recommendations\n"
+                    for rec in recommendations:
+                        content += f"- {rec}\n"
+                        
+                    self.logger.info("learning_recommendations_added",
+                                   count=len(recommendations),
+                                   role=role)
+                        
+        except Exception as e:
+            self.logger.warning("learning_recommendations_failed", error=str(e))
+        
+        return content
+
     def _find_api_specs(self, keywords: Set[str]) -> List[Dict[str, Any]]:
         specs = []
         if not any(k in keywords for k in ["curl", "POST", "GET", "эндпоинт", "endpoint"]):
             return specs
 
         try:
-            with open("/opt/feature-factory/cortex/api/openapi.spec.json", "r") as f:
+            with open("/opt/feature-factory/cortex/reference/endpoints.md", "r", encoding="utf-8") as f:
                 openapi_spec = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             return specs
@@ -150,6 +275,9 @@ class ContextPackager:
         
         # УСЛОВНО добавляем карту секретов
         security_content = self._load_security_credentials(task_description)
+        
+        # NEW: Добавляем динамический контент на основе symbol_index
+        dynamic_content = self._load_dynamic_content(task_description, dsl, role)
 
         api_specs = self._find_api_specs(keywords)
 
@@ -221,11 +349,15 @@ class ContextPackager:
         if cortex_content:
             context_parts.append("# РОЛЕ-СПЕЦИФИЧНЫЕ ПРАВИЛА\n\n" + cortex_content)
             
-        # 4. Playbook
+        # 4. Динамический контент из symbol_index
+        if dynamic_content:
+            context_parts.append("# ДИНАМИЧЕСКИЙ КОНТЕКСТ\n\n" + dynamic_content)
+        
+        # 5. Playbook
         if playbook_content:
             context_parts.append("# PLAYBOOK\n\n" + playbook_content)
         
-        # 5. Основной контент
+        # 6. Основной контент
         context_parts.append(md)
         
         return "\n\n".join(context_parts)

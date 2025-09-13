@@ -4,6 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
+      - "cortex_new/**"
       - "cortex/**"
       - "configs/**"
       - "docs/**"
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches: [ "main" ]
     paths:
+      - "cortex_new/**"
       - "cortex/**"
       - "configs/**"
       - "docs/**"

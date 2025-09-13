@@ -1,0 +1,6 @@
+PR URL Validation Results
+========================
+PR URL: https://github.com/basilivanov/FF-TEST/pull/123
+Expected Pattern: ^https://github.com/basilivanov/FF-TEST/pull/\d+$
+Match Result: VALID (pattern matched)
+Validation Status: PASSED

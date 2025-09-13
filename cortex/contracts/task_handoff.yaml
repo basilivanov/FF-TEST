@@ -1,0 +1,66 @@
+# Task Handoff Contract
+
+# Стандартный протокол передачи задач между ролями
+# Используется для единообразной постановки задач агентам
+
+task_handoff_schema:
+  required_fields:
+    - task: "Описание задачи в императивной форме"
+    - corr_id: "Correlation ID в формате TASK_$(date +%s)"
+    - context: "Массив путей, URL, переменных окружения"
+    - prechecks: "Что проверить перед началом выполнения" 
+    - plan: "Последовательность шагов выполнения"
+    - dod: "Definition of Done - проверяемые критерии приёмки"
+    - artifacts_dir: "Абсолютный путь для сохранения артефактов"
+    
+  optional_fields:
+    - owner: "Роль ответственного за выполнение"
+    - notes: "Дополнительные заметки"
+    - deadline: "Крайний срок выполнения"
+    - priority: "Приоритет задачи (low|medium|high)"
+
+message_structure:
+  1_context_block:
+    description: "Короткий блок 'Что уже сделано'"
+    format: "1-5 маркеров, только факты"
+    
+  2_yaml_block:
+    description: "ОДИН YAML блок с задачей"
+    format: "Строго один блок, все обязательные поля"
+    
+  3_purpose_block:
+    description: "Зачем задача"
+    format: "2-3 предложения о цели бизнес/техрезультата"
+    
+  4_next_block:
+    description: "Блок 'Дальше'"
+    format: "Что запускаем после успешной сдачи"
+
+validation_rules:
+  - "Все пути должны быть абсолютными"
+  - "Все URL должны быть полностью квалифицированными"
+  - "DoD критерии должны быть проверяемыми"
+  - "Один handoff = одна задача (никогда не ставить несколько)"
+  - "correlation_id должен быть уникальным"
+
+examples:
+  architect_to_dev:
+    task: "Создать API endpoint для управления фичами"
+    corr_id: "TASK_1705123456"
+    context:
+      - "/opt/feature-factory/app/api/"
+      - "https://github.com/basilivanov/FF-TEST"
+      - "DATABASE_URL"
+    prechecks:
+      - "Проверить доступность БД"
+      - "Убедиться что FastAPI запущен"
+    plan:
+      - "Создать Pydantic модель для Feature"
+      - "Реализовать CRUD операции"
+      - "Добавить endpoint в router"
+      - "Написать тесты"
+    dod:
+      - "API endpoint отвечает 200 на GET /features"
+      - "POST /features создает запись в БД"
+      - "Тесты покрывают happy path и error cases"
+    artifacts_dir: "/opt/feature-factory/artifacts/feature_1705123456/"

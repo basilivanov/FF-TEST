@@ -1,0 +1,104 @@
+--- a/app/context/packager.py
++++ b/app/context/packager.py
+@@ -125,6 +125,75 @@ class ContextPackager:
+             })
+         return specs
+ 
++    def _validate_minimum_context_per_role(self, role: Optional[str], context_components: Dict[str, Any]) -> Dict[str, Any] | None:
++        """
++        Проверяет минимальный набор контекста для роли.
++        Возвращает {"error":"NeedContext","missing":[...]} если чего-то не хватает.
++        """
++        if not role:
++            return None
++            
++        # Определяем минимальные требования per role
++        minimum_requirements = {
++            "Architect": ["repo_meta", "feature_schema", "openapi_summary", "allowed_paths"],
++            "Dev": ["allowed_paths", "coding_guidelines", "diff_strategy", "file_list"],
++            "QA": ["qa_schema", "test_matrix_template", "allowed_paths"],
++            "Gate": ["gate_policy", "qa_report_contract"],
++            "Scribe": ["doc_templates"],
++            "Apply": ["scm_flags", "ci_contexts", "merge_policy"]
++        }
++        
++        required = minimum_requirements.get(role, [])
++        if not required:
++            return None
++            
++        missing = []
++        
++        for requirement in required:
++            if requirement == "repo_meta":
++                if not context_components.get("doctrine_content"):
++                    missing.append("repo_meta")
++            elif requirement == "feature_schema":
++                if not context_components.get("playbook_content"):
++                    missing.append("feature_schema")
++            elif requirement == "openapi_summary":
++                if not context_components.get("api_specs"):
++                    missing.append("openapi_summary")
++            elif requirement == "allowed_paths":
++                if not context_components.get("file_entries"):
++                    missing.append("allowed_paths")
++            elif requirement == "coding_guidelines":
++                if not context_components.get("cortex_content"):
++                    missing.append("coding_guidelines")
++            elif requirement == "diff_strategy":
++                if not context_components.get("doctrine_content"):
++                    missing.append("diff_strategy")
++            elif requirement == "file_list":
++                if not context_components.get("file_entries") or len(context_components["file_entries"]) == 0:
++                    missing.append("file_list")
++            elif requirement == "qa_schema":
++                if not context_components.get("cortex_content"):
++                    missing.append("qa_schema")
++            elif requirement == "test_matrix_template":
++                if not context_components.get("playbook_content"):
++                    missing.append("test_matrix_template")
++            elif requirement == "gate_policy":
++                if not context_components.get("doctrine_content"):
++                    missing.append("gate_policy")
++            elif requirement == "qa_report_contract":
++                if not context_components.get("cortex_content"):
++                    missing.append("qa_report_contract")
++            elif requirement == "doc_templates":
++                if not context_components.get("playbook_content"):
++                    missing.append("doc_templates")
++            elif requirement in ["scm_flags", "ci_contexts", "merge_policy"]:
++                if not context_components.get("cortex_content"):
++                    missing.append(requirement)
++        
++        if missing:
++            return {"error": "NeedContext", "missing": missing}
++        return None
++
+     # === Публичный API ===
+     def build_context_for_task(self, task: Dict[str, Any]) -> str:
+         """Строит Markdown-контекст по задаче.
+@@ -184,6 +253,24 @@ class ContextPackager:
+                 file_paths = confirmed
+ 
+         # Дедублим и ограничиваем
+         uniq_paths = self._unique_keep_order(file_paths)
+         if len(uniq_paths) > 12:
+             uniq_paths = uniq_paths[:12]
+ 
+         file_entries = self._read_files(uniq_paths)
++        
++        # Собираем компоненты контекста для валидации
++        context_components = {
++            "doctrine_content": doctrine_content,
++            "security_content": security_content, 
++            "cortex_content": cortex_content,
++            "playbook_content": playbook_content,
++            "api_specs": api_specs,
++            "file_entries": file_entries
++        }
++        
++        # Проверяем минимальные требования для роли
++        need_context_error = self._validate_minimum_context_per_role(role, context_components)
++        if need_context_error:
++            return json.dumps(need_context_error, ensure_ascii=False)
+ 
+         md = self._compose_markdown(task, dsl, selectors, file_entries, call_edges, api_specs)

@@ -12,6 +12,7 @@ class FeatureCreateRequest(BaseModel):
     """Схема запроса на создание фичи."""
     title: str
     intent: Optional[Union[Dict[str, Any], None]] = None
+    type: Optional[str] = "BUSINESS"  # Default type
     autostart: Optional[bool] = None
     strict: Optional[bool] = None
     strict_hard: Optional[bool] = None

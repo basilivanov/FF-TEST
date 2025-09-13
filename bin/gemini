@@ -2,12 +2,20 @@
 # Gemini CLI wrapper for stable non-interactive execution
 set -euo pipefail
 
-export HOME="/opt/feature-factory"
+export HOME="/home/feature"
 export LANG="C.UTF-8"
-export TERM="dumb"
+export TERM="xterm"
 export NO_COLOR="1"
+export CI="true"
+export GOOGLE_CLOUD_PROJECT="etl-marketplace"
 if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
   export PATH="/usr/local/bin:$PATH"
+fi
+
+# Initialize NVM for Node.js
+if [[ -s "/opt/feature-factory/.nvm/nvm.sh" ]]; then
+    source /opt/feature-factory/.nvm/nvm.sh
+    nvm use 22.19.0 >/dev/null 2>&1
 fi
 
 exec /usr/local/bin/gemini "$@"

@@ -10,7 +10,7 @@ def get_llm_providers() -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Словарь с конфигурациями провайдеров
     """
-    config_path = "/opt/feature-factory/configs/llm_cli.yaml"
+    config_path = "/opt/feature-factory/configs/llm_cli_config.yaml"
     
     # Проверяем существование файла конфигурации
     if not os.path.exists(config_path):

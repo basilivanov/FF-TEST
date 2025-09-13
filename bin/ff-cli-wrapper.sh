@@ -13,5 +13,5 @@ shift # Убираем первый аргумент, чтобы "$@" содер
 # Запускаем команду в login-сессии от пользователя 'feature'
 # 'bash -lc' гарантирует, что будут подгружены ~/.bashrc и ~/.profile
 # 'exec' заменяет процесс обертки на процесс бинарника
-env HOME=/home/feature bash -lc "exec \"$REAL_BINARY_PATH\" \"\$@\"" -- bash "$@"
+env HOME=/home/feature bash -lc "exec \"$REAL_BINARY_PATH\" \"\$@\"" -- "$@"
 

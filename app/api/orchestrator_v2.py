@@ -264,6 +264,14 @@ async def create_feature(
                     """),
                     {"run_id": run_id, "feature_id": fid, "thread_id": str(uuid.uuid4()), "state_json": json.dumps({"state": "started"}), "env": env_local}
                 )
+                # Переводим фичу в статус RUNNING, чтобы планировщик мог создать GIT_OPS задачу
+                try:
+                    db_inner.execute(
+                        text("UPDATE features SET status='RUNNING', updated_at=datetime('now') WHERE id=:id"),
+                        {"id": fid}
+                    )
+                except Exception:
+                    pass
                 db_inner.commit()
 
                 def mock_graph_execution(run_id: str, feature_id: int):
@@ -1430,11 +1438,16 @@ async def get_feature(request: Request, feature_id: int, db: Session = Depends(g
     correlation_id = get_correlation_id(request)
     log_api_call_start(request, correlation_id, endpoint="GET /features/{id}", feature_id=feature_id)
     try:
+        # Возвращаем расширенный объект фичи, включая git-поля (pr_url/branch_name/merged_sha)
         row = db.execute(text(
             """
             SELECT id, title, intent_json, status,
                    0 as priority,
-                   REPLACE(created_at, ' ', 'T') || 'Z' as created_at, created_by, env
+                   REPLACE(created_at, ' ', 'T') || 'Z' as created_at,
+                   created_by, env,
+                   COALESCE(pr_url, '') as pr_url,
+                   COALESCE(branch_name, '') as branch_name,
+                   COALESCE(merged_sha, '') as merged_sha
             FROM features WHERE id = :id
             """
         ), {"id": feature_id}).fetchone()
@@ -1467,6 +1480,9 @@ async def get_feature(request: Request, feature_id: int, db: Session = Depends(g
             "created_at": row[5],
             "created_by": row[6] or "system",
             "env": row[7] or "test",
+            "pr_url": row[8] if len(row) > 8 else "",
+            "branch_name": row[9] if len(row) > 9 else "",
+            "merged_sha": row[10] if len(row) > 10 else "",
         }
         return result_obj
     except HTTPException:
@@ -1510,8 +1526,8 @@ async def get_feature_runs(request: Request, feature_id: int, db: Session = Depe
     try:
         result = db.execute(text("""
             SELECT gr.run_id, gr.feature_id, f.title as feature_title,
-                   gr.graph_name, gr.thread_id, gr.state_json,
-                   gr.status, REPLACE(gr.last_checkpoint_at, ' ', 'T') || 'Z' as last_checkpoint_at, gr.env
+                   gr.graph_name, gr.thread_id,
+                   gr.status, REPLACE(gr.last_checkpoint_at, ' ', 'T') || 'Z' as last_checkpoint_at
             FROM graph_runs gr
             JOIN features f ON gr.feature_id = f.id
             WHERE gr.feature_id = :fid
@@ -1519,17 +1535,17 @@ async def get_feature_runs(request: Request, feature_id: int, db: Session = Depe
         """), {"fid": feature_id})
         runs: List[GraphRunListItem] = []
         for row in result:
-            lca = row[7]
+            lca = row[6]
             runs.append(GraphRunListItem(
                 run_id=row[0],
                 feature_id=int(row[1]) if row[1] is not None else 0,
                 feature_title=row[2] or "",
                 graph_name=row[3] or "G1",
                 thread_id=row[4] or "",
-                state_json=row[5] or "",
-                status=row[6] or "",
+                state_json="",
+                status=row[5] or "",
                 last_checkpoint_at=lca,
-                env=row[8] or ""
+                env=get_env()
             ))
         duration_ms = (time.time() - start_time) * 1000
         log_api_call_end(request, correlation_id, 200, duration_ms, runs_count=len(runs))
@@ -1728,10 +1744,8 @@ async def list_runs(request: Request, db: Session = Depends(get_db)):
                     f.title as feature_title,
                     gr.graph_name,
                     gr.thread_id,
-                    gr.state_json,
                     gr.status, 
-                    REPLACE(gr.last_checkpoint_at, ' ', 'T') || 'Z' as last_checkpoint_at, 
-                    gr.env
+                    REPLACE(gr.last_checkpoint_at, ' ', 'T') || 'Z' as last_checkpoint_at
                 FROM graph_runs gr
                 LEFT JOIN features f ON gr.feature_id = f.id
                 ORDER BY datetime(gr.last_checkpoint_at) DESC
@@ -1752,10 +1766,10 @@ async def list_runs(request: Request, db: Session = Depends(get_db)):
                     feature_title=row.feature_title or "",
                     graph_name=row.graph_name or "",
                     thread_id=row.thread_id or "",
-                    state_json=row.state_json or "{}",
+                    state_json="",
                     status=row.status or "",
                     last_checkpoint_at=lca,
-                    env=row.env or ""
+                    env=get_env()
                 )
             )
             

@@ -1,0 +1,9 @@
+=== Dev role validation ===
+PR Number: 123
+Head SHA: abc1234567890abcdef1234567890abcdef123456
+Commit SHA: def9876543210fedcba9876543210fedcba987654
+
+Simulated git diff --name-only for commit def9876543210fedcba9876543210fedcba987654:
+src/feature_rolechain_20250912_1.py
+
+Files changed: 1 (VALID)

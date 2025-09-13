@@ -1,0 +1,5 @@
+/etc/sudoers.d/feature-factory-ops:14:68: Runas_Alias "FF_RUNAS" referenced but not defined
+Warning: /etc/sudoers.d/feature-factory-ops:1:12: unused Cmnd_Alias "FF_NETDIAG"
+/etc/sudoers: parsed OK
+/etc/sudoers.d/README: parsed OK
+/etc/sudoers.d/feature-factory-ops: parsed OK

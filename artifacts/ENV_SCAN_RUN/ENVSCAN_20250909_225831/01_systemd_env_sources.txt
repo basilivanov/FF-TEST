@@ -1,0 +1,87 @@
+== systemd env sources ==
+
+# /etc/systemd/system/feature-factory-test.service
+[Unit]
+Description=Feature Factory (test)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=feature
+WorkingDirectory=/opt/feature-factory
+Environment="PYTHONUNBUFFERED=1"
+EnvironmentFile=-/etc/default/feature-factory-test
+ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8081
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# /etc/systemd/system/feature-factory-test.service.d/10-llm.conf
+[Service]
+Environment=GOOGLE_CLOUD_PROJECT=etl-marketplace
+
+# /etc/systemd/system/feature-factory-test.service.d/10-path.conf
+[Service]
+Environment=PATH=/home/feature/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+# /etc/systemd/system/feature-factory-test.service.d/10-workingdir.conf
+[Service]
+WorkingDirectory=/opt/feature-factory
+
+# /etc/systemd/system/feature-factory-test.service.d/15-env-db.conf
+[Service]
+Environment=DATABASE_URL=sqlite:////opt/feature-factory/data/test.db
+# Environment=SQLITE_JOURNAL_MODE=WAL
+
+# /etc/systemd/system/feature-factory-test.service.d/16-env-git.conf
+[Service]
+Environment=GIT_INTEGRATION_ENABLED=true
+Environment=SCM_PROVIDER=github
+Environment=SCM_PUSH_ENABLED=true
+Environment=GITHUB_OWNER=basilivanov
+Environment=GITHUB_REPO=FF-TEST
+Environment=CI_REQUIRED_CONTEXTS=lint,tests,build,smoke
+EnvironmentFile=/etc/feature-factory/ci-secrets.env
+
+# /etc/systemd/system/feature-factory-test.service.d/20-debug.conf
+[Service]
+Environment=PYTHONFAULTHANDLER=1
+Environment=PYTHONUNBUFFERED=1
+# на всякий случай — одинаковый PATH, что и выше
+Environment=PATH=/opt/feature-factory/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# дублируем вывод в файлы (помимо journald)
+StandardOutput=append:/opt/feature-factory/logs/app.out.log
+StandardError=append:/opt/feature-factory/logs/app.err.log
+
+# /etc/systemd/system/feature-factory-test.service.d/20-path.conf
+[Service]
+Environment=PATH=/opt/feature-factory/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# /etc/systemd/system/feature-factory-test.service.d/30-logs.conf
+[Service]
+StandardOutput=append:/opt/feature-factory/logs/orchestrator.log
+StandardError=append:/opt/feature-factory/logs/orchestrator.err
+
+# /etc/systemd/system/feature-factory-test.service.d/40-exec-python.conf
+[Service]
+# Зовём uvicorn модулем из правильного интерпретатора, чтобы не упираться в сломанные entrypoints
+ExecStart=
+ExecStart=/opt/feature-factory/.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8081
+
+# /etc/systemd/system/feature-factory-test.service.d/99-logs-to-journal.conf
+[Service]
+# возвращаем вывод в journal, чтобы не падать из-за отсутствующих файлов
+StandardOutput=journal
+StandardError=inherit
+
+# /etc/systemd/system/feature-factory-test.service.d/override.conf
+[Service]
+User=feature
+Environment=HOME=/opt/feature-factory
+Environment=PATH=/opt/feature-factory/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/opt/feature-factory

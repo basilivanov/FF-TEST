@@ -1,0 +1,17 @@
+Submitting CI status updates...
+Request: {"pr_number":42,"head_sha":"a1b2c3d4e5f6789012345678901234567890abcd","state":"success","context":"lint","description":"E2E gate","target_url":"http://127.0.0.1:8081/health/live"}
+Response: {"status":"success","message":"CI status recorded: lint = success","all_contexts_success":false}
+HTTP_CODE: 200
+---
+Request: {"pr_number":42,"head_sha":"a1b2c3d4e5f6789012345678901234567890abcd","state":"success","context":"tests","description":"E2E gate","target_url":"http://127.0.0.1:8081/health/live"}
+Response: {"status":"success","message":"CI status recorded: tests = success","all_contexts_success":false}
+HTTP_CODE: 200
+---
+Request: {"pr_number":42,"head_sha":"a1b2c3d4e5f6789012345678901234567890abcd","state":"success","context":"build","description":"E2E gate","target_url":"http://127.0.0.1:8081/health/live"}
+Response: {"status":"success","message":"CI status recorded: build = success","all_contexts_success":false}
+HTTP_CODE: 200
+---
+Request: {"pr_number":42,"head_sha":"a1b2c3d4e5f6789012345678901234567890abcd","state":"success","context":"smoke","description":"E2E gate","target_url":"http://127.0.0.1:8081/health/live"}
+Response: {"status":"success","message":"CI status recorded: smoke = success","all_contexts_success":true}
+HTTP_CODE: 200
+---

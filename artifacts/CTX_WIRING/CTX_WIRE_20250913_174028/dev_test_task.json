@@ -1,0 +1,27 @@
+{
+  "correlation_id": "DEV_TEST_20250913_175245",
+  "task_title": "Добавить CRUD endpoint для управления пользователями",
+  "role": "Dev",
+  "user_intent": "Необходимо создать REST API endpoint /api/v1/users с методами GET, POST, PUT, DELETE для управления пользователями в системе. Endpoint должен включать валидацию, аутентификацию и логирование.",
+  "task_description": "Реализовать полноценный CRUD endpoint для сущности User с поддержкой пагинации, фильтрации и сортировки. Включить схемы валидации через Pydantic и интеграцию с базой данных.",
+  "expected_files": [
+    "app/api/users.py",
+    "app/api/schemas/user_schemas.py", 
+    "app/models/user.py"
+  ],
+  "requirements": [
+    "FastAPI framework",
+    "Pydantic для валидации",
+    "SQLAlchemy для работы с БД",
+    "JWT аутентификация", 
+    "Structured logging",
+    "Error handling",
+    "OpenAPI documentation"
+  ],
+  "constraints": [
+    "Использовать существующие паттерны аутентификации",
+    "Следовать архитектуре проекта",
+    "Не нарушать безопасность",
+    "Покрыть тестами"
+  ]
+}

@@ -1,0 +1,10 @@
+● feature-factory-test.service - Feature Factory (test)
+     Loaded: loaded (/etc/systemd/system/feature-factory-test.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/feature-factory-test.service.d
+             └─10-llm.conf
+     Active: activating (auto-restart) (Result: exit-code) since Tue 2025-08-26 16:30:54 MSK; 2s ago
+    Process: 352409 ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8081 (code=exited, status=1/FAILURE)
+   Main PID: 352409 (code=exited, status=1/FAILURE)
+        CPU: 1.138s
+
+авг 26 16:30:54 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.138s CPU time.

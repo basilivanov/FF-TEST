@@ -1,0 +1,10 @@
+{
+  "role": "Scribe",
+  "status": "FAILED",
+  "error": "All providers failed for role Scribe. Last error: CLI command timed out after 30 seconds",
+  "response": null,
+  "provider_used": null,
+  "latency_ms": 30009,
+  "expected_behavior": "YAML с changelog_entry",
+  "full_error": "Traceback (most recent call last):\n  File \"/opt/feature-factory/scripts/comprehensive_agent_test.py\", line 68, in test_role\n    response = completion(\n               ^^^^^^^^^^^\n  File \"/opt/feature-factory/app/llm/router.py\", line 547, in completion\n    raise Exception(f\"All providers failed for role {role}. Last error: {last_exception}\")\nException: All providers failed for role Scribe. Last error: CLI command timed out after 30 seconds\n"
+}

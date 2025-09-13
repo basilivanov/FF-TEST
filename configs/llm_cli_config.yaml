@@ -2,7 +2,7 @@
 
 providers:
   claude:
-    binary_path: "/usr/local/bin/claude"
+    binary_path: "/opt/feature-factory/bin/claude"
     probe: ["version"]
     stdin: "messages_json"
     env:
@@ -32,11 +32,11 @@ providers:
       local_config_file: "/home/feature/.claude.json" # обновляем перед вызовом
 
   gemini:
-    binary_path: "/usr/local/bin/gemini"
+    binary_path: "/opt/feature-factory/bin/gemini"
     probe: ["-v"]
     stdin: "prompt"
     env:
-      HOME: "/opt/feature-factory"   # здесь хранится .gemini
+      HOME: "/home/feature"   # здесь хранится .gemini
       GOOGLE_CLOUD_PROJECT: "<SECRET:GOOGLE_CLOUD_PROJECT>"
     flags:
       base: []
@@ -81,14 +81,14 @@ providers:
       fast: { model: "default" }
 
   qwen:
-    binary_path: "/usr/local/bin/qwen"
+    binary_path: "/opt/feature-factory/bin/qwen"
     probe: ["--version"]
     stdin: "prompt"
     env:
       HOME: "/home/feature"
       QWEN_API_KEY: "<SECRET:QWEN_API_KEY>"
     flags:
-      base: ["run", "-y", "--no-color", "--quiet"]
+      base: ["-y"]
     models:
       default:
         id: "qwen-code-latest"

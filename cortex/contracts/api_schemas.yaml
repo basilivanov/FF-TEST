@@ -1,0 +1,121 @@
+# API Contract Schemas
+
+openapi: 3.0.3
+info:
+  title: FeatureFactory API
+  version: 1.0.0
+  description: API для автоматизированного производства фич
+
+servers:
+  - url: http://127.0.0.1:8081/api/v1
+    description: TEST environment
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    CorrelationId:
+      type: apiKey
+      in: header
+      name: X-Correlation-Id
+
+  schemas:
+    FeatureRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Название фичи
+        intent:
+          type: object
+          description: Интент пользователя
+        autostart:
+          type: boolean
+          default: false
+
+    FeatureResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum: [NEW, PLANNED, RUNNING, DONE, FAILED]
+        pr_url:
+          type: string
+        git_branch:
+          type: string
+        commit_sha:
+          type: string
+
+    CIStatusRequest:
+      type: object
+      required:
+        - context
+        - state
+      properties:
+        context:
+          type: string
+          enum: [lint, tests, build, smoke]
+        state:
+          type: string
+          enum: [success, failure, pending]
+        description:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+
+paths:
+  /health/live:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /orchestrator/features:
+    post:
+      summary: Создание новой фичи
+      security:
+        - CorrelationId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureRequest'
+      responses:
+        '201':
+          description: Фича создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureResponse'
+
+  /ci/status:
+    post:
+      summary: Публикация CI статуса
+      security:
+        - BasicAuth: []
+        - CorrelationId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CIStatusRequest'
+      responses:
+        '200':
+          description: Статус принят

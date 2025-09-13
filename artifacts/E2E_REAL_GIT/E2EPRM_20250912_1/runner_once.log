@@ -1,0 +1,67 @@
+Пт 12 сен 2025 18:20:55 MSK: Starting polling for feature 6 PR URL
+Пт 12 сен 2025 18:20:55 MSK: Polling feature 6 for PR URL (attempt 1/60)
+Пт 12 сен 2025 18:20:58 MSK: Polling feature 6 for PR URL (attempt 2/60)
+Пт 12 сен 2025 18:21:01 MSK: Polling feature 6 for PR URL (attempt 3/60)
+Пт 12 сен 2025 18:21:01 MSK: Triggering runner (cycle 1)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:04 MSK: Polling feature 6 for PR URL (attempt 4/60)
+Пт 12 сен 2025 18:21:07 MSK: Polling feature 6 for PR URL (attempt 5/60)
+Пт 12 сен 2025 18:21:10 MSK: Polling feature 6 for PR URL (attempt 6/60)
+Пт 12 сен 2025 18:21:10 MSK: Triggering runner (cycle 2)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:13 MSK: Polling feature 6 for PR URL (attempt 7/60)
+Пт 12 сен 2025 18:21:16 MSK: Polling feature 6 for PR URL (attempt 8/60)
+Пт 12 сен 2025 18:21:19 MSK: Polling feature 6 for PR URL (attempt 9/60)
+Пт 12 сен 2025 18:21:19 MSK: Triggering runner (cycle 3)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:22 MSK: Polling feature 6 for PR URL (attempt 10/60)
+Пт 12 сен 2025 18:21:25 MSK: Polling feature 6 for PR URL (attempt 11/60)
+Пт 12 сен 2025 18:21:28 MSK: Polling feature 6 for PR URL (attempt 12/60)
+Пт 12 сен 2025 18:21:28 MSK: Triggering runner (cycle 4)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:31 MSK: Polling feature 6 for PR URL (attempt 13/60)
+Пт 12 сен 2025 18:21:34 MSK: Polling feature 6 for PR URL (attempt 14/60)
+Пт 12 сен 2025 18:21:37 MSK: Polling feature 6 for PR URL (attempt 15/60)
+Пт 12 сен 2025 18:21:37 MSK: Triggering runner (cycle 5)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:40 MSK: Polling feature 6 for PR URL (attempt 16/60)
+Пт 12 сен 2025 18:21:43 MSK: Polling feature 6 for PR URL (attempt 17/60)
+Пт 12 сен 2025 18:21:46 MSK: Polling feature 6 for PR URL (attempt 18/60)
+Пт 12 сен 2025 18:21:46 MSK: Triggering runner (cycle 6)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:49 MSK: Polling feature 6 for PR URL (attempt 19/60)
+Пт 12 сен 2025 18:21:52 MSK: Polling feature 6 for PR URL (attempt 20/60)
+Пт 12 сен 2025 18:21:55 MSK: Polling feature 6 for PR URL (attempt 21/60)
+Пт 12 сен 2025 18:21:55 MSK: Triggering runner (cycle 7)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:21:58 MSK: Polling feature 6 for PR URL (attempt 22/60)
+Пт 12 сен 2025 18:22:01 MSK: Polling feature 6 for PR URL (attempt 23/60)
+Пт 12 сен 2025 18:22:04 MSK: Polling feature 6 for PR URL (attempt 24/60)
+Пт 12 сен 2025 18:22:04 MSK: Triggering runner (cycle 8)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:07 MSK: Polling feature 6 for PR URL (attempt 25/60)
+Пт 12 сен 2025 18:22:10 MSK: Polling feature 6 for PR URL (attempt 26/60)
+Пт 12 сен 2025 18:22:13 MSK: Polling feature 6 for PR URL (attempt 27/60)
+Пт 12 сен 2025 18:22:13 MSK: Triggering runner (cycle 9)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:16 MSK: Polling feature 6 for PR URL (attempt 28/60)
+Пт 12 сен 2025 18:22:19 MSK: Polling feature 6 for PR URL (attempt 29/60)
+Пт 12 сен 2025 18:22:22 MSK: Polling feature 6 for PR URL (attempt 30/60)
+Пт 12 сен 2025 18:22:22 MSK: Triggering runner (cycle 10)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:25 MSK: Polling feature 6 for PR URL (attempt 31/60)
+Пт 12 сен 2025 18:22:29 MSK: Polling feature 6 for PR URL (attempt 32/60)
+Пт 12 сен 2025 18:22:32 MSK: Polling feature 6 for PR URL (attempt 33/60)
+Пт 12 сен 2025 18:22:32 MSK: Triggering runner (cycle 11)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:35 MSK: Polling feature 6 for PR URL (attempt 34/60)
+Пт 12 сен 2025 18:22:38 MSK: Polling feature 6 for PR URL (attempt 35/60)
+Пт 12 сен 2025 18:22:41 MSK: Polling feature 6 for PR URL (attempt 36/60)
+Пт 12 сен 2025 18:22:41 MSK: Triggering runner (cycle 12)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:44 MSK: Polling feature 6 for PR URL (attempt 37/60)
+Пт 12 сен 2025 18:22:47 MSK: Polling feature 6 for PR URL (attempt 38/60)
+Пт 12 сен 2025 18:22:50 MSK: Polling feature 6 for PR URL (attempt 39/60)
+Пт 12 сен 2025 18:22:50 MSK: Triggering runner (cycle 13)
+{"detail":"Not Found"}
+Пт 12 сен 2025 18:22:53 MSK: Polling feature 6 for PR URL (attempt 40/60)

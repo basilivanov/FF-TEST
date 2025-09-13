@@ -15,6 +15,7 @@ from app.graph.nodes.dev_code import dev_code_node
 from app.graph.nodes.gate import gate_node
 from app.graph.nodes.qa import qa_node
 from app.graph.nodes.scribe import scribe_node
+from app.graph.nodes.git_ops import git_ops_node
 from app.graph.nodes.apply import apply_node
 from app.graph.nodes.watchdog import watchdog_check_node # Импорт Watchdog
 
@@ -62,6 +63,7 @@ def create_g1_graph() -> StateGraph:
     workflow.add_node("gate", gate_node)
     workflow.add_node("qa", qa_node)
     workflow.add_node("scribe", scribe_node)
+    workflow.add_node("git_ops", git_ops_node)  # Узел Git операций
     workflow.add_node("apply", apply_node)
     
     # Устанавливаем начальный узел
@@ -81,7 +83,8 @@ def create_g1_graph() -> StateGraph:
     # Остальные ребра
     workflow.add_edge("gate", "qa")
     workflow.add_edge("qa", "scribe")
-    workflow.add_edge("scribe", "apply")
+    workflow.add_edge("scribe", "git_ops")  # После документирования создаем PR
+    workflow.add_edge("git_ops", "apply")   # Затем применяем изменения
     workflow.add_edge("apply", END)
     
     return workflow

@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""
+Git Operations node для создания веток, коммитов и PR.
+"""
+
+import asyncio
+import os
+import structlog
+import json
+from typing import Dict, Any
+from app.graph.types import RunCtx
+from app.services.git_integration import GitIntegrationService, GitIntegrationError
+from app.db.session import get_db
+from sqlalchemy import text
+
+# Настройка логгера
+logger = structlog.get_logger()
+
+async def git_ops_node(state: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Git Operations node - создает ветку, коммитит изменения и создает PR.
+    
+    Args:
+        state (Dict[str, Any]): Состояние графа
+        
+    Returns:
+        Dict[str, Any]: Обновленное состояние графа с информацией о PR
+    """
+    try:
+        run_ctx = state.get("run_ctx")
+        if not run_ctx:
+            raise ValueError("Run context not found in state")
+
+        feature_id = run_ctx.feature_id
+        correlation_id = run_ctx.correlation_id
+        run_id = run_ctx.run_id
+
+        logger.info(
+            "git_ops_node_started",
+            component="graph",
+            agent_role="GitOps",
+            run_id=run_id,
+            feature_id=feature_id,
+            correlation_id=correlation_id
+        )
+
+        # Получаем информацию о фиче
+        db_gen = get_db()
+        db = next(db_gen)
+        try:
+            feature_result = db.execute(
+                text("SELECT title FROM features WHERE id = :feature_id"),
+                {"feature_id": feature_id}
+            ).fetchone()
+            
+            if not feature_result:
+                raise ValueError(f"Feature {feature_id} not found")
+            
+            feature_title = feature_result[0]
+        finally:
+            try:
+                next(db_gen)
+            except StopIteration:
+                pass
+
+        # Инициализируем Git сервис
+        git_service = GitIntegrationService()
+        
+        # Проверяем, включена ли Git интеграция
+        if not git_service.git_enabled:
+            logger.warning(
+                "git_integration_disabled",
+                component="graph",
+                agent_role="GitOps",
+                run_id=run_id,
+                feature_id=feature_id
+            )
+            return {
+                "status": "git_ops_skipped",
+                "result": "Git integration is disabled",
+                "pr_info": None
+            }
+
+        try:
+            # 1. Создаем ветку для фичи
+            branch_name = git_service.create_feature_branch(
+                feature_id=int(feature_id),
+                feature_title=feature_title,
+                correlation_id=correlation_id
+            )
+            
+            logger.info(
+                "feature_branch_created",
+                component="graph",
+                agent_role="GitOps",
+                run_id=run_id,
+                feature_id=feature_id,
+                branch_name=branch_name
+            )
+
+            # 2. Гарантируем, что есть хотя бы один уникальный коммит в ветке
+            artifacts = state.get("artifacts", [])
+            _ = git_service.ensure_unique_commit(int(feature_id), correlation_id)
+
+            # 3. Создаем Pull Request
+            pr_info = git_service.create_pull_request(
+                branch_name=branch_name,
+                feature_id=int(feature_id),
+                feature_title=feature_title,
+                correlation_id=correlation_id
+            )
+            
+            # 4. Обновляем фичу с информацией о PR
+            db_gen = get_db()
+            db = next(db_gen)
+            try:
+                db.execute(
+                    text("""
+                        UPDATE features 
+                        SET pr_url = :pr_url, 
+                            branch_name = :branch_name,
+                            updated_at = datetime('now')
+                        WHERE id = :feature_id
+                    """),
+                    {
+                        "pr_url": pr_info["pr_url"],
+                        "branch_name": branch_name,
+                        "feature_id": feature_id
+                    }
+                )
+                db.commit()
+                
+                logger.info(
+                    "feature_updated_with_pr_info",
+                    component="graph",
+                    agent_role="GitOps",
+                    run_id=run_id,
+                    feature_id=feature_id,
+                    pr_url=pr_info["pr_url"],
+                    pr_number=pr_info["pr_number"]
+                )
+            finally:
+                try:
+                    next(db_gen)
+                except StopIteration:
+                    pass
+
+            return {
+                "status": "git_ops_completed",
+                "result": f"PR created: {pr_info['pr_url']}",
+                "pr_info": pr_info,
+                "branch_name": branch_name
+            }
+
+        except GitIntegrationError as e:
+            logger.error(
+                "git_ops_integration_failed",
+                component="graph",
+                agent_role="GitOps",
+                run_id=run_id,
+                feature_id=feature_id,
+                error=str(e)
+            )
+            return {
+                "status": "git_ops_failed",
+                "result": f"Git integration failed: {str(e)}",
+                "pr_info": None
+            }
+
+    except Exception as e:
+        logger.error(
+            "git_ops_node_failed",
+            component="graph",
+            agent_role="GitOps",
+            err_type=type(e).__name__,
+            error=str(e),
+            run_id=state.get("run_ctx").run_id if state.get("run_ctx") else "unknown"
+        )
+        return {
+            "status": "git_ops_failed",
+            "result": f"Git ops node failed: {str(e)}",
+            "pr_info": None
+        }

@@ -1,0 +1,296 @@
+# API Gateway конфигурация для мульти-подсистемной архитектуры
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: feature-factory
+data:
+  gateway.yaml: |
+    # Основные настройки gateway
+    server:
+      port: 8080
+      host: "0.0.0.0"
+      timeout: 30s
+      
+    # Middleware для всех запросов
+    middleware:
+      - name: correlation_id
+        enabled: true
+        config:
+          header_name: "X-Correlation-ID"
+          generate_if_missing: true
+          
+      - name: rate_limiting
+        enabled: true
+        config:
+          requests_per_minute: 1000
+          burst: 50
+          
+      - name: authentication
+        enabled: true
+        config:
+          jwt_secret: "${JWT_SECRET}"
+          exclude_paths:
+            - "/health"
+            - "/metrics"
+            - "/api/v1/auth/login"
+            
+      - name: logging
+        enabled: true
+        config:
+          log_requests: true
+          log_responses: false
+          sensitive_headers:
+            - "Authorization"
+            - "X-API-Key"
+
+    # Upstream сервисы
+    upstreams:
+      core-backend:
+        url: "http://core-backend-service:8081"
+        health_check:
+          path: "/health"
+          interval: "30s"
+          timeout: "5s"
+        circuit_breaker:
+          failure_threshold: 5
+          recovery_timeout: "30s"
+        retry:
+          max_attempts: 3
+          backoff: "exponential"
+          
+      llm-router:
+        url: "http://llm-router-service:8082" 
+        health_check:
+          path: "/health"
+          interval: "30s"
+          timeout: "10s"
+        circuit_breaker:
+          failure_threshold: 3
+          recovery_timeout: "60s"
+        timeout: "120s"  # LLM запросы могут быть долгими
+        
+      integration-layer:
+        url: "http://integration-service:8083"
+        health_check:
+          path: "/health" 
+          interval: "30s"
+          timeout: "5s"
+        circuit_breaker:
+          failure_threshold: 5
+          recovery_timeout: "30s"
+        retry:
+          max_attempts: 2
+          backoff: "exponential"
+          
+      analytics-service:
+        url: "http://analytics-service:8084"
+        health_check:
+          path: "/health"
+          interval: "30s" 
+          timeout: "5s"
+        circuit_breaker:
+          failure_threshold: 3
+          recovery_timeout: "30s"
+        timeout: "60s"  # Analytics queries могут быть медленными
+        
+      ai-ml-service:
+        url: "http://ai-ml-service:8085"
+        health_check:
+          path: "/health"
+          interval: "30s"
+          timeout: "10s"  
+        circuit_breaker:
+          failure_threshold: 3
+          recovery_timeout: "60s"
+        timeout: "180s"  # ML inference может быть очень долгим
+
+    # Маршрутизация запросов
+    routes:
+      # Core система
+      - name: core-api
+        path_prefix: "/api/v1/features"
+        upstream: "core-backend"
+        timeout: "30s"
+        
+      - name: core-tasks  
+        path_prefix: "/api/v1/tasks"
+        upstream: "core-backend"
+        timeout: "30s"
+        
+      - name: core-runs
+        path_prefix: "/api/v1/runs"  
+        upstream: "core-backend"
+        timeout: "30s"
+        
+      # LLM система
+      - name: llm-chat
+        path_prefix: "/api/v1/chat"
+        upstream: "llm-router"
+        timeout: "120s"
+        rate_limit:
+          requests_per_minute: 60  # Ограничение для LLM
+          
+      - name: llm-agents
+        path_prefix: "/api/v1/agents"
+        upstream: "llm-router" 
+        timeout: "30s"
+        
+      - name: llm-tokens
+        path_prefix: "/api/v1/tokens"
+        upstream: "llm-router"
+        timeout: "30s"
+
+      # Интеграции
+      - name: integrations-api
+        path_prefix: "/api/v1/integrations"
+        upstream: "integration-layer"
+        timeout: "60s"
+        
+      - name: marketplaces
+        path_prefix: "/api/v1/marketplaces"
+        upstream: "integration-layer"  
+        timeout: "60s"
+        
+      # Аналитика
+      - name: analytics-reports
+        path_prefix: "/api/v1/analytics"
+        upstream: "analytics-service"
+        timeout: "60s"
+        
+      - name: metrics
+        path_prefix: "/api/v1/metrics" 
+        upstream: "analytics-service"
+        timeout: "30s"
+        
+      # AI/ML
+      - name: ai-models
+        path_prefix: "/api/v1/ai"
+        upstream: "ai-ml-service" 
+        timeout: "180s"
+        rate_limit:
+          requests_per_minute: 30  # AI дорогой
+          
+      - name: ml-predictions
+        path_prefix: "/api/v1/ml"
+        upstream: "ai-ml-service"
+        timeout: "180s"
+        rate_limit:
+          requests_per_minute: 30
+
+    # Health check маршруты
+    health_routes:
+      - name: gateway-health
+        path: "/health"
+        response:
+          status: 200
+          body: |
+            {
+              "status": "healthy",
+              "version": "${VERSION}",
+              "timestamp": "${TIMESTAMP}"
+            }
+            
+      - name: readiness
+        path: "/ready"
+        check_upstreams: true
+        response:
+          status: 200
+          body: |
+            {
+              "status": "ready", 
+              "upstreams": "${UPSTREAM_STATUS}"
+            }
+
+    # Observability
+    observability:
+      metrics:
+        enabled: true
+        path: "/metrics"
+        format: "prometheus"
+        
+      tracing:
+        enabled: true
+        jaeger_endpoint: "http://jaeger:14268/api/traces"
+        sample_rate: 0.1
+        
+      logging:
+        level: "info"
+        format: "json"
+        fields:
+          - "timestamp"
+          - "level" 
+          - "correlation_id"
+          - "method"
+          - "path"
+          - "status_code"
+          - "duration"
+          - "upstream"
+
+---
+# Deployment для API Gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: feature-factory
+spec:
+  replicas: 3  # HA deployment
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: gateway
+        image: nginx/nginx-plus:latest  # Или Kong, Envoy, etc.
+        ports:
+        - containerPort: 8080
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: gateway-secrets
+              key: jwt-secret
+        - name: VERSION
+          value: "v2.0.0"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/gateway
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: api-gateway-config
+
+---
+# Service для API Gateway  
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+  namespace: feature-factory
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer

@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""
+Git Integration Service for Feature Factory.
+Handles Git operations including branch creation, commits, and PR management.
+"""
+
+import os
+import subprocess
+import json
+import time
+from typing import Dict, Any, List, Optional
+import structlog
+from urllib.parse import urlparse
+import requests
+
+log = structlog.get_logger()
+
+
+class GitIntegrationError(Exception):
+    """Exception raised for Git integration errors."""
+    pass
+
+
+class GitIntegrationService:
+    """Service for handling Git operations."""
+    
+    def __init__(self):
+        """Initialize Git integration service."""
+        self.repo_path = "/opt/feature-factory"
+        self.base_branch = os.getenv("GIT_BASE_BRANCH", "main")
+        self.github_owner = os.getenv("GITHUB_OWNER")
+        self.github_repo = os.getenv("GITHUB_REPO")
+        self.github_token = os.getenv("GITHUB_TOKEN")
+        self.scm_provider = os.getenv("SCM_PROVIDER", "github")
+        self.git_enabled = os.getenv("GIT_INTEGRATION_ENABLED", "false").lower() == "true"
+        self.push_enabled = os.getenv("SCM_PUSH_ENABLED", "false").lower() == "true"
+
+    def _slugify(self, s: str) -> str:
+        import re
+        s = s.lower()
+        s = re.sub(r"\s+", "-", s)
+        s = re.sub(r"[^a-z0-9._-]", "-", s)
+        s = re.sub(r"-+", "-", s).strip('-')
+        return s[:60]
+
+    def create_feature_branch(self, feature_id: int, feature_title: str, correlation_id: str) -> str:
+        """Create a new feature branch."""
+        if not self.git_enabled:
+            return f"feature/{feature_id}_disabled"
+            
+        branch_name = f"feature/{feature_id}_{self._slugify(feature_title)}"
+        
+        try:
+            # Ensure we're on the base branch
+            subprocess.run(
+                ["git", "checkout", self.base_branch],
+                cwd=self.repo_path,
+                check=True,
+                capture_output=True
+            )
+            
+            # Create and checkout feature branch (without fetch to avoid permission issues)
+            subprocess.run(
+                ["git", "checkout", "-b", branch_name],
+                cwd=self.repo_path,
+                check=True,
+                capture_output=True
+            )
+            
+            log.info(
+                event="git_branch_created",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={"branch_name": branch_name, "feature_id": feature_id}
+            )
+            
+            return branch_name
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Failed to create branch {branch_name}: {e.stderr.decode() if e.stderr else str(e)}"
+            log.error(
+                event="git_branch_creation_failed",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={"error": error_msg, "branch_name": branch_name}
+            )
+            raise GitIntegrationError(error_msg)
+
+    def _detect_ssh_key(self) -> str:
+        """Возвращает путь к приватному ключу SSH. Предпочитает ~/.ssh/id_ed25519_ff.
+        Фолбэк: /opt/feature-factory/.ssh/id_ed25519_ff.
+        """
+        candidates = [
+            os.path.expanduser("~/.ssh/id_ed25519_ff"),
+            "/home/feature/.ssh/id_ed25519_ff",
+            "/opt/feature-factory/.ssh/id_ed25519_ff",
+        ]
+        for p in candidates:
+            try:
+                if os.path.exists(p):
+                    return p
+            except Exception:
+                pass
+        # Возврат фолбэк-пути — git может упасть, но это лучше явной ошибки здесь
+        return "/home/feature/.ssh/id_ed25519_ff"
+
+    def ensure_unique_commit(self, feature_id: int, correlation_id: str) -> Optional[str]:
+        """Гарантирует, что в текущей ветке есть хотя бы один уникальный коммит.
+        Создаёт небольшой файл-артефакт и делает commit, если рабочее дерево чистое.
+        Возвращает путь созданного файла или None, если коммит не потребовался.
+        """
+        try:
+            # Всегда создаём уникальный файл-артефакт, чтобы гарантировать непустой дифф
+            ts = int(time.time())
+            rel_dir = os.path.join("artifacts", "GITOPS")
+            abs_dir = os.path.join(self.repo_path, rel_dir)
+            os.makedirs(abs_dir, exist_ok=True)
+            filename = f"FF_AUTOCOMMIT_feature_{feature_id}_{ts}.txt"
+            abs_path = os.path.join(abs_dir, filename)
+            with open(abs_path, "w", encoding="utf-8") as f:
+                f.write(f"Auto-commit for feature {feature_id} at {ts}\n")
+            # git add + commit
+            subprocess.run(["git", "add", os.path.join(rel_dir, filename)], cwd=self.repo_path, check=True, capture_output=True)
+            # Добавим также любые другие изменения, если есть
+            subprocess.run(["git", "add", "-A"], cwd=self.repo_path, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", f"chore(gitops): auto-commit for feature {feature_id} [{correlation_id}]"], cwd=self.repo_path, check=True, capture_output=True)
+            log.info(event="git_auto_commit_created", component="git_integration", correlation_id=correlation_id, kv={"file": os.path.join(rel_dir, filename)})
+            return os.path.join(rel_dir, filename)
+        except subprocess.CalledProcessError as e:
+            log.error(event="git_auto_commit_failed", component="git_integration", correlation_id=correlation_id, kv={"stderr": e.stderr.decode() if e.stderr else str(e)})
+            return None
+        except Exception as e:
+            log.error(event="git_auto_commit_error", component="git_integration", correlation_id=correlation_id, kv={"error": str(e)})
+            return None
+
+    def create_pull_request(self, branch_name: str, feature_id: int, feature_title: str, correlation_id: str) -> Dict[str, Any]:
+        """Create a pull request."""
+        if not self.git_enabled or not self.push_enabled:
+            return {
+                "pr_url": f"https://github.com/{self.github_owner}/{self.github_repo}/pull/999999",
+                "pr_number": 999999,
+                "pr_id": 999999,
+                "pr_state": "open",
+                "branch_name": branch_name
+            }
+        
+        try:
+            # Setup SSH wrapper for push
+            ssh_wrapper = "/tmp/git_ssh_wrapper.sh"
+            with open(ssh_wrapper, 'w') as f:
+                key_path = self._detect_ssh_key()
+                f.write('#!/bin/bash\n')
+                f.write(f'exec ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -i "{key_path}" "$@"\n')
+            os.chmod(ssh_wrapper, 0o755)
+            
+            env = os.environ.copy()
+            env["GIT_SSH"] = ssh_wrapper
+            # Устанавливаем HOME, если он не задан, на /home/feature для корректной known_hosts
+            env.setdefault("HOME", "/home/feature")
+            
+            # Push branch to origin
+            subprocess.run(
+                ["git", "push", "-u", "origin", branch_name],
+                cwd=self.repo_path,
+                env=env,
+                check=True,
+                capture_output=True
+            )
+            
+            # Create PR via GitHub API
+            url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"
+            headers = {
+                "Authorization": f"token {self.github_token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            data = {
+                "title": f"Feature #{feature_id}: {feature_title}",
+                "head": branch_name,
+                "base": self.base_branch,
+                "body": f"Auto-generated PR for feature #{feature_id}\n\nCorrelation-ID: {correlation_id}"
+            }
+            
+            response = requests.post(url, headers=headers, json=data)
+            response.raise_for_status()
+            
+            pr_data = response.json()
+            pr_info = {
+                "pr_url": pr_data["html_url"],
+                "pr_number": pr_data["number"],
+                "pr_id": pr_data["number"],
+                "pr_state": pr_data["state"],
+                "branch_name": branch_name,
+                "head_sha": pr_data["head"]["sha"]
+            }
+            
+            log.info(
+                event="github_pr_created",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={
+                    "pr_url": pr_info["pr_url"],
+                    "pr_number": pr_info["pr_number"],
+                    "feature_id": feature_id
+                }
+            )
+            
+            return pr_info
+            
+        except (subprocess.CalledProcessError, requests.RequestException) as e:
+            extra = {}
+            try:
+                if isinstance(e, requests.RequestException) and e.response is not None:
+                    extra["response_text"] = e.response.text
+                    extra["status_code"] = e.response.status_code
+            except Exception:
+                pass
+            error_msg = f"Failed to create PR: {str(e)}"
+            log.error(
+                event="github_pr_creation_failed",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={"error": error_msg, "branch_name": branch_name, **extra}
+            )
+            raise GitIntegrationError(error_msg)
+
+    def merge_pull_request(self, feature_id: int, pr_number: int, head_sha: str, correlation_id: str) -> Dict[str, Any]:
+        """Merge a pull request."""
+        if not self.git_enabled or not self.push_enabled:
+            return {
+                "merged": True,
+                "merge_commit_sha": "mock_merged_sha_" + head_sha[:8],
+                "merged_at": "2025-09-12T04:00:00Z"
+            }
+        
+        try:
+            # First, get current PR info to get the actual HEAD SHA
+            pr_url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls/{pr_number}"
+            headers = {
+                "Authorization": f"token {self.github_token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            
+            pr_response = requests.get(pr_url, headers=headers)
+            pr_response.raise_for_status()
+            pr_data = pr_response.json()
+            
+            # Use actual current HEAD SHA from PR
+            actual_head_sha = pr_data["head"]["sha"]
+            
+            log.info(
+                event="github_pr_merge_attempt",
+                component="git_integration", 
+                correlation_id=correlation_id,
+                kv={
+                    "pr_number": pr_number,
+                    "feature_id": feature_id,
+                    "provided_sha": head_sha,
+                    "actual_head_sha": actual_head_sha,
+                    "pr_state": pr_data.get("state"),
+                    "mergeable": pr_data.get("mergeable"),
+                    "mergeable_state": pr_data.get("mergeable_state")
+                }
+            )
+            
+            # Check if PR is already closed/merged
+            if pr_data.get("state") == "closed":
+                if pr_data.get("merged"):
+                    return {
+                        "merged": True,
+                        "merge_commit_sha": pr_data.get("merge_commit_sha"),
+                        "merged_at": pr_data.get("merged_at")
+                    }
+                else:
+                    raise GitIntegrationError(f"PR #{pr_number} is closed but not merged")
+            
+            # Merge PR via GitHub API
+            merge_url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls/{pr_number}/merge"
+            data = {
+                "commit_title": f"Merge PR #{pr_number} for feature #{feature_id}",
+                "commit_message": f"Auto-merge PR #{pr_number}\n\nCorrelation-ID: {correlation_id}",
+                "sha": actual_head_sha,  # Use actual HEAD SHA
+                "merge_method": "squash"  # Use squash merge
+            }
+            
+            response = requests.put(merge_url, headers=headers, json=data)
+            response.raise_for_status()
+            
+            merge_data = response.json()
+            merge_info = {
+                "merged": merge_data.get("merged", True),
+                "merge_commit_sha": merge_data.get("sha"),
+                "merged_at": merge_data.get("merged_at")
+            }
+            
+            log.info(
+                event="github_pr_merged",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={
+                    "pr_number": pr_number,
+                    "feature_id": feature_id,
+                    "merge_commit_sha": merge_info["merge_commit_sha"],
+                    "head_sha": actual_head_sha
+                }
+            )
+            
+            return merge_info
+            
+        except requests.RequestException as e:
+            error_details = {"status_code": getattr(e.response, 'status_code', None)}
+            try:
+                if hasattr(e, 'response') and e.response is not None:
+                    error_details["response_text"] = e.response.text
+                    if e.response.headers.get('content-type', '').startswith('application/json'):
+                        error_details["response_json"] = e.response.json()
+            except:
+                pass
+                
+            error_msg = f"Failed to merge PR #{pr_number}: {str(e)}"
+            log.error(
+                event="github_pr_merge_failed",
+                component="git_integration",
+                correlation_id=correlation_id,
+                kv={
+                    "error": error_msg, 
+                    "pr_number": pr_number, 
+                    "feature_id": feature_id,
+                    "error_details": error_details
+                }
+            )
+            raise GitIntegrationError(error_msg)

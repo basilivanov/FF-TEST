@@ -482,7 +482,7 @@ class OrchestratorLoop:
                     FROM tasks t
                     JOIN features f ON t.feature_id = f.id
                     WHERE t.status = 'NEW'
-                    ORDER BY t.feature_id, t.role
+                    ORDER BY t.id DESC
                     LIMIT 20
                 """)
             )
@@ -505,8 +505,14 @@ class OrchestratorLoop:
                 )
                 
                 try:
-                    # Запускаем или резюмируем граф G1
-                    await self._run_or_resume_g1(task_id, feature_id, role)
+                    # Для MERGE_PR и GIT_OPS задач используем специальную обработку
+                    if role == 'MERGE_PR':
+                        await self._process_merge_pr_task(task_id, feature_id)
+                    elif role == 'GIT_OPS':
+                        await self._process_git_ops_task(task_id, feature_id)
+                    else:
+                        # Запускаем или резюмируем граф G1 для других ролей
+                        await self._run_or_resume_g1(task_id, feature_id, role)
                     
                 except Exception as e:
                     logger.error(
@@ -658,13 +664,14 @@ class OrchestratorLoop:
                 self.session.execute(
                     text("""
                         INSERT INTO graph_runs (
-                            run_id, feature_id, graph_name, thread_id, status, last_checkpoint_at
+                            run_id, task_id, feature_id, graph_name, thread_id, status, last_checkpoint_at
                         ) VALUES (
-                            :run_id, :feature_id, 'G1', :thread_id, 'RUNNING', datetime('now')
+                            :run_id, :task_id, :feature_id, 'G1', :thread_id, 'RUNNING', datetime('now')
                         )
                     """),
                     {
                         "run_id": run_id,
+                        "task_id": task_id,
                         "feature_id": feature_id,
                         "thread_id": str(feature_id)  # Используем feature_id как thread_id
                     }
@@ -1001,7 +1008,7 @@ class OrchestratorLoop:
         Освобождает блокировки для завершенных фич.
         """
         try:
-            # Выбираем фичи в статусе RUNNING
+            # Выбираем фичи, которые могут требовать GitOps — в статусе RUNNING или уже помечены DONE
             result = self.session.execute(
                 text("""
                     SELECT f.id, f.title, f.plan_dsl_json,
@@ -1010,7 +1017,7 @@ class OrchestratorLoop:
                            SUM(CASE WHEN t.status = 'FAILED' THEN 1 ELSE 0 END) as failed_tasks
                     FROM features f
                     LEFT JOIN tasks t ON f.id = t.feature_id
-                    WHERE f.status = 'RUNNING'
+                    WHERE f.status IN ('RUNNING','DONE','FAILED')
                     GROUP BY f.id, f.title, f.plan_dsl_json
                 """)
             )
@@ -1041,12 +1048,51 @@ class OrchestratorLoop:
                     # Нет задач - странная ситуация, но считаем завершенной
                     new_status = "DONE"
                 elif done_tasks == total_tasks:
-                    # Все задачи завершены успешно
-                    new_status = "DONE"
+                    # Все основные задачи завершены, проверяем нужно ли создать Git ops задачу
+                    await self._maybe_create_git_ops_task(feature_id)
+                    # Перепроверяем количество задач после возможного добавления Git ops
+                    result2 = self.session.execute(
+                        text("""
+                            SELECT COUNT(t.id) as total_tasks,
+                                   SUM(CASE WHEN t.status = 'DONE' THEN 1 ELSE 0 END) as done_tasks
+                            FROM tasks t
+                            WHERE t.feature_id = :feature_id
+                        """),
+                        {"feature_id": feature_id}
+                    )
+                    updated_counts = result2.fetchone()
+                    updated_total = updated_counts[0] or 0
+                    updated_done = updated_counts[1] or 0
+                    
+                    if updated_done == updated_total:
+                        # Все задачи включая Git ops завершены
+                        new_status = "DONE"
+                    else:
+                        # Git ops задача создана, но еще не завершена - остаемся в RUNNING
+                        logger.info(
+                            "git_ops_task_created_feature_remains_running",
+                            component="orchestrator",
+                            feature_id=feature_id,
+                            total_tasks=updated_total,
+                            done_tasks=updated_done
+                        )
+                        new_status = None
                 elif failed_tasks > 0 and (done_tasks + failed_tasks) == total_tasks:
                     # Есть провалившиеся задачи и все задачи обработаны
                     new_status = "FAILED"
                 
+                # Специальный случай: повторный запуск GitOps при его падении
+                try:
+                    failed_git_ops = self.session.execute(
+                        text("SELECT COUNT(*) FROM tasks WHERE feature_id = :fid AND role = 'GIT_OPS' AND status = 'FAILED'"),
+                        {"fid": feature_id}
+                    ).fetchone()[0] or 0
+                except Exception:
+                    failed_git_ops = 0
+
+                if failed_git_ops > 0:
+                    await self._maybe_create_git_ops_task(feature_id)
+
                 if new_status:
                     # Обновляем статус фичи
                     self.session.execute(
@@ -1143,6 +1189,335 @@ class OrchestratorLoop:
         except Exception as e:
             logger.error(
                 "lock_release_error",
+                component="orchestrator",
+                feature_id=feature_id,
+                err_type=type(e).__name__,
+                error=str(e)
+            )
+    
+    async def _process_merge_pr_task(self, task_id: int, feature_id: int):
+        """
+        Обрабатывает задачу MERGE_PR - мержит PR в основную ветку.
+        
+        Args:
+            task_id: ID задачи
+            feature_id: ID фичи
+        """
+        try:
+            logger.info(
+                "processing_merge_pr_task",
+                component="orchestrator", 
+                task_id=task_id,
+                feature_id=feature_id
+            )
+            
+            # Получаем HEAD SHA из payload задачи
+            result = self.session.execute(
+                text("SELECT payload FROM tasks WHERE id = :task_id"),
+                {"task_id": task_id}
+            )
+            
+            task_row = result.fetchone()
+            head_sha = task_row[0] if task_row and task_row[0] else ""
+            
+            # Обновляем статус задачи на RUNNING
+            self.session.execute(
+                text("""
+                    UPDATE tasks 
+                    SET status = 'RUNNING', started_at = datetime('now'), attempts = attempts + 1
+                    WHERE id = :task_id
+                """),
+                {"task_id": task_id}
+            )
+            self.session.commit()
+            
+            # Импортируем функцию для мержа PR
+            from app.graph.nodes.pr_merge import pr_merge_node
+            from app.graph.types import RunCtx
+            from app.logging_helpers import get_env
+            import uuid
+            
+            # Создаем минимальное состояние для ноды PR merge
+            run_id = str(uuid.uuid4())
+            run_ctx = RunCtx(
+                run_id=run_id,
+                feature_id=str(feature_id),
+                task_id=str(task_id),
+                correlation_id=run_id,
+                env=get_env(),
+            )
+            
+            # Получаем информацию о PR из базы данных
+            feature_result = self.session.execute(
+                text("SELECT pr_url FROM features WHERE id = :feature_id"),
+                {"feature_id": feature_id}
+            ).fetchone()
+            
+            pr_info = None
+            if feature_result and feature_result[0]:
+                pr_url = feature_result[0]
+                try:
+                    pr_number = int(pr_url.split('/pull/')[-1])
+                    pr_info = {
+                        "pr_number": pr_number, 
+                        "pr_url": pr_url,
+                        "head_sha": head_sha
+                    }
+                except:
+                    logger.error(
+                        "failed_to_parse_pr_number",
+                        component="orchestrator",
+                        task_id=task_id,
+                        feature_id=feature_id,
+                        pr_url=pr_url
+                    )
+            
+            state = {
+                "run_ctx": run_ctx,
+                "pr_info": pr_info
+            }
+            
+            # Вызываем ноду PR merge
+            result = await pr_merge_node(state)
+            
+            if result.get("status") == "pr_merge_completed":
+                # Успешный мерж
+                self.session.execute(
+                    text("""
+                        UPDATE tasks 
+                        SET status = 'DONE', finished_at = datetime('now')
+                        WHERE id = :task_id
+                    """),
+                    {"task_id": task_id}
+                )
+                
+                logger.info(
+                    "merge_pr_task_completed",
+                    component="orchestrator",
+                    task_id=task_id,
+                    feature_id=feature_id,
+                    result=result.get("result")
+                )
+            else:
+                # Неудачный мерж
+                self.session.execute(
+                    text("""
+                        UPDATE tasks 
+                        SET status = 'FAILED', finished_at = datetime('now')
+                        WHERE id = :task_id
+                    """),
+                    {"task_id": task_id}
+                )
+                
+                logger.error(
+                    "merge_pr_task_failed",
+                    component="orchestrator",
+                    task_id=task_id,
+                    feature_id=feature_id,
+                    result=result.get("result")
+                )
+            
+            self.session.commit()
+            
+        except Exception as e:
+            logger.error(
+                "merge_pr_task_processing_error",
+                component="orchestrator",
+                task_id=task_id,
+                feature_id=feature_id,
+                err_type=type(e).__name__,
+                error=str(e)
+            )
+            
+            # Помечаем задачу как FAILED при ошибке
+            self.session.execute(
+                text("""
+                    UPDATE tasks 
+                    SET status = 'FAILED', finished_at = datetime('now')
+                    WHERE id = :task_id
+                """),
+                {"task_id": task_id}
+            )
+            self.session.commit()
+    
+    async def _process_git_ops_task(self, task_id: int, feature_id: int):
+        """
+        Обрабатывает задачу GIT_OPS - создает ветку, коммиты и PR.
+        
+        Args:
+            task_id: ID задачи
+            feature_id: ID фичи
+        """
+        try:
+            logger.info(
+                "processing_git_ops_task",
+                component="orchestrator",
+                task_id=task_id,
+                feature_id=feature_id
+            )
+            
+            # Обновляем статус задачи на RUNNING
+            self.session.execute(
+                text("""
+                    UPDATE tasks 
+                    SET status = 'RUNNING', started_at = datetime('now'), attempts = attempts + 1
+                    WHERE id = :task_id
+                """),
+                {"task_id": task_id}
+            )
+            self.session.commit()
+            
+            # Импортируем функцию для Git операций
+            from app.graph.nodes.git_ops import git_ops_node
+            from app.graph.types import RunCtx
+            from app.logging_helpers import get_env
+            import uuid
+            
+            # Создаем минимальное состояние для ноды Git ops
+            run_id = str(uuid.uuid4())
+            run_ctx = RunCtx(
+                run_id=run_id,
+                feature_id=str(feature_id),
+                task_id=str(task_id),
+                correlation_id=run_id,
+                env=get_env(),
+            )
+            
+            state = {
+                "run_ctx": run_ctx
+            }
+            
+            # Вызываем ноду Git ops
+            result = await git_ops_node(state)
+            
+            if result.get("status") == "git_ops_completed":
+                # Успешное создание PR
+                self.session.execute(
+                    text("""
+                        UPDATE tasks 
+                        SET status = 'DONE', finished_at = datetime('now')
+                        WHERE id = :task_id
+                    """),
+                    {"task_id": task_id}
+                )
+                
+                logger.info(
+                    "git_ops_task_completed",
+                    component="orchestrator",
+                    task_id=task_id,
+                    feature_id=feature_id,
+                    result=result.get("result")
+                )
+            else:
+                # Неудачное создание PR
+                self.session.execute(
+                    text("""
+                        UPDATE tasks 
+                        SET status = 'FAILED', finished_at = datetime('now')
+                        WHERE id = :task_id
+                    """),
+                    {"task_id": task_id}
+                )
+                
+                logger.error(
+                    "git_ops_task_failed",
+                    component="orchestrator",
+                    task_id=task_id,
+                    feature_id=feature_id,
+                    result=result.get("result")
+                )
+            
+            self.session.commit()
+            
+        except Exception as e:
+            logger.error(
+                "git_ops_task_processing_error",
+                component="orchestrator",
+                task_id=task_id,
+                feature_id=feature_id,
+                err_type=type(e).__name__,
+                error=str(e)
+            )
+            
+            # Помечаем задачу как FAILED при ошибке
+            self.session.execute(
+                text("""
+                    UPDATE tasks 
+                    SET status = 'FAILED', finished_at = datetime('now')
+                    WHERE id = :task_id
+                """),
+                {"task_id": task_id}
+            )
+            self.session.commit()
+    
+    async def _maybe_create_git_ops_task(self, feature_id: int):
+        """
+        Создает Git ops задачу если все основные задачи завершены и Git ops задачи еще нет.
+        
+        Args:
+            feature_id: ID фичи
+        """
+        try:
+            # Проверяем есть ли уже Git ops задача
+            existing_git_ops = self.session.execute(
+                text("""
+                    SELECT COUNT(*) FROM tasks 
+                    WHERE feature_id = :feature_id AND role = 'GIT_OPS' AND status IN ('NEW','RUNNING')
+                """),
+                {"feature_id": feature_id}
+            ).fetchone()[0]
+            
+            if existing_git_ops > 0:
+                logger.info(
+                    "git_ops_task_already_exists",
+                    component="orchestrator",
+                    feature_id=feature_id
+                )
+                return
+            
+            # Проверяем завершены ли все основные задачи (Dev, QA, Scribe)
+            main_tasks_result = self.session.execute(
+                text("""
+                    SELECT 
+                        COUNT(*) as total_main_tasks,
+                        SUM(CASE WHEN status = 'DONE' THEN 1 ELSE 0 END) as done_main_tasks
+                    FROM tasks 
+                    WHERE feature_id = :feature_id AND role IN ('Dev', 'QA', 'Scribe')
+                """),
+                {"feature_id": feature_id}
+            ).fetchone()
+            
+            total_main = main_tasks_result[0] or 0
+            done_main = main_tasks_result[1] or 0
+            
+            if total_main > 0 and done_main == total_main:
+                # Создаем Git ops задачу
+                self.session.execute(
+                    text("""
+                        INSERT INTO tasks (feature_id, role, status, attempts)
+                        VALUES (:feature_id, 'GIT_OPS', 'NEW', 0)
+                    """),
+                    {"feature_id": feature_id}
+                )
+                self.session.commit()
+                
+                logger.info(
+                    "git_ops_task_created",
+                    component="orchestrator",
+                    feature_id=feature_id
+                )
+            else:
+                logger.debug(
+                    "main_tasks_not_complete_skipping_git_ops",
+                    component="orchestrator",
+                    feature_id=feature_id,
+                    total_main_tasks=total_main,
+                    done_main_tasks=done_main
+                )
+                
+        except Exception as e:
+            logger.error(
+                "failed_to_create_git_ops_task",
                 component="orchestrator",
                 feature_id=feature_id,
                 err_type=type(e).__name__,

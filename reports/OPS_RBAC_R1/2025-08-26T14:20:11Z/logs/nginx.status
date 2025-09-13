@@ -1,0 +1,22 @@
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2025-08-26 15:29:09 MSK; 1h 51min ago
+       Docs: man:nginx(8)
+   Main PID: 344551 (nginx)
+      Tasks: 2 (limit: 2085)
+     Memory: 2.6M (peak: 5.6M)
+        CPU: 261ms
+     CGroup: /system.slice/nginx.service
+             ├─344551 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             └─357309 "nginx: worker process"
+
+авг 26 17:00:45 bivanov.fvds.ru systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+авг 26 17:00:50 bivanov.fvds.ru systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+авг 26 17:00:50 bivanov.fvds.ru nginx[356143]: 2025/08/26 17:00:50 [notice] 356143#356143: signal process started
+авг 26 17:00:50 bivanov.fvds.ru systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+авг 26 17:06:31 bivanov.fvds.ru systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+авг 26 17:06:31 bivanov.fvds.ru nginx[356369]: 2025/08/26 17:06:31 [notice] 356369#356369: signal process started
+авг 26 17:06:31 bivanov.fvds.ru systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+авг 26 17:20:12 bivanov.fvds.ru systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+авг 26 17:20:12 bivanov.fvds.ru nginx[357307]: 2025/08/26 17:20:12 [notice] 357307#357307: signal process started
+авг 26 17:20:12 bivanov.fvds.ru systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.

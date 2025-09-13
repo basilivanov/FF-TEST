@@ -185,6 +185,14 @@ async def health_ready(request: Request, db: Session = Depends(get_db)):
             content={"status": "error", "component": "ready", "checks": checks}
         )
 
+@router.get("/")
+async def health():
+    """
+    Простой эндпоинт для проверки состояния приложения.
+    Возвращает {"status": "ok"}.
+    """
+    return {"status": "ok"}
+
 @router.get("/deps")
 async def health_deps():
     """

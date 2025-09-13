@@ -1,0 +1,18 @@
+{
+  "intent": {
+    "title": "создать файл с содержимым Helllo! World",
+    "summary": "создать файл с содержимым Helllo! World",
+    "priority": "P2"
+  },
+  "package_contract": {
+    "artifact_manifest": "artifact://features/feature_1756578308753.json",
+    "notes": ""
+  },
+  "next_actions": [
+    {
+      "action": "Architect: планирование",
+      "owner": "Architect"
+    }
+  ],
+  "risks": []
+}

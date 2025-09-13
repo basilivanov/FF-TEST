@@ -1,0 +1,26 @@
+{
+  "role": "Maintainer",
+  "status": "SUCCESS",
+  "error": null,
+  "response": {
+    "provider": "anthropic_opus41",
+    "model": "claude-sonnet-4-20250514",
+    "text": "The JSON contains:\n- System message: \"You are a friendly system assistant. Respond in JSON format with fields response_for_user and action.\"\n- User message: \"Hello! Can you help with creating an API?\"\n\nIf you want me to help you create an API for your project, I can examine your codebase and assist. What specific API functionality do you need?",
+    "usage": {
+      "input_tokens": 0,
+      "output_tokens": 86,
+      "estimated": true
+    },
+    "finish_reason": "stop",
+    "choices": [
+      {
+        "message": {
+          "content": "The JSON contains:\n- System message: \"You are a friendly system assistant. Respond in JSON format with fields response_for_user and action.\"\n- User message: \"Hello! Can you help with creating an API?\"\n\nIf you want me to help you create an API for your project, I can examine your codebase and assist. What specific API functionality do you need?"
+        }
+      }
+    ]
+  },
+  "provider_used": "anthropic_opus41",
+  "latency_ms": 9790,
+  "expected_behavior": "JSON ответ с дружелюбным сообщением"
+}

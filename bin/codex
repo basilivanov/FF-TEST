@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
-export NVM_DIR="/home/feature/.nvm"
-export PATH="/home/feature/.nvm/versions/node/v22.18.0/bin:$PATH"
-exec /home/feature/.nvm/versions/node/v22.18.0/bin/codex "$@"
+# Codex CLI wrapper for stable execution
+set -euo pipefail
+
+export HOME="/home/feature"
+export LANG="C.UTF-8"
+export TERM="xterm-256color"
+export NO_COLOR="1"
+export CI="true"
+
+# Initialize NVM environment
+if [[ -s "/opt/feature-factory/.nvm/nvm.sh" ]]; then
+    source /opt/feature-factory/.nvm/nvm.sh
+    nvm use 22.19.0 >/dev/null 2>&1
+fi
+
+# Use exec command for non-interactive mode with proper flags
+exec node /opt/feature-factory/.nvm/versions/node/v22.19.0/lib/node_modules/@openai/codex/bin/codex.js \
+    exec \
+    --dangerously-bypass-approvals-and-sandbox \
+    --skip-git-repo-check \
+    --json \
+    --color never \
+    "$@"

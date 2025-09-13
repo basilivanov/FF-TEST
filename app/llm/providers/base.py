@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Tuple
 import yaml
 
 # Путь к конфигурационному файлу CLI
-CLI_CONFIG_PATH = "/opt/feature-factory/configs/llm_cli.yaml"
+CLI_CONFIG_PATH = "/opt/feature-factory/configs/llm_cli_config.yaml"
 
 class LLMProviderAdapter(ABC):
     """Абстрактный базовый класс для адаптеров провайдеров LLM."""

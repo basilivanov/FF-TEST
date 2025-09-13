@@ -1,0 +1,200 @@
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:08.047173Z"}
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: INFO:     Started server process [351451]
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: INFO:     Waiting for application startup.
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: INFO:     Application startup complete.
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: INFO:     Waiting for application shutdown.
+авг 26 16:23:08 bivanov.fvds.ru uvicorn[351451]: INFO:     Application shutdown complete.
+авг 26 16:23:08 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:08 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:08 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.141s CPU time.
+авг 26 16:23:11 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 776.
+авг 26 16:23:11 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:12.269301Z"}
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:12.334310Z"}
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: INFO:     Started server process [351458]
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: INFO:     Waiting for application startup.
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: INFO:     Application startup complete.
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: INFO:     Waiting for application shutdown.
+авг 26 16:23:12 bivanov.fvds.ru uvicorn[351458]: INFO:     Application shutdown complete.
+авг 26 16:23:12 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:12 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:12 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.112s CPU time.
+авг 26 16:23:15 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 777.
+авг 26 16:23:15 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:16.432292Z"}
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:16.492915Z"}
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: INFO:     Started server process [351465]
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: INFO:     Waiting for application startup.
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: INFO:     Application startup complete.
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: INFO:     Waiting for application shutdown.
+авг 26 16:23:16 bivanov.fvds.ru uvicorn[351465]: INFO:     Application shutdown complete.
+авг 26 16:23:16 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:16 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:16 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.033s CPU time.
+авг 26 16:23:19 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 778.
+авг 26 16:23:19 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:20.521003Z"}
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:20.582381Z"}
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: INFO:     Started server process [351472]
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: INFO:     Waiting for application startup.
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: INFO:     Application startup complete.
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: INFO:     Waiting for application shutdown.
+авг 26 16:23:20 bivanov.fvds.ru uvicorn[351472]: INFO:     Application shutdown complete.
+авг 26 16:23:21 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:21 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:21 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.100s CPU time.
+авг 26 16:23:24 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 779.
+авг 26 16:23:24 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:24.754007Z"}
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:24.823467Z"}
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: INFO:     Started server process [351480]
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: INFO:     Waiting for application startup.
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: INFO:     Application startup complete.
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: INFO:     Waiting for application shutdown.
+авг 26 16:23:24 bivanov.fvds.ru uvicorn[351480]: INFO:     Application shutdown complete.
+авг 26 16:23:25 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:25 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:28 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 780.
+авг 26 16:23:28 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:28 bivanov.fvds.ru uvicorn[351488]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:28.981809Z"}
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:29.051926Z"}
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: INFO:     Started server process [351488]
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: INFO:     Waiting for application startup.
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: INFO:     Application startup complete.
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: INFO:     Waiting for application shutdown.
+авг 26 16:23:29 bivanov.fvds.ru uvicorn[351488]: INFO:     Application shutdown complete.
+авг 26 16:23:29 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:29 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:32 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 781.
+авг 26 16:23:32 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:33.197119Z"}
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:33.263331Z"}
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: INFO:     Started server process [351495]
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: INFO:     Waiting for application startup.
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: INFO:     Application startup complete.
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: INFO:     Waiting for application shutdown.
+авг 26 16:23:33 bivanov.fvds.ru uvicorn[351495]: INFO:     Application shutdown complete.
+авг 26 16:23:33 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:33 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:36 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 782.
+авг 26 16:23:36 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:37.315829Z"}
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:37.392084Z"}
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: INFO:     Started server process [351508]
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: INFO:     Waiting for application startup.
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: INFO:     Application startup complete.
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: INFO:     Waiting for application shutdown.
+авг 26 16:23:37 bivanov.fvds.ru uvicorn[351508]: INFO:     Application shutdown complete.
+авг 26 16:23:37 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:37 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:37 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.069s CPU time.
+авг 26 16:23:40 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 783.
+авг 26 16:23:40 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:41.523627Z"}
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:41.599710Z"}
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: INFO:     Started server process [351515]
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: INFO:     Waiting for application startup.
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: INFO:     Application startup complete.
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: INFO:     Waiting for application shutdown.
+авг 26 16:23:41 bivanov.fvds.ru uvicorn[351515]: INFO:     Application shutdown complete.
+авг 26 16:23:41 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:41 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:41 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.057s CPU time.
+авг 26 16:23:45 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 784.
+авг 26 16:23:45 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:45.780433Z"}
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:45.852029Z"}
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: INFO:     Started server process [351522]
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: INFO:     Waiting for application startup.
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: INFO:     Application startup complete.
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: INFO:     Waiting for application shutdown.
+авг 26 16:23:45 bivanov.fvds.ru uvicorn[351522]: INFO:     Application shutdown complete.
+авг 26 16:23:46 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:46 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:46 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.075s CPU time.
+авг 26 16:23:49 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 785.
+авг 26 16:23:49 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:49 bivanov.fvds.ru uvicorn[351531]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:49.988817Z"}
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:50.059180Z"}
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: INFO:     Started server process [351531]
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: INFO:     Waiting for application startup.
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: INFO:     Application startup complete.
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: INFO:     Waiting for application shutdown.
+авг 26 16:23:50 bivanov.fvds.ru uvicorn[351531]: INFO:     Application shutdown complete.
+авг 26 16:23:50 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:50 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:50 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.145s CPU time.
+авг 26 16:23:53 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 786.
+авг 26 16:23:53 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:54.251457Z"}
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:54.327460Z"}
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: INFO:     Started server process [351543]
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: INFO:     Waiting for application startup.
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: INFO:     Application startup complete.
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: INFO:     Waiting for application shutdown.
+авг 26 16:23:54 bivanov.fvds.ru uvicorn[351543]: INFO:     Application shutdown complete.
+авг 26 16:23:54 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:54 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:57 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 787.
+авг 26 16:23:57 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:23:58.385096Z"}
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:23:58.458581Z"}
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: INFO:     Started server process [351550]
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: INFO:     Waiting for application startup.
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: INFO:     Application startup complete.
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: INFO:     Waiting for application shutdown.
+авг 26 16:23:58 bivanov.fvds.ru uvicorn[351550]: INFO:     Application shutdown complete.
+авг 26 16:23:58 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:23:58 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:23:58 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.248s CPU time.
+авг 26 16:24:02 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 788.
+авг 26 16:24:02 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:24:02.741923Z"}
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:24:02.813790Z"}
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: INFO:     Started server process [351557]
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: INFO:     Waiting for application startup.
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: INFO:     Application startup complete.
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: INFO:     Waiting for application shutdown.
+авг 26 16:24:02 bivanov.fvds.ru uvicorn[351557]: INFO:     Application shutdown complete.
+авг 26 16:24:03 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Main process exited, code=exited, status=1/FAILURE
+авг 26 16:24:03 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Failed with result 'exit-code'.
+авг 26 16:24:03 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Consumed 1.138s CPU time.
+авг 26 16:24:06 bivanov.fvds.ru systemd[1]: feature-factory-test.service: Scheduled restart job, restart counter is at 789.
+авг 26 16:24:06 bivanov.fvds.ru systemd[1]: Started feature-factory-test.service - Feature Factory (test).
+авг 26 16:24:06 bivanov.fvds.ru uvicorn[351564]: {"component": "graph", "db_path": "/opt/feature-factory/data/checkpoints.db", "event": "checkpointer_initialized", "timestamp": "2025-08-26T13:24:06.956939Z"}
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: {"component": "db", "env": "TEST", "current_db_url": "sqlite:////opt/feature-factory/data/test.db", "event": "db_guard_success", "timestamp": "2025-08-26T13:24:07.024937Z"}
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: Warning: Could not initialize admin views: Boolean value of this clause is not defined
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: INFO:     Started server process [351564]
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: INFO:     Waiting for application startup.
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: INFO:     Application startup complete.
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8081): address already in use
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: INFO:     Waiting for application shutdown.
+авг 26 16:24:07 bivanov.fvds.ru uvicorn[351564]: INFO:     Application shutdown complete.
