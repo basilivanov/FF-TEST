@@ -51,15 +51,16 @@ class GitIntegrationService:
         branch_name = f"feature/{feature_id}_{self._slugify(feature_title)}"
         
         try:
-            # Ensure we're on the base branch
-            subprocess.run(
-                ["git", "checkout", self.base_branch],
-                cwd=self.repo_path,
-                check=True,
-                capture_output=True
-            )
-            
-            # Create and checkout feature branch (without fetch to avoid permission issues)
+            # Скрываем шумные локальные артефакты из индекса, чтобы checkout не падал
+            noisy_paths = [
+                "data/test.db", "data/test.db-shm", "data/test.db-wal", "runner_debug.log"
+            ]
+            for p in noisy_paths:
+                try:
+                    subprocess.run(["git", "update-index", "--assume-unchanged", p], cwd=self.repo_path, capture_output=True)
+                except Exception:
+                    pass
+            # Try to create and checkout feature branch from current HEAD to avoid dirty-tree checkout issues
             subprocess.run(
                 ["git", "checkout", "-b", branch_name],
                 cwd=self.repo_path,
@@ -181,8 +182,31 @@ class GitIntegrationService:
             }
             
             response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 422:
+                # Возможно PR уже существует — попробуем найти по head
+                search_url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"
+                params = {"head": f"{self.github_owner}:{branch_name}", "state": "open"}
+                sr = requests.get(search_url, headers=headers, params=params)
+                if sr.ok:
+                    arr = sr.json() or []
+                    if arr:
+                        pr_data = arr[0]
+                        pr_info = {
+                            "pr_url": pr_data["html_url"],
+                            "pr_number": pr_data["number"],
+                            "pr_id": pr_data["number"],
+                            "pr_state": pr_data["state"],
+                            "branch_name": branch_name,
+                            "head_sha": pr_data["head"]["sha"]
+                        }
+                        log.info(
+                            event="github_pr_found_existing",
+                            component="git_integration",
+                            correlation_id=correlation_id,
+                            kv={"pr_url": pr_info["pr_url"], "pr_number": pr_info["pr_number"], "feature_id": feature_id}
+                        )
+                        return pr_info
             response.raise_for_status()
-            
             pr_data = response.json()
             pr_info = {
                 "pr_url": pr_data["html_url"],

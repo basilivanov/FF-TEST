@@ -1,0 +1,16 @@
+{
+  "code": 200,
+  "body": {
+    "id": 34,
+    "title": "FULL_AUTO_PIPELINE_E2E 2025-09-14 06:46:44",
+    "intent_json": "{\"goal\": \"E2E no-manual\", \"env\": \"TEST\"}",
+    "status": "PLANNED",
+    "priority": 0,
+    "created_at": "2025-09-14T03:46:44Z",
+    "created_by": "API",
+    "env": "TEST",
+    "pr_url": "",
+    "branch_name": "",
+    "merged_sha": ""
+  }
+}

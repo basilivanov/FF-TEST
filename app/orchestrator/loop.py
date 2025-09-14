@@ -1017,7 +1017,7 @@ class OrchestratorLoop:
                            SUM(CASE WHEN t.status = 'FAILED' THEN 1 ELSE 0 END) as failed_tasks
                     FROM features f
                     LEFT JOIN tasks t ON f.id = t.feature_id
-                    WHERE f.status IN ('RUNNING','DONE','FAILED')
+                    WHERE f.status IN ('PLANNED','RUNNING','DONE','FAILED')
                     GROUP BY f.id, f.title, f.plan_dsl_json
                 """)
             )

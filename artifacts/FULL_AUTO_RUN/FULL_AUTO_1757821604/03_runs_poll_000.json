@@ -1,0 +1,16 @@
+{
+  "code": 200,
+  "body": [
+    {
+      "run_id": "07edbbcc-cbec-47f2-bb50-228593236a1d",
+      "feature_id": 34,
+      "feature_title": "FULL_AUTO_PIPELINE_E2E 2025-09-14 06:46:44",
+      "graph_name": "G1",
+      "thread_id": "34",
+      "state_json": "",
+      "status": "DONE",
+      "last_checkpoint_at": "2025-09-14T03:46:52Z",
+      "env": "TEST"
+    }
+  ]
+}
