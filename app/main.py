@@ -16,6 +16,7 @@ from app.api.logs import router as logs_router
 from app.api.logs_errors_endpoints import router as logs_errors_router
 from app.api.tokens import router as tokens_router
 from app.api.tokens_stats_endpoints import router as tokens_stats_router
+from app.api.admin_logging import router as admin_logging_router
 from app.api.runner_endpoints import router as runner_router
 from app.api.ci_debug import router as ci_debug_router
 from app.api.docs_status import router as docs_status_router
@@ -84,6 +85,7 @@ app.include_router(tokens_router)
 
 # Подключаем маршруты статистики токенов
 app.include_router(tokens_stats_router)
+app.include_router(admin_logging_router)
 app.include_router(runner_router)
 app.include_router(ci_debug_router)
 

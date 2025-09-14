@@ -26,6 +26,16 @@
 - **Формат:** Только single-line JSON с обязательными полями
 - **Поля:** `ts`, `level`, `env`, `component`, `agent_role`, `correlation_id`, `event`
 - **Библиотеки:** `structlog` для JSON, `loguru` для ротации
+
+### Logging (V3) — Инварианты
+
+- Формат: только JSON‑строки (одна строка на событие). Обязательные поля: `ts` (UTC RFC3339), `level`, `env`, `component`, `agent_role`, `correlation_id`, `event`. Детали — в `kv{}`.
+- Корреляция: во всех HTTP запросах обязателен `X-Correlation-Id`; прокидывается через все подсистемы.
+- Безопасность: секреты/токены/authorization редактируются процессором (`***`), payload’ы не логируются целиком.
+- Производительность: DEBUG включается точечно (по подсистемам) и/или через TTL‑профили; в PROD по умолчанию `INFO` (DB/LLM — не ниже `WARN`).
+- Сэмплинг и троттлинг: `LOG_DEBUG_SAMPLE_N` (1 из N DEBUG‑событий), `LOG_WARN_THROTTLE_WINDOW_SEC` (подавление повторов WARN в окне). Значения читаются из ENV и применяются централизованно.
+- Единый конфиг: централизованная настройка в `app/logging/config.py`; уровни можно менять на лету через админ‑эндпоинты.
+- События: именование `snake_case`, глагол+сущность (`api_call_start`, `github_api_call_response`), список стандартизован в reference.
 - **Секреты:** Обязательная редакция в `***REDACTED***`
 
 ## Task Handoff Protocol

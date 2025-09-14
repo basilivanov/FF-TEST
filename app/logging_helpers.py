@@ -18,22 +18,7 @@ import uuid
 import functools
 import traceback
 from typing import Any, Callable, Dict, Optional
-import structlog
-from loguru import logger
-
-
-# Настройка structlog для JSON логов
-structlog.configure(
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer()
-    ],
-    context_class=dict,
-    logger_factory=structlog.PrintLoggerFactory(),
-)
-
-# Глобальный логгер
-log = structlog.get_logger()
+from app.logging.config import log  # Centralized JSON logger
 
 
 def get_env() -> str:
@@ -678,93 +663,7 @@ def log_llm_call(provider: str, model: str, prompt: str, response: str,
         log.error("llm_logging_error", error=str(e))
 
 # Глобальный логгер
-log = structlog.get_logger()
-
-
-def get_env() -> str:
-    """Получает текущее окружение (test или prod)."""
-    return os.getenv("ENV", "test")
-
-
-def generate_correlation_id() -> str:
-    """Генерирует уникальный correlation_id."""
-    return str(uuid.uuid4())
-
-
-def log_job(job_name: str):
-    """
-    Декоратор для логирования начала и завершения выполнения задачи.
-    
-    Args:
-        job_name (str): Название задачи
-    """
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            # Генерируем correlation_id если его нет
-            correlation_id = kwargs.get('correlation_id') or generate_correlation_id()
-            task_id = kwargs.get('task_id') or str(uuid.uuid4())
-            
-            # Логируем начало задачи
-            log.info(
-                event="job_started",
-                env=get_env(),
-                component="job",
-                agent_role="Dev",
-                run_id=correlation_id,
-                task_id=task_id,
-                correlation_id=correlation_id,
-                kv={
-                    "job_name": job_name
-                }
-            )
-            
-            start_time = time.time()
-            try:
-                # Выполняем функцию
-                result = func(*args, **kwargs)
-                
-                # Логируем успешное завершение задачи
-                duration_ms = (time.time() - start_time) * 1000
-                log.info(
-                    event="job_finished",
-                    env=get_env(),
-                    component="job",
-                    agent_role="Dev",
-                    run_id=correlation_id,
-                    task_id=task_id,
-                    correlation_id=correlation_id,
-                    kv={
-                        "job_name": job_name,
-                        "duration_ms": round(duration_ms, 2),
-                        "status": "success"
-                    }
-                )
-                
-                return result
-            except Exception as e:
-                # Логируем ошибку
-                duration_ms = (time.time() - start_time) * 1000
-                log.error(
-                    event="job_finished",
-                    env=get_env(),
-                    component="job",
-                    agent_role="Dev",
-                    run_id=correlation_id,
-                    task_id=task_id,
-                    correlation_id=correlation_id,
-                    kv={
-                        "job_name": job_name,
-                        "duration_ms": round(duration_ms, 2),
-                        "status": "error",
-                        "err_type": type(e).__name__,
-                        "err_msg": str(e)
-                    },
-                    stack=True
-                )
-                raise
-        return wrapper
-    return decorator
+# Duplicate legacy block removed; centralized logger and helpers are defined above.
 
 
 def log_http(func: Callable) -> Callable:
