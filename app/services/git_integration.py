@@ -156,6 +156,10 @@ class GitIntegrationService:
         branch_name = f"feature/{feature_id}_{self._slugify(feature_title)}"
         
         try:
+            # Всегда синхронизируемся с удалённой базовой веткой,
+            # чтобы PR содержал только наш артефакт, а не локальную историю.
+            subprocess.run(["git", "fetch", "origin", "--prune"], cwd=self.repo_path, check=True, capture_output=True)
+
             # Скрываем шумные локальные артефакты из индекса, чтобы checkout не падал
             noisy_paths = [
                 "data/test.db", "data/test.db-shm", "data/test.db-wal", "runner_debug.log"
@@ -165,12 +169,12 @@ class GitIntegrationService:
                     subprocess.run(["git", "update-index", "--assume-unchanged", p], cwd=self.repo_path, capture_output=True)
                 except Exception:
                     pass
-            # Try to create and checkout feature branch from current HEAD to avoid dirty-tree checkout issues
+            # Создаём/переназначаем ветку от origin/<base_branch>, чтобы diff был минимальным
             subprocess.run(
-                ["git", "checkout", "-b", branch_name],
+                ["git", "checkout", "-B", branch_name, f"origin/{self.base_branch}"],
                 cwd=self.repo_path,
                 check=True,
-                capture_output=True
+                capture_output=True,
             )
             
             log.info(
@@ -225,10 +229,8 @@ class GitIntegrationService:
             abs_path = os.path.join(abs_dir, filename)
             with open(abs_path, "w", encoding="utf-8") as f:
                 f.write(f"Auto-commit for feature {feature_id} at {ts}\n")
-            # git add + commit
+            # git add только артефакт + commit (не затрагиваем остальное рабочее дерево)
             subprocess.run(["git", "add", os.path.join(rel_dir, filename)], cwd=self.repo_path, check=True, capture_output=True)
-            # Добавим также любые другие изменения, если есть
-            subprocess.run(["git", "add", "-A"], cwd=self.repo_path, check=True, capture_output=True)
             subprocess.run(["git", "commit", "-m", f"chore(gitops): auto-commit for feature {feature_id} [{correlation_id}]"], cwd=self.repo_path, check=True, capture_output=True)
             log.info(event="git_auto_commit_created", component="git_integration", correlation_id=correlation_id, kv={"file": os.path.join(rel_dir, filename)})
             return os.path.join(rel_dir, filename)
