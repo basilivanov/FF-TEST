@@ -1,17 +1,17 @@
 [
   {
-    "content": "Add detailed logging to git_integration.py",
+    "content": "Verify new token is loaded in system",
     "status": "completed",
-    "activeForm": "Adding detailed logging to git_integration.py"
+    "activeForm": "Verifying new token is loaded in system"
   },
   {
-    "content": "Test new token with logging enabled",
+    "content": "Run full E2E test with new stable token",
     "status": "in_progress",
-    "activeForm": "Testing new token with logging enabled"
+    "activeForm": "Running full E2E test with new stable token"
   },
   {
-    "content": "Monitor exact API call that causes expiration",
+    "content": "Monitor all GitHub API calls with detailed logging",
     "status": "pending",
-    "activeForm": "Monitoring exact API call that causes expiration"
+    "activeForm": "Monitoring all GitHub API calls with detailed logging"
   }
 ]
