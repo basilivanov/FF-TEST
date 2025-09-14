@@ -738,3 +738,7 @@
 {"type":"function_call","name":"shell","arguments":"{\"command\":[\"bash\",\"-lc\",\"curl -fsS -u ops:ops123 -X POST http://127.0.0.1:8081/api/v1/runner/run-once | sed -n '1,80p'\"]}","call_id":"call_5X8IjqP14CGUxXmTDbjRYLs9"}
 {"type":"function_call_output","call_id":"call_5X8IjqP14CGUxXmTDbjRYLs9","output":"failed in sandbox None with execution error: command timed out"}
 {"record_type":"state"}
+{"record_type":"state"}
+{"type":"function_call","name":"shell","arguments":"{\"command\":[\"bash\",\"-lc\",\"curl -fsS http://127.0.0.1:8081/health/live || true\"]}","call_id":"call_E7b5j3rq6WBarM7dcD5UezS7"}
+{"type":"function_call_output","call_id":"call_E7b5j3rq6WBarM7dcD5UezS7","output":"failed in sandbox None with execution error: command timed out"}
+{"record_type":"state"}
