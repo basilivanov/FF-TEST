@@ -1,0 +1,4 @@
+files:
+- main.py
+package_contract:
+  package_id: PKG-335-v1
