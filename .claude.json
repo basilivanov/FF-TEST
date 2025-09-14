@@ -23,7 +23,7 @@
     "permissions": 11,
     "custom-commands": 11
   },
-  "promptQueueUseCount": 204,
+  "promptQueueUseCount": 209,
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
   },
@@ -33,6 +33,22 @@
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "новый токен создал  Read access to actions and metadata\n Read and Write access to code and pull requests и  прописал, сделай как лучше для тестрования причины через логи или как-то по другому",
+          "pastedContents": {}
+        },
+        {
+          "display": "Repository permissions\n Read access to metadata\n Read and Write access to actions, code, pull requests, and repository hooks",
+          "pastedContents": {}
+        },
+        {
+          "display": " ✅ Actions: Read (для статусов CI) у меня стоит RW",
+          "pastedContents": {}
+        },
+        {
+          "display": "какие варинаты и испрваления ситуациии когда будет новый токен?",
+          "pastedContents": {}
+        },
         {
           "display": "я прописал его в файле тогда делаем полный прогон e2e ты только мониторишь и правишь по ходу, если токен заэкспрайриться ты точо бдет знать на каком шаге [Pasted text #1 +109 lines] нужно прогнать полнценный тест без стабов, смоком и дёргнатья рками api или  cli всё должгы сделать агенты ты только пониторишь и правишь баги по ходу если будут",
           "pastedContents": {
@@ -535,28 +551,6 @@
         },
         {
           "display": "Tasks\nСписок задач\n\nПоиск по названию фичи или ID...\n\nВсе статусы\n\nВсе роли\nОбновить\nСписок задач\nNEW\nЗадача #1 • Фича # • Роль: Dev\n\nПопытки: • Запланировано: Не указано Слушай, я вижу только одну задачу, которую ты тестовую запускал, я ее почему-то не вижу в админке. Ты можешь сделать так, чтобы я... И то, когда я открываю эту задачу первую, там ошибка FetchData. То есть ты можешь сейчас сделать так, чтобы ту тестовую задачу, на которой ты тренировался, чтобы я ее увидел в админке, или нагнать туда тестовых данных пока, чтобы они были сигналом, потом все очищать, но в тестовом контуре данных можно в базу нагнать тестовых, не проблема.",
-          "pastedContents": {}
-        },
-        {
-          "display": "теперь интегрируй в ui задеплоц и проверь, что всё работает",
-          "pastedContents": {}
-        },
-        {
-          "display": "ты тут ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +49 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "TASK 2 — TRACE_API_IMPLEMENT_v1\n\nЦель: реализовать GET /api/v1/tasks/{task_id}/trace (read-only).\n\nЭТАП 0 — Контекст (обязателен):\n\nВызови GET https://etl-tst.chococraft.ru/api/v1/context/?task_description=TRACE_API_IMPLEMENT_v1\n\nЕсли за ≤40s не получил 200 → STOP & ESCALATE с пруфами (health/ready, ready, context).\n\nСделать (BE):\n\nНовый роутер: app/api/trace.py\n\nРегистрация в app/main.py под префиксом /api/v1\n\nКонтракт: GET /api/v1/tasks/{task_id}/trace?limit=50&offset=0\n\nlimit ≤ 100; offset ≥ 0; сортировка timestamp DESC\n\nИсточник: agent_events через существующий слой доступа к БД (DDL запрещён; DATABASE_URL не трогаем)\n\nТрансформация → формат Execution Trace:\n\nicon по маппингу:\ntask_started→🧠, context_pack_built→📦, llm_call_start|llm_call_end→🤖, tool_edit→🔧, watchdog→🛡️, done→✅, tool_error|llm_error→🔴\n\nseverity: info|warn|error\n\nlinks.log_id = correlation_id; links.artifact если есть путь\n\nРедакция секретов: токены/пароли/ключи → ***REDACTED***\n\nOpenAPI /openapi.json должен содержать путь /api/v1/tasks/{task_id}/trace\n\nНельзя:\n\nПоднимать «минимальные серверы», менять порты/БД, писать файлы вне разрешённых путей\n\nПруф-пакет (в отчёт обязательно):\n\nGET https://etl-tst.chococraft.ru/api/v1/tasks/task_timeline_demo/trace?limit=5 → 200\nвключи: latency_ms, x-correlation-id, первые 300 байт body_head\n\nФрагмент /openapi.json с этим путём\n\np95 на 100 событий ≤ 200 мс (замер локально/бенч модулем проекта)\n\nОтдаёшь: REPORT_TraceApi_Impl_v1.md\n— status: green|yellow, findings, perf, openapi_ok:true/false, samples.items[0..2] (обрезанные)"
-            }
-          }
-        },
-        {
-          "display": "пофикси",
           "pastedContents": {}
         }
       ],

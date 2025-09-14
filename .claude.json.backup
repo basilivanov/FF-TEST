@@ -23,7 +23,7 @@
     "permissions": 11,
     "custom-commands": 11
   },
-  "promptQueueUseCount": 204,
+  "promptQueueUseCount": 209,
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
   },
@@ -33,6 +33,28 @@
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "Repository permissions\n Read access to metadata\n Read and Write access to actions, code, pull requests, and repository hooks",
+          "pastedContents": {}
+        },
+        {
+          "display": " ✅ Actions: Read (для статусов CI) у меня стоит RW",
+          "pastedContents": {}
+        },
+        {
+          "display": "какие варинаты и испрваления ситуациии когда будет новый токен?",
+          "pastedContents": {}
+        },
+        {
+          "display": "я прописал его в файле тогда делаем полный прогон e2e ты только мониторишь и правишь по ходу, если токен заэкспрайриться ты точо бдет знать на каком шаге [Pasted text #1 +109 lines] нужно прогнать полнценный тест без стабов, смоком и дёргнатья рками api или  cli всё должгы сделать агенты ты только пониторишь и правишь баги по ходу если будут",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "Что сделано\n\n  - Документация и Scribe\n      - Вся документация и артефакты теперь в cortex/; Scribe пишет в cortex/docs/*.md и обновляет CHANGELOG.md; doc_registry обновляется с версионированием.\n  - Валидация/гейты\n      - Gate использует схемы из cortex/docs/package_contract.schema.json (никаких ссылок на /docs).\n  - GitOps (реальный GitHub)\n      - Ветки: slug, создаются от текущей HEAD; если ветка уже есть — checkout вместо падения; шумные файлы (БД/логи) помечены assume‑unchanged.\n      - Гарантирован уникальный коммит (исключён «empty diff»); PR 422 «уже есть» — обрабатывается (нахожу по head).\n  - CI/GA\n      - docs‑guard.yml переведён на cortex (добавлены cortex/scripts/check_* — быстрые PASS‑проверки).\n      - e2e‑regression.yml: для pull_request — лёгкие PR‑проверки (без внешних зависимостей); для push/schedule — полноформатные E2E.\n  - API/совместимость/сервисность\n      - /api/v1/health, /api/v1/metrics (Prometheus), /api/v1/logs/stream (SSE).\n      - /api/v1/orchestrator/runs — убрал несуществующие колонки (нет 500).\n      - /api/v1/orchestrator/features/{id} — pr_url, branch_name, merged_sha.\n      - POST /api/v1/runner/run‑once — «тик» раннера без CLI.\n      - Вебхук /api/v1/ci/webhook (HMAC SHA‑256) + резервный пуллинг GitHub Checks → при «зелёных» контекстах создаётся MERGE_PR.\n\n  Как сейчас всё работает (боевой цикл)\n\n  - feature → Dev/QA/Scribe/Apply: агенты выполняются автоматически; Scribe документирует в cortex и обновляет CHANGELOG.\n  - GitOps: создаёт ветку и PR (SSH‑push + GitHub API); за счёт авто‑коммита всегда есть diff.\n  - Реальные GitHub Actions: на PR бегут docs‑guard (cortex) и PR‑quick E2E; полные E2E — на push/schedule.\n  - Auto‑merge: на success вебхук/пуллинг создаёт MERGE_PR и мержит PR; merged_sha пишется в feature.\n\n  Как протестировать ещё раз (полный боевой цикл)\n\n  - Быстрая проверка окружения\n      - Проверка патентности токена на стороне сервиса: GET /api/v1/ci/debug/git‑env → GITHUB_TOKEN_present должен быть true.\n      - Вебхук GitHub → /api/v1/ci/webhook (X‑Hub‑Signature‑256 по вашему секрету) включён (405 на GET — ок).\n  - Запуск фичи (любой из вариантов)\n      - Полностью автоматически (супервизор):\n      - . .venv/bin/activate && python3 scripts/ci/full_auto_supervisor.py\n      - Он создаст NOOP Doc Feature, подёргает runner API, дождётся pr_url/merge и положит итог в artifacts/FULL_AUTO_RUN/<corr_id>/final_report.json.\n  - Вручную через API:\n      - POST /api/v1/orchestrator/features {\"title\":\"NOOP_DOC_YYYYMMDD_HHMMSS\",\"intent\":{\"goal\":\"noop-doc\"},\"type\":\"BUSINESS\",\"autostart\":true,\"strict\":true}\n      - Несколько раз POST /api/v1/runner/run-once (ускорить)\n      - GET /api/v1/orchestrator/features/{id} → появится pr_url → ждём GitHub Actions → merged_sha → OK\n  - Проверки после мержа\n      - /api/v1/ping = 200, /api/v1/metrics — базовые метрики, /api/v1/logs/stream — доступен.\n      - В feature должны быть заполнены pr_url и merged_sha; в CHANGELOG появится запись Scribe.\n\n  Инварианты (SSOT)\n\n  - Документация: только cortex/; Scribe пишет в cortex/docs/*; CHANGELOG ведётся автоматически; doc_registry — версия vN и sha256.\n  - БД/SQLite: DATABASE_URL=sqlite:////opt/feature-factory/data/test.db; WAL ON; busy_timeout=5000ms; права data/700, *.db 600; schema — только Alembic\n  (alembic_only_for_schema).\n  - Службы/API:\n      - Оркестратор на :8081; /api/v1/* — UI/агенты; /api/v1/health, /api/v1/metrics, /api/v1/logs/stream.\n      - Runner API: POST /api/v1/runner/run‑once — «тик» (агентный).\n  - GitHub (реальный):\n      - origin=git@github.com:basilivanov/FF‑TEST.git (SSH); ~/.ssh/id_ed25519_ff.\n      - PAT для GitHub API (PR/merge) — у сервиса (EnvironmentFile=/etc/feature-factory/ci-secrets.env); права repo.\n      - Вебхук GitHub → POST /api/v1/ci/webhook (HMAC X‑Hub‑Signature‑256).\n      - Никаких коммитов прямо в main; PR‑ветки feature/_.\n  - CI/GA:\n      - PR: docs‑guard (cortex), PR‑quick E2E; push/schedule: полноформатные E2E.\n      - Auto‑MERGE: при success check_suite → MERGE_PR (вебхук/пуллинг).\n  - Без моков/стабов/ручных CLI в прод‑цикле. Всё — агенты и API.\n\n  Задание (перенос в другой чат; один YAML‑блок)\n  task: full_auto_pipeline_real_ci\n  corr_id: FULL_AUTO_{{now_unixts}}\n  context:\n    ff_base_url: http://127.0.0.1:8081\n    artifacts_dir: /opt/feature-factory/artifacts/FULL_AUTO_RUN/FULL_AUTO_{{now_unixts}}\n    database_url: sqlite:////opt/feature-factory/data/test.db\n    docs_root: /opt/feature-factory/cortex/docs\n    change_log: /opt/feature-factory/CHANGELOG.md\n    github:\n      owner: basilivanov\n      repo: FF-TEST\n      remote: git@github.com:basilivanov/FF-TEST.git\n      ssh_key_path: /home/feature/.ssh/id_ed25519_ff\n      token_env: GITHUB_TOKEN               # из /etc/feature-factory/ci-secrets.env\n      webhook_secret_env: GITHUB_WEBHOOK_SECRET\n    endpoints:\n      feature_create: http://127.0.0.1:8081/api/v1/orchestrator/features\n      feature_get: http://127.0.0.1:8081/api/v1/orchestrator/features/{feature_id}\n      feature_tasks: http://127.0.0.1:8081/api/v1/orchestrator/features/{feature_id}/tasks\n      runs_list: http://127.0.0.1:8081/api/v1/orchestrator/runs\n      runner_tick: http://127.0.0.1:8081/api/v1/runner/run-once\n      metrics: http://127.0.0.1:8081/api/v1/metrics\n      logs_sse: http://127.0.0.1:8081/api/v1/logs/stream\n      ci_webhook: http://127.0.0.1:8081/api/v1/ci/webhook\n  prechecks:\n    - GET /api/v1/health returns 200\n    - db journal_mode=WAL; data/700, db 600\n    - GITHUB_TOKEN доступен рантайму (GET /api/v1/ci/debug/git-env -> present=true)\n    - GitHub webhook настроен на ci_webhook (X-Hub-Signature-256)\n  plan:\n    - Create NOOP Doc Feature (autostart=true, strict=true)\n    - Tick runner (10-20x POST /runner/run-once) до появления задач Dev/QA/Scribe\n    - Wait for pr_url in feature_get (GitOps branch+PR)\n    - Wait real GA checks (docs-guard PR, PR-quick E2E) → success\n    - Auto-MERGE via webhook/poll; verify merged_sha in feature_get\n    - Verify ping=200, metrics OK; doc_registry updated; CHANGELOG updated\n  dod:\n    - pr_url not empty; merged_sha not empty\n    - GA (docs-guard PR, PR-quick E2E) success; авто-merge выполнен\n    - cortex/docs/* обновлён Scribe; CHANGELOG содержит запись\n    - /api/v1/metrics доступны и корректны; /api/v1/logs/stream отдаёт SSE\n  artifacts_dir: /opt/feature-factory/artifacts/FULL_AUTO_RUN/FULL_AUTO_{{now_unixts}}\n  owner: ops-e2e\n  notes:\n    - Никаких «псевдо-CI»; статусы только из GitHub Actions\n    - При недоступности вебхука планировщик опрашивает GitHub Checks и создаёт MERGE_PR\n  Если хотите, я на своей стороне продолжу супервизировать прогон NOOP Doc Feature до auto‑merge (сейчас блокер — 401 на GitHub API при создании PR). Как только PAT для\n  репозитория будет виден рантайму сервиса и даст 200 на GitHub API, я дожму полный зелёный цикл, и отправлю pr_url и merged_sha."
+            }
+          }
+        },
         {
           "display": "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 сгенерил новый попрой 2 раза обратиться он точно никуда в логи утечь не может на второй раз ты должен получить 401",
           "pastedContents": {}
@@ -530,34 +552,6 @@
         {
           "display": "теперь интегрируй в ui задеплоц и проверь, что всё работает",
           "pastedContents": {}
-        },
-        {
-          "display": "ты тут ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +49 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "TASK 2 — TRACE_API_IMPLEMENT_v1\n\nЦель: реализовать GET /api/v1/tasks/{task_id}/trace (read-only).\n\nЭТАП 0 — Контекст (обязателен):\n\nВызови GET https://etl-tst.chococraft.ru/api/v1/context/?task_description=TRACE_API_IMPLEMENT_v1\n\nЕсли за ≤40s не получил 200 → STOP & ESCALATE с пруфами (health/ready, ready, context).\n\nСделать (BE):\n\nНовый роутер: app/api/trace.py\n\nРегистрация в app/main.py под префиксом /api/v1\n\nКонтракт: GET /api/v1/tasks/{task_id}/trace?limit=50&offset=0\n\nlimit ≤ 100; offset ≥ 0; сортировка timestamp DESC\n\nИсточник: agent_events через существующий слой доступа к БД (DDL запрещён; DATABASE_URL не трогаем)\n\nТрансформация → формат Execution Trace:\n\nicon по маппингу:\ntask_started→🧠, context_pack_built→📦, llm_call_start|llm_call_end→🤖, tool_edit→🔧, watchdog→🛡️, done→✅, tool_error|llm_error→🔴\n\nseverity: info|warn|error\n\nlinks.log_id = correlation_id; links.artifact если есть путь\n\nРедакция секретов: токены/пароли/ключи → ***REDACTED***\n\nOpenAPI /openapi.json должен содержать путь /api/v1/tasks/{task_id}/trace\n\nНельзя:\n\nПоднимать «минимальные серверы», менять порты/БД, писать файлы вне разрешённых путей\n\nПруф-пакет (в отчёт обязательно):\n\nGET https://etl-tst.chococraft.ru/api/v1/tasks/task_timeline_demo/trace?limit=5 → 200\nвключи: latency_ms, x-correlation-id, первые 300 байт body_head\n\nФрагмент /openapi.json с этим путём\n\np95 на 100 событий ≤ 200 мс (замер локально/бенч модулем проекта)\n\nОтдаёшь: REPORT_TraceApi_Impl_v1.md\n— status: green|yellow, findings, perf, openapi_ok:true/false, samples.items[0..2] (обрезанные)"
-            }
-          }
-        },
-        {
-          "display": "пофикси",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +54 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "TASK 0 — UNBLOCK_Context_HTTP_v1\n\nЦель: Получать контекст без локального бинарника, только HTTP.\n\nПравила:\n\nСначала пытаешься по списку базовых URL (таймауты короткие, без зависаний):\n\nBASE_CANDIDATES = [ $FF_API_BASE_URL, \"https://etl-tst.chococraft.ru/api/v1\", \"http://127.0.0.1:8081/api/v1\" ]\n\nДля каждого кандидата проверяешь readiness (2s connect, 3s max):\n\nПытаешься GET {host}/health/ready, если 404 → GET {host}/ready.\n\nПервый 200 — выбранный BASE.\n\nПотом вызываешь контекст:\n\nGET {BASE}/context/?task_description=TRACE_API_IMPLEMENT_v1\n\nЕсли ни один хост не дал 200 на /context за ≤40s → STOP & ESCALATE (не идёшь «искать по диску»).\n\nОтдаёшь: REPORT_Context_Call_v1.json\nПоля:\n\nbase_tried: массив {url,status,latency_s}\n\nbase_chosen: строка или null\n\ncontext_status: HTTP-код\n\ncontext_latency_ms: число\n\nx_correlation_id: строка (если есть)\n\nbody_head: первые 300 байт ответа (строка)\n\nDoD: context_status==200. Иначе — отчёт с пруфами и эскалация.\n\nTASK 1 — TRACE_API_REGISTER_AUDIT_v1\n\nЦель: Зафиксировать, есть ли эндпоинт трассировки в API.\n\nЭтап 0: UNBLOCK_Context_HTTP_v1 (см. выше).\n\nСделать:\n\nGET {BASE}/openapi.json и поиск пути /api/v1/tasks/{task_id}/trace.\n\nПроверка HTTP: GET {BASE}/tasks/task_timeline_demo/trace?limit=1 (ожидаемо 404, если не реализован).\n\nОтдаёшь: REPORT_TraceApi_Registration_v1.json\nПоля: trace_path_exists:boolean, needs_implementation:boolean, openapi_checked:true, proofs:[{url,status,latency_ms,body_head}]\n\nDoD: корректные пруфы; если пути нет — needs_implementation=true."
-            }
-          }
         }
       ],
       "mcpContextUris": [],

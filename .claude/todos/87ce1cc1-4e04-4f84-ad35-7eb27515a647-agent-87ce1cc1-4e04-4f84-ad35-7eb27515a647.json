@@ -1,17 +1,17 @@
 [
   {
-    "content": "Run full E2E pipeline test with real CI",
+    "content": "Add detailed logging to git_integration.py",
+    "status": "completed",
+    "activeForm": "Adding detailed logging to git_integration.py"
+  },
+  {
+    "content": "Test new token with logging enabled",
     "status": "in_progress",
-    "activeForm": "Running full E2E pipeline test with real CI"
+    "activeForm": "Testing new token with logging enabled"
   },
   {
-    "content": "Monitor token usage and potential expiration",
+    "content": "Monitor exact API call that causes expiration",
     "status": "pending",
-    "activeForm": "Monitoring token usage and potential expiration"
-  },
-  {
-    "content": "Fix any bugs that emerge during the run",
-    "status": "pending",
-    "activeForm": "Fixing any bugs that emerge during the run"
+    "activeForm": "Monitoring exact API call that causes expiration"
   }
 ]

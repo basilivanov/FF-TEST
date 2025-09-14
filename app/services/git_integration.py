@@ -168,6 +168,25 @@ class GitIntegrationService:
                 capture_output=True
             )
             
+            # TEST TOKEN BEFORE API CALLS
+            log.info("testing_github_token_before_pr", correlation_id=correlation_id)
+            test_headers = {
+                "Authorization": f"token {self.github_token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            test_response = requests.get("https://api.github.com/user", headers=test_headers)
+            log.info("github_token_test_result",
+                     status_code=test_response.status_code,
+                     rate_limit_remaining=test_response.headers.get('x-ratelimit-remaining'),
+                     correlation_id=correlation_id,
+                     token_valid=(test_response.status_code == 200))
+            
+            if test_response.status_code == 401:
+                log.error("github_token_already_expired", 
+                         correlation_id=correlation_id,
+                         response_text=test_response.text)
+                raise GitIntegrationError("GitHub token was already expired before PR creation")
+            
             # Create PR via GitHub API
             url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"
             headers = {
@@ -181,12 +200,56 @@ class GitIntegrationService:
                 "body": f"Auto-generated PR for feature #{feature_id}\n\nCorrelation-ID: {correlation_id}"
             }
             
+            # DETAILED LOGGING FOR TOKEN DEBUGGING
+            log.info("github_api_call_attempt", 
+                     action="create_pr", 
+                     url=url, 
+                     correlation_id=correlation_id,
+                     feature_id=feature_id)
+            
             response = requests.post(url, headers=headers, json=data)
+            
+            # LOG RESPONSE DETAILS
+            log.info("github_api_call_response",
+                     action="create_pr",
+                     status_code=response.status_code,
+                     rate_limit_remaining=response.headers.get('x-ratelimit-remaining'),
+                     rate_limit_reset=response.headers.get('x-ratelimit-reset'),
+                     correlation_id=correlation_id,
+                     success=(response.status_code < 400))
+            
+            if response.status_code == 401:
+                log.error("github_token_expired", 
+                         action="create_pr",
+                         correlation_id=correlation_id,
+                         response_text=response.text)
+                raise GitIntegrationError("GitHub token expired during PR creation")
+            
             if response.status_code == 422:
                 # Возможно PR уже существует — попробуем найти по head
                 search_url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"
                 params = {"head": f"{self.github_owner}:{branch_name}", "state": "open"}
+                
+                log.info("github_api_call_attempt", 
+                         action="search_existing_pr", 
+                         url=search_url, 
+                         correlation_id=correlation_id)
+                
                 sr = requests.get(search_url, headers=headers, params=params)
+                
+                log.info("github_api_call_response",
+                         action="search_existing_pr",
+                         status_code=sr.status_code,
+                         rate_limit_remaining=sr.headers.get('x-ratelimit-remaining'),
+                         correlation_id=correlation_id,
+                         success=(sr.status_code < 400))
+                
+                if sr.status_code == 401:
+                    log.error("github_token_expired", 
+                             action="search_existing_pr",
+                             correlation_id=correlation_id,
+                             response_text=sr.text)
+                    raise GitIntegrationError("GitHub token expired during PR search")
                 if sr.ok:
                     arr = sr.json() or []
                     if arr:
