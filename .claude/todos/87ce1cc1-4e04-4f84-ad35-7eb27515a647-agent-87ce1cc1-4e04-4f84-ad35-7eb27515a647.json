@@ -1,17 +1,17 @@
 [
   {
-    "content": "Test E2E with GitHub App",
+    "content": "Investigate GitHub App permissions issue",
+    "status": "completed",
+    "activeForm": "Investigating GitHub App permissions issue"
+  },
+  {
+    "content": "Test PR creation with current permissions",
+    "status": "completed",
+    "activeForm": "Testing PR creation with current permissions"
+  },
+  {
+    "content": "Run full E2E test",
     "status": "in_progress",
-    "activeForm": "Testing E2E with GitHub App"
-  },
-  {
-    "content": "Monitor GitHub App vs PAT usage",
-    "status": "pending",
-    "activeForm": "Monitoring GitHub App vs PAT usage"
-  },
-  {
-    "content": "Verify no token expiration during GitOps",
-    "status": "pending",
-    "activeForm": "Verifying no token expiration during GitOps"
+    "activeForm": "Running full E2E test"
   }
 ]

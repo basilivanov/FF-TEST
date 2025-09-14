@@ -250,21 +250,8 @@ class GitIntegrationService:
                 capture_output=True
             )
             
-            # TEST TOKEN BEFORE API CALLS
-            log.info("testing_github_auth_before_pr", correlation_id=correlation_id)
-            test_headers = self._get_auth_headers(correlation_id)
-            test_response = requests.get("https://api.github.com/user", headers=test_headers)
-            log.info("github_token_test_result",
-                     status_code=test_response.status_code,
-                     rate_limit_remaining=test_response.headers.get('x-ratelimit-remaining'),
-                     correlation_id=correlation_id,
-                     token_valid=(test_response.status_code == 200))
-            
-            if test_response.status_code == 401:
-                log.error("github_token_already_expired", 
-                         correlation_id=correlation_id,
-                         response_text=test_response.text)
-                raise GitIntegrationError("GitHub token was already expired before PR creation")
+            # SKIP USER ENDPOINT TEST - GitHub App doesn't have user permissions
+            log.info("skipping_user_endpoint_test_for_github_app", correlation_id=correlation_id)
             
             # Create PR via GitHub API
             url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"

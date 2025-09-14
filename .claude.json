@@ -34,6 +34,18 @@
       "allowedTools": [],
       "history": [
         {
+          "display": "Automated CI/CD GitHub App for FeatureFactory - creates branches, PRs, and manages deployments with secure short-lived tokens.\n\nPermissions\n Read access to actions and metadata\n Read and write access to code and pull requests\nRepository access\n\n\nAll repositories\nThis applies to all current and future repositories owned by the resource owner. Also includes public repositories (read-only).\n\nOnly select repositories\nSelect at least one repository. Also includes public repositories (read-only).\nSelected 1 repository.\nbasilivanov/FF-TEST так всё и стояло",
+          "pastedContents": {}
+        },
+        {
+          "display": "ITHUB_TOKEN=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\nGITHUB_WEBHOOK_SECRET=xzL4WXNEzV*DtN\nGITHUB_APP_ID=1951709\nGITHUB_APP_INSTALLATION_ID=85882340 \nGITHUB_APP_CLIENT_ID=Iv23liv2masH2JobAsSh\nGITHUB_APP_CLIENT_SECRET=21b0f66729f9f5b19d285119236b6ed06fc5c544\nGITHUB_APP_PRIVATE_KEY_PATH=/etc/feature-factory/github-app-private-key.pem поправил - перезагруждай",
+          "pastedContents": {}
+        },
+        {
+          "display": "root@bivanov:~# cat  /etc/feature-factory/ci-secrets.env\nGITHUB_TOKEN=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\nGITHUB_WEBHOOK_SECRET=xzL4WXNEzV*DtN\nGITHUB_APP_ID=85882340\nGITHUB_APP_CLIENT_ID=Iv23liv2masH2JobAsSh\nGITHUB_APP_CLIENT_SECRET=21b0f66729f9f5b19d285119236b6ed06fc5c544\nGITHUB_APP_PRIVATE_KEY_PATH=/etc/feature-factory/github-app-private-key.pem в /bin лежат обёртки сам можешт перезапустить",
+          "pastedContents": {}
+        },
+        {
           "display": "тестим e2e",
           "pastedContents": {}
         },
@@ -533,18 +545,6 @@
         },
         {
           "display": "а теперь чтобы всё автоматом делалось без стабов и ручного управления",
-          "pastedContents": {}
-        },
-        {
-          "display": "давай тогдв ещё раз от начала и до конца",
-          "pastedContents": {}
-        },
-        {
-          "display": "ок, pr же работает. значит токе и ssh есть",
-          "pastedContents": {}
-        },
-        {
-          "display": "ты не ищи токен ты пробуй через gh поработать прочитать что-то",
           "pastedContents": {}
         }
       ],
