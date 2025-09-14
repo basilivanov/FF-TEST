@@ -1,17 +1,17 @@
 [
   {
     "content": "Verify GitHub App variables loaded in systemd",
-    "status": "in_progress",
+    "status": "completed",
     "activeForm": "Verifying GitHub App variables loaded in systemd"
   },
   {
     "content": "Check GitHub App initialization in logs",
-    "status": "in_progress",
+    "status": "completed",
     "activeForm": "Checking GitHub App initialization in logs"
   },
   {
-    "content": "Test final E2E with working GitHub App",
-    "status": "pending",
-    "activeForm": "Testing final E2E with working GitHub App"
+    "content": "Create clean feature for GitHub App test",
+    "status": "in_progress",
+    "activeForm": "Creating clean feature for GitHub App test"
   }
 ]
