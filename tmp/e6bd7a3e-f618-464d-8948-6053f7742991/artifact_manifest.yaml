@@ -1,0 +1,4 @@
+files:
+- main.py
+package_contract:
+  package_id: PKG-281-v1
