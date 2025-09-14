@@ -11,12 +11,12 @@
   },
   {
     "content": "Мониторить выполнение задач через runner API",
-    "status": "in_progress",
-    "activeForm": "Мониторю выполнение задач через runner API"
+    "status": "completed",
+    "activeForm": "Промониторил выполнение задач через runner API"
   },
   {
     "content": "Отслеживать создание PR и GitHub Actions",
-    "status": "pending",
+    "status": "in_progress",
     "activeForm": "Отслеживаю создание PR и GitHub Actions"
   },
   {
