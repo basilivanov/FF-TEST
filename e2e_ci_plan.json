@@ -1,0 +1,247 @@
+{
+  "dag": {
+    "nodes": [
+      {
+        "id": "setup-ci-infrastructure",
+        "role": "Dev",
+        "name": "Setup CI/CD Infrastructure for E2E Testing",
+        "description": "Configure GitHub Actions workflows, Docker containers, and test environment setup for automated E2E pipeline execution",
+        "deliverables": [
+          ".github/workflows/e2e-ci.yml",
+          "docker/e2e/Dockerfile",
+          "docker-compose.e2e.yml"
+        ]
+      },
+      {
+        "id": "develop-test-orchestration",
+        "role": "Dev", 
+        "name": "Develop Test Orchestration Layer",
+        "description": "Create automated test orchestration system that can manage E2E test execution, parallel test runs, and result aggregation",
+        "deliverables": [
+          "scripts/ci/test_orchestrator.py",
+          "scripts/ci/parallel_runner.py",
+          "configs/ci_test_matrix.json"
+        ]
+      },
+      {
+        "id": "implement-environment-management",
+        "role": "Dev",
+        "name": "Implement Dynamic Environment Management", 
+        "description": "Build system for creating, configuring, and tearing down isolated test environments for each CI run",
+        "deliverables": [
+          "scripts/ci/env_manager.py",
+          "configs/test_environments.yaml",
+          "scripts/ci/cleanup_env.sh"
+        ]
+      },
+      {
+        "id": "create-test-data-pipeline",
+        "role": "Dev",
+        "name": "Create Test Data Pipeline",
+        "description": "Develop automated test data generation, seeding, and cleanup mechanisms for consistent E2E test execution",
+        "deliverables": [
+          "scripts/ci/data_seeder.py", 
+          "data/test_fixtures/",
+          "scripts/ci/data_cleanup.py"
+        ]
+      },
+      {
+        "id": "build-monitoring-system",
+        "role": "Dev",
+        "name": "Build E2E Test Monitoring System",
+        "description": "Implement comprehensive monitoring, logging, and alerting for E2E test execution in CI/CD pipeline",
+        "deliverables": [
+          "scripts/ci/monitor.py",
+          "configs/monitoring.yaml",
+          "dashboard/e2e-metrics.json"
+        ]
+      },
+      {
+        "id": "integrate-feature-factory-tests",
+        "role": "Dev",
+        "name": "Integration with Feature Factory E2E Tests",
+        "description": "Integrate existing E2E tests (orchestrator, health checks, full pipeline) into CI automation framework",
+        "deliverables": [
+          "scripts/ci/ff_integration.py",
+          "tests/ci/test_orchestrator_ci.py",
+          "tests/ci/test_health_ci.py"
+        ]
+      },
+      {
+        "id": "qa-test-infrastructure",
+        "role": "QA",
+        "name": "QA Test Infrastructure Validation",
+        "description": "Validate CI/CD infrastructure setup, test environment provisioning, and automated test execution reliability",
+        "test_scenarios": [
+          "Infrastructure deployment verification",
+          "Environment isolation testing", 
+          "Resource allocation validation",
+          "Network connectivity testing"
+        ]
+      },
+      {
+        "id": "qa-orchestration-testing",
+        "role": "QA", 
+        "name": "QA Test Orchestration Validation",
+        "description": "Test the orchestration layer for proper test scheduling, parallel execution, failure handling, and result aggregation",
+        "test_scenarios": [
+          "Parallel test execution verification",
+          "Test failure isolation testing",
+          "Result aggregation accuracy",
+          "Timeout and retry mechanism testing"
+        ]
+      },
+      {
+        "id": "qa-environment-management",
+        "role": "QA",
+        "name": "QA Environment Management Testing", 
+        "description": "Validate dynamic environment creation, configuration consistency, and proper cleanup procedures",
+        "test_scenarios": [
+          "Environment creation speed testing",
+          "Configuration consistency validation",
+          "Resource cleanup verification",
+          "Environment isolation testing"
+        ]
+      },
+      {
+        "id": "qa-data-pipeline-testing",
+        "role": "QA",
+        "name": "QA Test Data Pipeline Validation",
+        "description": "Test data seeding reliability, fixture consistency, and cleanup completeness across different test scenarios",
+        "test_scenarios": [
+          "Data seeding consistency testing",
+          "Fixture integrity validation",
+          "Data cleanup verification",
+          "Cross-test data isolation"
+        ]
+      },
+      {
+        "id": "qa-monitoring-validation",
+        "role": "QA",
+        "name": "QA Monitoring System Validation", 
+        "description": "Validate monitoring accuracy, alerting mechanisms, and performance metrics collection during E2E test execution",
+        "test_scenarios": [
+          "Metrics accuracy validation",
+          "Alert trigger testing",
+          "Performance data collection verification",
+          "Dashboard functionality testing"
+        ]
+      },
+      {
+        "id": "qa-integration-testing",
+        "role": "QA",
+        "name": "QA Feature Factory Integration Testing",
+        "description": "Comprehensive testing of Feature Factory E2E integration with CI pipeline, including orchestrator workflows and health checks",
+        "test_scenarios": [
+          "Full pipeline integration testing",
+          "Orchestrator API automation validation",
+          "Health check automation verification",
+          "Edge case handling testing"
+        ]
+      },
+      {
+        "id": "qa-performance-testing",
+        "role": "QA",
+        "name": "QA CI/CD Performance Testing",
+        "description": "Performance testing of E2E CI pipeline including execution time optimization, resource usage, and scalability validation",
+        "test_scenarios": [
+          "Pipeline execution time benchmarking",
+          "Resource utilization testing",
+          "Concurrent execution testing",
+          "Scalability validation"
+        ]
+      },
+      {
+        "id": "security-testing",
+        "role": "QA",
+        "name": "Security Testing for CI/CD E2E Pipeline",
+        "description": "Security validation of CI/CD pipeline including secrets management, network security, and access controls",
+        "test_scenarios": [
+          "Secrets management validation",
+          "Network security testing",
+          "Access control verification",
+          "Container security scanning"
+        ]
+      },
+      {
+        "id": "generate-documentation",
+        "role": "Scribe",
+        "name": "Generate E2E CI/CD Documentation",
+        "description": "Create comprehensive documentation for E2E CI/CD pipeline including setup guides, troubleshooting, and maintenance procedures",
+        "deliverables": [
+          "docs/ci/E2E-CI-CD-Setup-Guide.md",
+          "docs/ci/Troubleshooting-Guide.md",
+          "docs/ci/Maintenance-Procedures.md",
+          "README-E2E-CI.md"
+        ]
+      },
+      {
+        "id": "gate-infrastructure-review",
+        "role": "Gate",
+        "name": "Infrastructure Setup Gate Review",
+        "description": "Gate review to ensure CI/CD infrastructure meets requirements before proceeding with testing phases"
+      },
+      {
+        "id": "gate-integration-review", 
+        "role": "Gate",
+        "name": "Integration Testing Gate Review",
+        "description": "Gate review to validate all integration testing is complete and successful before final deployment"
+      },
+      {
+        "id": "apply-ci-deployment",
+        "role": "Apply",
+        "name": "Deploy E2E CI/CD Pipeline",
+        "description": "Final deployment of E2E CI/CD pipeline with all components, monitoring, and documentation in place"
+      }
+    ],
+    "edges": [
+      { "from": "setup-ci-infrastructure", "to": "develop-test-orchestration" },
+      { "from": "setup-ci-infrastructure", "to": "implement-environment-management" },
+      { "from": "setup-ci-infrastructure", "to": "create-test-data-pipeline" },
+      { "from": "develop-test-orchestration", "to": "build-monitoring-system" },
+      { "from": "implement-environment-management", "to": "integrate-feature-factory-tests" },
+      { "from": "create-test-data-pipeline", "to": "integrate-feature-factory-tests" },
+      { "from": "build-monitoring-system", "to": "gate-infrastructure-review" },
+      { "from": "integrate-feature-factory-tests", "to": "gate-infrastructure-review" },
+      { "from": "gate-infrastructure-review", "to": "qa-test-infrastructure" },
+      { "from": "gate-infrastructure-review", "to": "qa-orchestration-testing" },
+      { "from": "gate-infrastructure-review", "to": "qa-environment-management" },
+      { "from": "qa-test-infrastructure", "to": "qa-data-pipeline-testing" },
+      { "from": "qa-orchestration-testing", "to": "qa-monitoring-validation" },
+      { "from": "qa-environment-management", "to": "qa-integration-testing" },
+      { "from": "qa-data-pipeline-testing", "to": "qa-performance-testing" },
+      { "from": "qa-monitoring-validation", "to": "security-testing" },
+      { "from": "qa-integration-testing", "to": "security-testing" },
+      { "from": "qa-performance-testing", "to": "gate-integration-review" },
+      { "from": "security-testing", "to": "gate-integration-review" },
+      { "from": "gate-integration-review", "to": "generate-documentation" },
+      { "from": "generate-documentation", "to": "apply-ci-deployment" }
+    ]
+  },
+  "budgets": {
+    "Dev": 2500,
+    "QA": 2000,
+    "Scribe": 400,
+    "Gate": 200,
+    "Apply": 300,
+    "Maintainer": 100,
+    "Architect": 100
+  },
+  "dod": [
+    "Complete CI/CD pipeline infrastructure is deployed and functional",
+    "All E2E tests are integrated and automated within CI/CD pipeline",
+    "Test orchestration system successfully manages parallel execution and result aggregation",
+    "Dynamic environment management creates, configures, and cleans up test environments reliably", 
+    "Test data pipeline ensures consistent data setup and cleanup across all test runs",
+    "Monitoring system provides comprehensive visibility into E2E test execution and performance",
+    "Feature Factory E2E tests (orchestrator, health, full pipeline) are fully integrated and automated",
+    "Security testing validates pipeline security including secrets management and access controls",
+    "Performance testing confirms pipeline meets execution time and resource utilization requirements",
+    "All QA validation phases completed successfully with documented test results",
+    "Comprehensive documentation covers setup, troubleshooting, and maintenance procedures",
+    "CI/CD pipeline successfully executes complete E2E test suite on every code change",
+    "Pipeline provides clear pass/fail status and detailed failure diagnostics",
+    "Token budget consumption tracking integrated for cost monitoring",
+    "Pipeline supports both PR validation and main branch deployment workflows"
+  ]
+}

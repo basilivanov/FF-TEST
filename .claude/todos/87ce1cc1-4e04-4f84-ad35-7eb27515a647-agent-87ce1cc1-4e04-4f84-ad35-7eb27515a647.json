@@ -1,17 +1,17 @@
 [
   {
-    "content": "Investigate GitHub App permissions issue",
-    "status": "completed",
-    "activeForm": "Investigating GitHub App permissions issue"
-  },
-  {
-    "content": "Test PR creation with current permissions",
-    "status": "completed",
-    "activeForm": "Testing PR creation with current permissions"
-  },
-  {
-    "content": "Run full E2E test",
+    "content": "Verify GitHub App variables loaded in systemd",
     "status": "in_progress",
-    "activeForm": "Running full E2E test"
+    "activeForm": "Verifying GitHub App variables loaded in systemd"
+  },
+  {
+    "content": "Check GitHub App initialization in logs",
+    "status": "in_progress",
+    "activeForm": "Checking GitHub App initialization in logs"
+  },
+  {
+    "content": "Test final E2E with working GitHub App",
+    "status": "pending",
+    "activeForm": "Testing final E2E with working GitHub App"
   }
 ]

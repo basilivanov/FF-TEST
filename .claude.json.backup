@@ -23,7 +23,7 @@
     "permissions": 11,
     "custom-commands": 11
   },
-  "promptQueueUseCount": 212,
+  "promptQueueUseCount": 213,
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
   },
@@ -33,6 +33,18 @@
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "стой, а у тебя же в /bin нет обёртки для рестарта?",
+          "pastedContents": {}
+        },
+        {
+          "display": "готово, проверь, что все видится",
+          "pastedContents": {}
+        },
+        {
+          "display": "Automated CI/CD GitHub App for FeatureFactory - creates branches, PRs, and manages deployments with secure short-lived tokens.\n\nPermissions\n Read access to actions and metadata\n Read and write access to code and pull requests\nRepository access\n\n\nAll repositories\nThis applies to all current and future repositories owned by the resource owner. Also includes public repositories (read-only).\n\nOnly select repositories\nSelect at least one repository. Also includes public repositories (read-only).\nSelected 1 repository.\nbasilivanov/FF-TEST так всё и стояло",
+          "pastedContents": {}
+        },
         {
           "display": "ITHUB_TOKEN=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\nGITHUB_WEBHOOK_SECRET=xzL4WXNEzV*DtN\nGITHUB_APP_ID=1951709\nGITHUB_APP_INSTALLATION_ID=85882340 \nGITHUB_APP_CLIENT_ID=Iv23liv2masH2JobAsSh\nGITHUB_APP_CLIENT_SECRET=21b0f66729f9f5b19d285119236b6ed06fc5c544\nGITHUB_APP_PRIVATE_KEY_PATH=/etc/feature-factory/github-app-private-key.pem поправил - перезагруждай",
           "pastedContents": {}
@@ -527,24 +539,6 @@
         },
         {
           "display": "думай и пиши на русском",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +90 lines]  нужно чтобы тест прошёл на автомате без смоков и стабов. устраняй всё, что  нужно без тех долга. в /bin обёртки для рестарта, все манимплции  с базой через алембик. ssh  и токены работают для гитхаба 100%, подхватываются сервсисом",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "task: FINAL_E2E_REAL_GIT_NO_MOCKS_v1\ncorr_id: E2E_FINAL_{{utc_date:%Y%m%d_%H%M%S}}\nowner: agent\nartifacts_dir: /opt/feature-factory/artifacts/E2E_FINAL_REAL/{{corr_id}}\ncontext:\n  base_url: http://127.0.0.1:8081\n  basic_auth: ops:ops123\n  repo_owner: basilivanov\n  repo_name: FF-TEST\n  expected_pr_pattern: \"^https://github.com/basilivanov/FF-TEST/pull/\\\\d+$\"\n  env_nosecrets_file: /etc/default/feature-factory-test\n  env_secrets_file: /etc/feature-factory/ci-secrets.env\n  runtime_user: feature\n  runner_wrappers:\n    restart: /opt/feature-factory/bin/ff-runner-restart-nosudo\n    tick: POST /api/v1/runner/run-once\n  required_env:\n    - SCM_PROVIDER=github\n    - GIT_INTEGRATION_ENABLED=true\n    - SCM_PUSH_ENABLED=true\n    - GITHUB_OWNER=basilivanov\n    - GITHUB_REPO=FF-TEST\n    - GIT_BASE_BRANCH=main\n    - GITHUB_TOKEN (present, non-empty; redacted в логах)\n  ci_required_contexts: [lint, tests, build, smoke]\nprechecks:\n  - \"GET {{base_url}}/health/live == 200\"\n  - \"systemd юниты active: feature-factory-test.service, feature-factory-runner.service (или эквивалентный процесс python -m app.runner под feature)\"\n  - \"В рантайме процесса orch видны ключи из required_env; токен редактируй при логировании\"\n  - \"git remote origin == git@github.com:basilivanov/FF-TEST.git; HEAD branch == main\"\n  - \"Webhook GitHub: последняя redelivery ping → 2xx за последние 5 мин (если доступно)\"\nplan:\n  - name: Restart runner to pick latest code (nosudo)\n    run: \"{{runner_wrappers.restart}}\"\n  - name: Create feature (autostart)\n    run: |\n      curl -fsS -H 'Content-Type: application/json' \\\n        -H \"X-Correlation-Id: {{corr_id}}\" \\\n        -d \"{\\\"title\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"autostart\\\":true}\" \\\n        {{base_url}}/api/v1/orchestrator/features \\\n        -o {{artifacts_dir}}/10_feature_create.json -D {{artifacts_dir}}/10_feature_create.http\n  - name: Poll orchestrator for git_branch/pr_url/commit_sha (<=180s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 60); do\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID \\\n          -o {{artifacts_dir}}/20_feature_${FID}_snap.json\n        jq -r '.pr_url // empty' {{artifacts_dir}}/20_feature_${FID}_snap.json | grep -E '{{expected_pr_pattern}}' && break\n        sleep 3\n      done\n  - name: Validate real PR URL shape\n    run: |\n      jq -r '.pr_url' {{artifacts_dir}}/20_feature_*_snap.json | tee {{artifacts_dir}}/30_pr_url.txt\n      grep -Eq '{{expected_pr_pattern}}' {{artifacts_dir}}/30_pr_url.txt\n  - name: Extract pr_number and head_sha for CI statuses\n    run: |\n      PR_URL=$(cat {{artifacts_dir}}/30_pr_url.txt)\n      PR_NUM=${PR_URL##*/}; PR_NUM=${PR_NUM%%[^0-9]*}\n      HEAD_SHA=$(jq -r '.commit_sha' {{artifacts_dir}}/20_feature_*_snap.json)\n      printf '{\"pr\":%s,\"sha\":\"%s\"}\\n' \"$PR_NUM\" \"$HEAD_SHA\" | tee {{artifacts_dir}}/31_pr_ci_inputs.json\n  - name: Send 4 CI statuses (Basic auth) in correct schema\n    run: |\n      read PR SHA < <(jq -r '.pr, .sha' {{artifacts_dir}}/31_pr_ci_inputs.json)\n      for ctx in lint tests build smoke; do\n        curl -fsS -u {{basic_auth}} -H 'Content-Type: application/json' \\\n          -d \"{\\\"pr_number\\\":$PR,\\\"head_sha\\\":\\\"$SHA\\\",\\\"state\\\":\\\"success\\\",\\\"context\\\":\\\"$ctx\\\",\\\"description\\\":\\\"FINAL E2E {{corr_id}}\\\",\\\"target_url\\\":\\\"{{base_url}}/health/live\\\"}\" \\\n          {{base_url}}/api/v1/ci/status | tee -a {{artifacts_dir}}/40_ci_status_responses.jsonl\n      done\n  - name: Runner tick until merged (<=240s)\n    run: |\n      FID=$(jq -r '.id' {{artifacts_dir}}/10_feature_create.json)\n      for i in $(seq 1 24); do\n        curl -fsS -u {{basic_auth}} -XPOST {{base_url}}/api/v1/runner/run-once -o {{artifacts_dir}}/50_runner_once_$i.json\n        curl -fsS {{base_url}}/api/v1/orchestrator/features/$FID -o {{artifacts_dir}}/51_feature_${FID}_post_$i.json\n        jq -e '.merged == true' {{artifacts_dir}}/51_feature_${FID}_post_$i.json && break\n        sleep 5\n      done\n  - name: Post-merge health & metrics\n    run: |\n      curl -fsS {{base_url}}/health/live -o {{artifacts_dir}}/60_health_after.txt -D {{artifacts_dir}}/60_health_after.http\n      curl -fsS {{base_url}}/api/v1/metrics | tee {{artifacts_dir}}/61_metrics_after.txt\ndod:\n  - \"PR URL: {{expected_pr_pattern}} (из orchestrator.features.{id}.pr_url) — НЕ mock\"\n  - \"После 4×success — merged==true и есть merged_sha в ответе оркестратора\"\n  - \"POST /runner/run-once → ≥3 успешных тика; артефакты 50_*.json присутствуют\"\n  - \"POST /ci/status → 4×HTTP 200; файл 40_ci_status_responses.jsonl содержит all_success=true хотя бы в одном ответе\"\n  - \"Health after merge: /health/live == 200; в метриках: 'db_rw_ok 1' и актуальный 'ui_bundle_hash'\"\nnotes:\n  - \"Без стабов/моков: проверяем реальный PR/merge против GitHub; токены и secrets уже заданы в SSoT.\"\n  - \"Если merge требует protected checks, статусы проставляем этим же шагом.\"\n"
-            }
-          }
-        },
-        {
-          "display": "а теперь чтобы всё автоматом делалось без стабов и ручного управления",
-          "pastedContents": {}
-        },
-        {
-          "display": "давай тогдв ещё раз от начала и до конца",
           "pastedContents": {}
         }
       ],
