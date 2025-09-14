@@ -153,32 +153,33 @@ async def git_ops_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 "branch_name": branch_name
             }
 
-            # TEST-only: отправим 4 CI-статуса через локальный API, чтобы замкнуть цикл автоматически
-            try:
-                base_url = os.getenv("FF_BASE_URL", "http://127.0.0.1:8081")
-                ci_url = f"{base_url}/api/v1/ci/status"
-                pr_number = pr_info.get("pr_number")
-                head_sha = pr_info.get("head_sha", "")
-                user = os.getenv("CI_HOOK_USER")
-                pwd = os.getenv("CI_HOOK_PASS")
-                auth = (user, pwd) if user and pwd else None
-                for ctx in ["lint", "tests", "build", "smoke"]:
-                    payload = {
-                        "pr_number": pr_number,
-                        "head_sha": head_sha,
-                        "context": ctx,
-                        "state": "success",
-                        "description": f"auto {ctx}",
-                        "target_url": ""
-                    }
-                    r = requests.post(ci_url, json=payload, auth=auth, timeout=10)
-                    try:
-                        r.raise_for_status()
-                    except Exception:
-                        logger.warning("ci_status_post_failed", status=r.status_code, text=r.text)
-                logger.info("ci_status_posted", component="graph", agent_role="GitOps", run_id=run_id, feature_id=feature_id)
-            except Exception as ci_e:
-                logger.warning("ci_status_auto_failed", error=str(ci_e))
+            # Авто-статусы CI включаются только если явно задано USE_INTERNAL_CI=true
+            if os.getenv("USE_INTERNAL_CI", "false").lower() == "true":
+                try:
+                    base_url = os.getenv("FF_BASE_URL", "http://127.0.0.1:8081")
+                    ci_url = f"{base_url}/api/v1/ci/status"
+                    pr_number = pr_info.get("pr_number")
+                    head_sha = pr_info.get("head_sha", "")
+                    user = os.getenv("CI_HOOK_USER")
+                    pwd = os.getenv("CI_HOOK_PASS")
+                    auth = (user, pwd) if user and pwd else None
+                    for ctx in ["lint", "tests", "build", "smoke"]:
+                        payload = {
+                            "pr_number": pr_number,
+                            "head_sha": head_sha,
+                            "context": ctx,
+                            "state": "success",
+                            "description": f"auto {ctx}",
+                            "target_url": ""
+                        }
+                        r = requests.post(ci_url, json=payload, auth=auth, timeout=10)
+                        try:
+                            r.raise_for_status()
+                        except Exception:
+                            logger.warning("ci_status_post_failed", status=r.status_code, text=r.text)
+                    logger.info("ci_status_posted", component="graph", agent_role="GitOps", run_id=run_id, feature_id=feature_id)
+                except Exception as ci_e:
+                    logger.warning("ci_status_auto_failed", error=str(ci_e))
 
             return result_payload
 

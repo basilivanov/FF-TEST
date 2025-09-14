@@ -18,6 +18,9 @@ from app.api.tokens import router as tokens_router
 from app.api.tokens_stats_endpoints import router as tokens_stats_router
 from app.api.runner_endpoints import router as runner_router
 from app.api.ci_debug import router as ci_debug_router
+from app.api.metrics import router as metrics_router
+from app.api.logs_stream import router as logs_stream_router
+from app.api.ci_webhook import router as ci_webhook_router
 from app.api.docs_status import router as docs_status_router
 from app.api.chat import router as chat_router
 from app.api.chat_websocket import router as chat_websocket_router # Новый импорт
@@ -86,6 +89,9 @@ app.include_router(tokens_router)
 app.include_router(tokens_stats_router)
 app.include_router(runner_router)
 app.include_router(ci_debug_router)
+app.include_router(metrics_router)
+app.include_router(logs_stream_router)
+app.include_router(ci_webhook_router)
 
 # Подключаем маршруты health check
 app.include_router(health_router)

@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import os
+import requests
 
 # Настройка логгера
 logger = structlog.get_logger()
@@ -126,6 +127,63 @@ class OrchestratorLoop:
             if self.session:
                 self.session.close()
                 self.session = None
+
+    async def _maybe_create_merge_pr_by_github(self, feature_id: int, pr_url: str):
+        """
+        Опрашивает GitHub Checks для PR и создаёт MERGE_PR задачу, если все требуемые контексты успешны.
+        """
+        try:
+            owner = os.getenv("GITHUB_OWNER")
+            repo = os.getenv("GITHUB_REPO")
+            token = os.getenv("GITHUB_TOKEN")
+            if not (owner and repo and token):
+                logger.debug("github_env_missing", feature_id=feature_id)
+                return
+            # Извлекаем номер PR
+            try:
+                pr_number = int(pr_url.split('/pull/')[-1])
+            except Exception:
+                logger.warning("cannot_parse_pr_number", feature_id=feature_id, pr_url=pr_url)
+                return
+            headers = {
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "feature-factory"
+            }
+            base = f"https://api.github.com/repos/{owner}/{repo}"
+            # Получаем PR, чтобы вытянуть актуальный head sha
+            pr_resp = requests.get(f"{base}/pulls/{pr_number}", headers=headers, timeout=15)
+            if pr_resp.status_code != 200:
+                logger.warning("github_pr_fetch_failed", feature_id=feature_id, pr_number=pr_number, status=pr_resp.status_code)
+                return
+            pr_data = pr_resp.json()
+            head_sha = pr_data.get("head", {}).get("sha", "")
+            if not head_sha:
+                logger.warning("github_no_head_sha", feature_id=feature_id, pr_number=pr_number)
+                return
+            # Читаем check-runs для head_sha
+            cr = requests.get(f"{base}/commits/{head_sha}/check-runs", headers=headers, timeout=15)
+            if cr.status_code != 200:
+                logger.warning("github_check_runs_failed", feature_id=feature_id, status=cr.status_code)
+                return
+            data = cr.json() or {}
+            runs = data.get("check_runs", [])
+            # Требуемые контексты из ENV или дефолт
+            req = os.getenv("CI_REQUIRED_CONTEXTS", "lint,tests,build,smoke")
+            required = [x.strip() for x in req.split(',') if x.strip()]
+            status = {r.get("name"): r.get("conclusion") for r in runs}
+            all_ok = all(status.get(ctx) == "success" for ctx in required)
+            logger.info("github_checks_polled", feature_id=feature_id, pr_number=pr_number, required=required, status_map=status, all_ok=all_ok)
+            if not all_ok:
+                return
+            # Создаём MERGE_PR, если ещё нет
+            cnt = self.session.execute(text("SELECT COUNT(*) FROM tasks WHERE feature_id=:f AND role='MERGE_PR' AND status IN ('NEW','RUNNING')"), {"f": feature_id}).fetchone()[0]
+            if cnt == 0:
+                self.session.execute(text("INSERT INTO tasks (feature_id, role, status, attempts, payload) VALUES (:f, 'MERGE_PR', 'NEW', 0, :sha)"), {"f": feature_id, "sha": head_sha})
+                self.session.commit()
+                logger.info("merge_pr_task_created_by_github_checks", feature_id=feature_id, pr_number=pr_number)
+        except Exception as e:
+            logger.error("maybe_create_merge_pr_by_github_failed", feature_id=feature_id, error=str(e))
     
     async def _process_new_features(self):
         """Обрабатывает новые фичи."""
@@ -1008,7 +1066,7 @@ class OrchestratorLoop:
         Освобождает блокировки для завершенных фич.
         """
         try:
-            # Выбираем фичи, которые могут требовать GitOps — в статусе RUNNING или уже помечены DONE
+            # Выбираем фичи, которые могут требовать GitOps/мерж — в статусе PLANNED/RUNNING/DONE/FAILED
             result = self.session.execute(
                 text("""
                     SELECT f.id, f.title, f.plan_dsl_json,
@@ -1092,6 +1150,17 @@ class OrchestratorLoop:
 
                 if failed_git_ops > 0:
                     await self._maybe_create_git_ops_task(feature_id)
+
+                # Если у фичи уже есть PR, но ещё нет merged_sha — проверим статусы GitHub и при успехе создадим MERGE_PR
+                try:
+                    pr_row = self.session.execute(text("SELECT pr_url, merged_sha FROM features WHERE id = :fid"), {"fid": feature_id}).fetchone()
+                    if pr_row:
+                        pr_url = pr_row[0]
+                        merged_sha = pr_row[1]
+                        if pr_url and not merged_sha:
+                            await self._maybe_create_merge_pr_by_github(feature_id, pr_url)
+                except Exception as e:
+                    logger.warning("maybe_create_merge_pr_by_github_error", feature_id=feature_id, error=str(e))
 
                 if new_status:
                     # Обновляем статус фичи
