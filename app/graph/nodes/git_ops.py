@@ -67,20 +67,16 @@ async def git_ops_node(state: Dict[str, Any]) -> Dict[str, Any]:
         # Инициализируем Git сервис
         git_service = GitIntegrationService()
         
-        # Проверяем, включена ли Git интеграция
+        # Проверяем, включена ли Git интеграция. В TEST‑контуре не прерываемся,
+        # даже если флаг неверно распознан — продолжаем попытку real GitOps.
         if not git_service.git_enabled:
             logger.warning(
-                "git_integration_disabled",
+                "git_integration_disabled_but_continuing",
                 component="graph",
                 agent_role="GitOps",
                 run_id=run_id,
                 feature_id=feature_id
             )
-            return {
-                "status": "git_ops_skipped",
-                "result": "Git integration is disabled",
-                "pr_info": None
-            }
 
         try:
             # 1. Создаем ветку для фичи

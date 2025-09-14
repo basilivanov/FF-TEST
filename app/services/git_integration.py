@@ -81,8 +81,30 @@ class GitIntegrationService:
         self.github_repo = os.getenv("GITHUB_REPO")
         self.github_token = os.getenv("GITHUB_TOKEN")  # Fallback PAT
         self.scm_provider = os.getenv("SCM_PROVIDER", "github")
-        self.git_enabled = os.getenv("GIT_INTEGRATION_ENABLED", "false").lower() == "true"
-        self.push_enabled = os.getenv("SCM_PUSH_ENABLED", "false").lower() == "true"
+
+        def _truthy(name: str, default: bool = False) -> bool:
+            raw = os.getenv(name)
+            if raw is None:
+                return default
+            val = str(raw).strip().lower()
+            return val in {"1", "true", "yes", "on"}
+
+        # Robust parsing of feature flags (handles case/whitespace/1/yes/on)
+        self.git_enabled = _truthy("GIT_INTEGRATION_ENABLED", False)
+        self.push_enabled = _truthy("SCM_PUSH_ENABLED", False)
+
+        # Emit a single diagnostic log once per instance to aid E2E visibility
+        try:
+            log.info(
+                "git_integration_flags",
+                git_enabled=self.git_enabled,
+                push_enabled=self.push_enabled,
+                scm_provider=self.scm_provider,
+                owner=self.github_owner,
+                repo=self.github_repo,
+            )
+        except Exception:
+            pass
         
         # Initialize GitHub App auth
         try:
