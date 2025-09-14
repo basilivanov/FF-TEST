@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Проверить состояние системы и prechecks",
+    "status": "completed",
+    "activeForm": "Проверил состояние системы и prechecks"
+  },
+  {
+    "content": "Запустить создание NOOP Doc Feature",
+    "status": "completed",
+    "activeForm": "Запустил создание NOOP Doc Feature"
+  },
+  {
+    "content": "Мониторить выполнение задач через runner API",
+    "status": "in_progress",
+    "activeForm": "Мониторю выполнение задач через runner API"
+  },
+  {
+    "content": "Отслеживать создание PR и GitHub Actions",
+    "status": "pending",
+    "activeForm": "Отслеживаю создание PR и GitHub Actions"
+  },
+  {
+    "content": "Дождаться автомержа и проверить результат",
+    "status": "pending",
+    "activeForm": "Жду автомержа и проверяю результат"
+  }
+]
