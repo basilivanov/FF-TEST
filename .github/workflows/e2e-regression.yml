@@ -178,11 +178,12 @@ jobs:
         run: |
           git config --local user.email "ci@feature-factory.local"
           git config --local user.name "E2E CI Bot"
-          git add docs/_bundle/
+          mkdir -p cortex/reference/_bundle
+          git add cortex/reference/_bundle/
           git commit -m "📊 Nightly E2E regression report $(date +%Y-%m-%d)
 
           🤖 Generated with CI/CD Pipeline
-          
+
           Co-Authored-By: E2E Bot <noreply@feature-factory.local>" || echo "No changes to commit"
           git push || echo "No changes to push"
           

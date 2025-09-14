@@ -20,7 +20,7 @@ log = structlog.get_logger()
 class ManifestValidator:
     """Validator for artifact manifests and package contracts."""
     
-    def __init__(self, package_contract_schema_path: str = "docs/package_contract.schema.json",
+    def __init__(self, package_contract_schema_path: str = "cortex/docs/package_contract.schema.json",
                  artifact_manifest_schema_path: str = "configs/schemas/artifact_manifest.schema.json"):
         """Initialize validator with schema paths."""
         self.package_contract_schema_path = package_contract_schema_path
@@ -201,9 +201,8 @@ class ManifestValidator:
                 return True
             
             package_contract = manifest["package_contract"]
-            
             # Validate against schema
-            jsonschema.validate(instance=package_contract, schema=self.schema)
+            jsonschema.validate(instance=package_contract, schema=self.package_contract_schema)
             
             return True
         except jsonschema.exceptions.ValidationError as e:

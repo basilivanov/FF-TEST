@@ -99,10 +99,10 @@ changelog_entry: |
     - QA статус: [PASS/FAIL]
     - Детали: [Дополнительные детали, если необходимо]
 other_docs:
-  docs/NewDoc.md: |
+  cortex/docs/NewDoc.md: |
     # Новая документация
     Содержимое новой документации.
-  docs/ExistingDoc.md: |
+  cortex/docs/ExistingDoc.md: |
     ## Обновленная секция
     Обновленное содержимое секции.
 ```"""

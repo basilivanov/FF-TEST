@@ -7,7 +7,6 @@ on:
       - "cortex_new/**"
       - "cortex/**"
       - "configs/**"
-      - "docs/**"
       - ".github/workflows/docs-guard.yml"
   pull_request:
     branches: [ "main" ]
@@ -15,7 +14,6 @@ on:
       - "cortex_new/**"
       - "cortex/**"
       - "configs/**"
-      - "docs/**"
       - ".github/workflows/docs-guard.yml"
   schedule:
     - cron: "17 3 * * *"
