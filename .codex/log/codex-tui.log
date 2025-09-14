@@ -411,3 +411,4 @@
 [2m2025-09-14T17:39:25.488577Z[0m [32m INFO[0m ERR: No such file or directory (os error 2)
 [2m2025-09-14T17:39:57.615962Z[0m [32m INFO[0m FunctionCall: shell({"command":["bash","-lc","rg -n \"github_api_call_response|github_pr_creation_failed|github_token_expired|github_app_token_failed\" -S runner_debug.log app.log api.log | tail -n 120"]})
 [2m2025-09-14T17:40:16.498287Z[0m [32m INFO[0m FunctionCall: shell({"command":["bash","-lc","rg -n \"feature_updated_with_pr_info|github_api_call_response|feature_updated_with_merge_info|github_pr_merge_failed|github_pr_merged\" -S runner_debug.log | tail -n 80"]})
+[2m2025-09-14T17:40:46.618000Z[0m [32m INFO[0m ERR: No such file or directory (os error 2)
