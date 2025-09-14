@@ -1,17 +1,17 @@
 [
   {
-    "content": "Verify new token is loaded in system",
-    "status": "completed",
-    "activeForm": "Verifying new token is loaded in system"
-  },
-  {
-    "content": "Run full E2E test with new stable token",
+    "content": "Test E2E with GitHub App",
     "status": "in_progress",
-    "activeForm": "Running full E2E test with new stable token"
+    "activeForm": "Testing E2E with GitHub App"
   },
   {
-    "content": "Monitor all GitHub API calls with detailed logging",
+    "content": "Monitor GitHub App vs PAT usage",
     "status": "pending",
-    "activeForm": "Monitoring all GitHub API calls with detailed logging"
+    "activeForm": "Monitoring GitHub App vs PAT usage"
+  },
+  {
+    "content": "Verify no token expiration during GitOps",
+    "status": "pending",
+    "activeForm": "Verifying no token expiration during GitOps"
   }
 ]

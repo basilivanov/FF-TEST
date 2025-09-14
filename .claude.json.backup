@@ -23,7 +23,7 @@
     "permissions": 11,
     "custom-commands": 11
   },
-  "promptQueueUseCount": 209,
+  "promptQueueUseCount": 212,
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
   },
@@ -33,6 +33,66 @@
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "дай инварианты  для капсулы контекста что поменялось и как теперь работает для SSOT",
+          "pastedContents": {}
+        },
+        {
+          "display": "дай для капсулы контекста что поменялось и как теперь работает для SSOT",
+          "pastedContents": {}
+        },
+        {
+          "display": "всё прописал засетапил, пробуй https://github.com/settings/installations/85882340 ",
+          "pastedContents": {}
+        },
+        {
+          "display": "App ID: 1951709 Client ID: Iv23liv2masH2JobAsSh pem я получил куда его положить, тольк не в корень, там и так говна много и нужно чистить",
+          "pastedContents": {}
+        },
+        {
+          "display": "Client secrets\nMake sure to copy your new client secret now. You won’t be able to see it again.\n\nClient secret\n 21b0f66729f9f5b19d285119236b6ed06fc5c544 Copied! \nAdded now by basilivanov\nNever used\n\nYou cannot delete the only client secret. Generate a new client secret first. чего с ним делать ?",
+          "pastedContents": {}
+        },
+        {
+          "display": "у нас есть etl-tst.chococraft.ru - это этот сервер",
+          "pastedContents": {}
+        },
+        {
+          "display": "http://127.0.0.1:8081/api/v1/ci/webhook\nWebhook URL is not supported because it isn't reachable over the public Internet (127.0.0.1)",
+          "pastedContents": {}
+        },
+        {
+          "display": "[Pasted text #1 +52 lines]",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "Subscribe to events\nBased on the permissions you’ve selected, what events would you like to subscribe to?\n\nInstallation target \nA GitHub App installation target is renamed.\nMeta \nWhen this App is deleted and the associated hook is removed.\nSecurity advisory \nSecurity advisory published, updated, or withdrawn.\nCommit comment \nCommit or diff commented on.\nCreate \nBranch or tag created.\nDelete \nBranch or tag deleted.\nFork \nRepository forked.\nGollum \nWiki page updated.\nLabel \nLabel created, edited or deleted.\nMilestone \nMilestone created, closed, opened, edited, or deleted.\nMerge queue entry \nMerge Queue entry added\nPublic \nRepository changes from private to public.\nPull request \nPull request assigned, auto merge disabled, auto merge enabled, closed, converted to draft, demilestoned, dequeued, edited, enqueued, labeled, locked, milestoned, opened, ready for review, reopened, review request removed, review requested, synchronized, unassigned, unlabeled, or unlocked.\nPull request review \nPull request review submitted, edited, or dismissed.\nPull request review comment \nPull request diff comment created, edited, or deleted.\nPull request review thread \nA pull request review thread was resolved or unresolved.\nPush \nGit push to a repository.\nRelease \nRelease created, edited, published, unpublished, or deleted.\nRepository \nRepository created, deleted, archived, unarchived, publicized, privatized, edited, renamed, or transferred.\nRepository dispatch \nWhen a message is dispatched from a repository.\nStar \nA star is created or deleted from a repository.\nWatch \nUser stars a repository.\nWorkflow dispatch \nA manual workflow run is requested.\nWorkflow job \nWorkflow job queued, waiting, in progress, or completed on a repository.\nWorkflow run \nWorkflow run requested or completed on a repository."
+            }
+          }
+        },
+        {
+          "display": "[Pasted text #1 +73 lines] что прописать url и сallback  и остальные параметры  ?",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "The name of your GitHub App.\n\n Markdown supported\nWrite\nPreview\nThis is displayed to users of your GitHub App\nHomepage URL\nThe full URL to your GitHub App’s website.\n\nIdentifying and authorizing users\nThe full URL to redirect to after a user authorizes an installation.\nRead our Callback URL documentation for more information.\n\nCallback URL\ne.g. https://example.com/auth\n Expire user authorization tokens\nThis will provide a refresh_token which can be used to request an updated access token when this access token expires.\n\n Request user authorization (OAuth) during installation\nRequests that the installing user grants access to their identity during installation of your App\n\nRead our Identifying and authorizing users for GitHub Apps documentation for more information.\n\n Enable Device Flow\nAllow this GitHub App to authorize users via the Device Flow.\n\nRead the Device Flow documentation for more information.\n\nPost installation\nSetup URL (optional)\nUsers will be redirected to this URL after installing your GitHub App to complete additional setup.\n\n Redirect on update\nRedirect users to the 'Setup URL' after installations are updated (E.g. repositories added/removed).\n\nWebhook\n\nActive\nWe will deliver event details when this hook is triggered.\nWebhook URL\nEvents will POST to this URL. Read our webhook documentation for more information.\n\nSecret\nRead our webhook secret documentation for more information.\n\nPermissions\nUser permissions are granted on an individual user basis as part of the User authorization flow.\nRead our permissions documentation for information about specific permissions.\n\nRepository permissions\nRepository permissions permit access to repositories and related resources.\n\nOrganization permissions\nOrganization permissions permit access to organization related resources.\n\nAccount permissions\nThese permissions are granted on an individual user basis as part of the User authorization flow.\n\nSubscribe to events\nBased on the permissions you’ve selected, what events would you like to subscribe to?\n\nInstallation target \nA GitHub App installation target is renamed.\nMeta \nWhen this App is deleted and the associated hook is removed.\nSecurity advisory \nSecurity advisory published, updated, or withdrawn.\nWhere can this GitHub App be installed?\n\nOnly on this account\nOnly allow this GitHub App to be installed on the @basilivanov account.\n\nAny account\nAllow this GitHub App to be installed by any user or organization."
+            }
+          }
+        },
+        {
+          "display": "как лучше для стабильности ситстемы как правимльно изучи лучщие паттерны и бест практис в интернете",
+          "pastedContents": {}
+        },
+        {
+          "display": "GitHub System – personal_access_token.credential_revoked\nGitHub Advanced Security has revoked access for the personal access token FF-TEST-TOKEN\n1 minute ago …\n@timestamp    2025-09-14 17:10:13 +0300\n_document_id    O6E3xk9rP1DI4EK4_ViGAg\naction    personal_access_token.credential_revoked\ncreated_at    2025-09-14 17:10:13 +0300\nexplanation    The credential was found on GitHub and was revoked by Secret Scanning\noperation_type    remove\ntoken_id    8552144\nuser    basilivanov\nuser_id    225261918\nuser_programmatic_access_name    FF-TEST-TOKEN",
+          "pastedContents": {}
+        },
+        {
+          "display": "/etc/feature-factory/ci-secrets.env  пропсиан токен пробуй",
+          "pastedContents": {}
+        },
         {
           "display": "FF-TEST-TOKEN\n\nNo description\n\nCreated on Tue, Sep 9 2025.\nExpires on Tue, Oct 14 2025\n токен живой  GITHUB_TOKEN=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 проерь",
           "pastedContents": {}
@@ -486,72 +546,6 @@
         {
           "display": "можкешь проверить gh напрямую токены работают",
           "pastedContents": {}
-        },
-        {
-          "display": "ты опять с main прешёл на фетку feature ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "исправил, проверь",
-          "pastedContents": {}
-        },
-        {
-          "display": "давай я прва исправлю от рута дай команду как это сделать",
-          "pastedContents": {}
-        },
-        {
-          "display": "токен есть и ключи есть подхватываются сервисом",
-          "pastedContents": {}
-        },
-        {
-          "display": "1. PR не готов к merge (нет approvals, conflicts, protected branch rules) почини чтобы поность работало в автомате всё",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +244 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "# TASK: DOCS_SNAPSHOT_All_v1 — собрать ВСЮ рабочую документацию в один файл\n# ------------------------------------------------------------------------------\n# ЧТО ДЕЛАЕМ (человечески):\n# Собираем *все* MD/YML/YAML/JSON-конфиги/схемы и связанные текстовые доки из проекта\n# в ОДИН обзорный файл с оглавлением, метаданными и короткими выжимками содержимого.\n# Нужен как исходник для будущей капсулы SSoT и ревизии «что оставить/что удалить».\n#\n# ВАЖНО: Сначала тянем контекст через /context. Если контекст не получен — НЕ ПРОДОЛЖАТЬ.\n#\n# РЕЗУЛЬТАТ:\n#   /opt/feature-factory/reports/DOCS_SNAPSHOT_All_v1.md\n#   (один Markdown-файл со структурой: шапка → сводная таблица → TOC → секции по файлам)\n#\n# ДОП. ТРЕБОВАНИЯ:\n# - Без моков/синтетики. Только реальные файлы из репозитория/рабочих папок.\n# - Редакция секретов по шаблонам (см. REDACT_PATTERNS).\n# - Ограничение вывода контента: ≤ 400 строк или ≤ 40 КБ на файл (что первое).\n# - Большие артефакты (openapi.json и т.п.) — только верхняя часть + метаданные.\n# - Исключить приватные/секретные и бинарные файлы (см. EXCLUDES и MIME-фильтр).\n# - Для каждого файла: path, size, lines, sha256, mtime + короткий content preview.\n# - Все HTTP-пруфы (health/openapi/agents/logs/index/trace) приложить в конец отчёта\n#   в виде минимальных «body_head» + статусы, чтобы потом быстро верифицировать.\n#\n# ------------------------------------------------------------------------------\n# ЭТАП 0 — Гейт по контексту (обязательно)\nCTX_HEAD=\"$(/opt/feature-factory/bin/ff-context 'DOCS_SNAPSHOT_All_v1' | head -c 160 || true)\"\nif [ -z \"$CTX_HEAD\" ]; then\n  echo \"FATAL: /context не отвечает — прекращаю выполнение\"; exit 42\nfi\n\n# ------------------------------------------------------------------------------\n# ЭТАП 1 — Настройки и фильтры\nset -euo pipefail\nROOT=\"/opt/feature-factory\"\nOUT_DIR=\"$ROOT/reports\"\nOUT=\"$OUT_DIR/DOCS_SNAPSHOT_All_v1.md\"\nTMP=\"$(mktemp)\"\nmkdir -p \"$OUT_DIR\"\n\n# Файловые шаблоны, которые собираем\nINCLUDE_EXT='\n\\.md$\n\\.MD$\n\\.markdown$\n\\.yml$\n\\.yaml$\n\\.json$\n\\.toml$\n\\.ini$\n\\.cfg$\n\\.conf$\n\\.sql$\n\\.pyi?$       # схемы/скрипты конфигурации по проекту — аккуратно\n\\.env\\.example$\n'\n\n# Папки/файлы, которые исключаем из обхода\nEXCLUDES='\n/\\.git/\n/node_modules/\n/dist/\n/build/\n/.venv/\n/__pycache__/\n/\\.pytest_cache/\n/\\.mypy_cache/\n/\\.idea/\n/\\.vscode/\n/secrets?/\n/credentials?/\n/\\.htpasswd$\n/\\.env(\\.|$)\n/ssh/\n/\\.DS_Store$\n/\\.png$|\\.jpg$|\\.jpeg$|\\.gif$|\\.svg$|\\.ico$|\\.pdf$|\\.zip$|\\.tar(\\.gz)?$|\\.gz$|\\.xz$|\\.bin$\n'\n\n# Паттерны редакции (обезличивание секретов)\nREDACT_PATTERNS='\napi[_-]?key\\s*[:=]\\s*.* --> api_key: \"<REDACTED>\"\nsecret\\s*[:=]\\s*.*      --> secret: \"<REDACTED>\"\npassword\\s*[:=]\\s*.*    --> password: \"<REDACTED>\"\ntoken\\s*[:=]\\s*.*       --> token: \"<REDACTED>\"\nauthorization\\s*[:=]\\s*.* --> authorization: \"<REDACTED>\"\nclient[_-]?secret\\s*[:=]\\s*.* --> client_secret: \"<REDACTED>\"\n'\n\n# Ограничения вывода контента\nMAX_LINES=400\nMAX_BYTES=$((40*1024))\n\n# ------------------------------------------------------------------------------\n# ЭТАП 2 — Обнаружение файлов\n# Составляем список кандидатов по расширениям с исключениями\nfind \"$ROOT\" -type f \\\n  | grep -Ev \"$EXCLUDES\" \\\n  | grep -E \"$INCLUDE_EXT\" \\\n  | LC_ALL=C sort > \"$TMP.files\"\n\n# ------------------------------------------------------------------------------\n# ЭТАП 3 — Шапка отчёта\n{\n  echo \"# DOCS_SNAPSHOT_All_v1\"\n  echo\n  echo \"- generated_at: $(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\"\n  echo \"- env: test\"\n  echo \"- root: $ROOT\"\n  echo \"- total_files_matched: $(wc -l < \"$TMP.files\")\"\n  echo\n  echo \"## Контекст (/api/v1/context HEAD)\"\n  echo\n  echo '```'\n  echo \"$CTX_HEAD\"\n  echo '```'\n  echo\n  echo \"## Сводная таблица\"\n  echo\n  echo \"| # | Path | Type | Size | Lines | SHA256 | mtime |\"\n  echo \"|---|------|------|------|-------|--------|-------|\"\n} > \"$OUT\"\n\n# ------------------------------------------------------------------------------\n# ЭТАП 4 — Метаданные и TOC\ni=0\n> \"$TMP.toc\"\n> \"$TMP.meta\"\nwhile IFS= read -r f; do\n  i=$((i+1))\n  [ -s \"$f\" ] || continue\n  # Тип по расширению\n  ext=\"${f##*.}\"\n  # Размер/строки/mtime/sha\n  size=\"$(wc -c < \"$f\" | tr -d ' ')\"\n  lines=\"$(wc -l < \"$f\" | tr -d ' ')\"\n  mtime=\"$(date -r \"$f\" +\"%Y-%m-%d %H:%M:%S %Z\")\"\n  sha=\"$(sha256sum \"$f\" | awk '{print $1}')\"\n  anchor=\"$(echo \"$f\" | tr '/. ' '---')\"\n\n  printf \"| %d | [%s](#%s) | %s | %s | %s | `%s` | %s |\\n\" \\\n    \"$i\" \"$f\" \"$anchor\" \"$ext\" \"$size\" \"$lines\" \"$sha\" \"$mtime\" >> \"$OUT\"\n\n  printf \"- [%s](#%s)\\n\" \"$f\" \"$anchor\" >> \"$TMP.toc\"\n  printf \"%s|%s|%s|%s|%s|%s|%s\\n\" \"$i\" \"$f\" \"$ext\" \"$size\" \"$lines\" \"$sha\" \"$mtime\" >> \"$TMP.meta\"\ndone < \"$TMP.files\"\n\n{\n  echo\n  echo \"## TOC (быстрые ссылки)\"\n  echo\n  cat \"$TMP.toc\"\n} >> \"$OUT\"\n\n# ------------------------------------------------------------------------------\n# ЭТАП 5 — Секции с контентом (редакция + лимиты)\nwhile IFS= read -r f; do\n  [ -s \"$f\" ] || continue\n  anchor=\"$(echo \"$f\" | tr '/. ' '---')\"\n  size=\"$(wc -c < \"$f\" | tr -d ' ')\"\n  lines=\"$(wc -l < \"$f\" | tr -d ' ')\"\n  sha=\"$(sha256sum \"$f\" | awk '{print $1}')\"\n  echo >> \"$OUT\"\n  echo \"### $f\" >> \"$OUT\"\n  echo \"<a id=\\\"$anchor\\\"></a>\" >> \"$OUT\"\n  echo \"\" >> \"$OUT\"\n  echo \"- size: ${size} bytes; lines: ${lines}; sha256: \\`$sha\\`\" >> \"$OUT\"\n  echo \"\" >> \"$OUT\"\n\n  # Выбор стратегии предпросмотра (большие файлы — сильно резать)\n  preview_bytes=$MAX_BYTES\n  preview_lines=$MAX_LINES\n  if echo \"$f\" | grep -qiE 'openapi|swagger'; then\n    preview_bytes=$((20*1024))\n    preview_lines=200\n  fi\n\n  # Чтение с лимитом\n  # shellcheck disable=SC2002\n  content=\"$(head -c \"$preview_bytes\" \"$f\" | head -n \"$preview_lines\")\"\n\n  # Редакция секретов\n  # Применяем упрощённую замену по ключевым словам\n  redacted=\"$content\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(api[_-]?key\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(secret\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(password\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(token\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(authorization\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n  redacted=\"$(printf \"%s\" \"$redacted\" | sed -E 's/(client[_-]?secret\\s*[:=]\\s*).*/\\1\"<REDACTED>\"/I')\"\n\n  echo '```' >> \"$OUT\"\n  printf \"%s\\n\" \"$redacted\" >> \"$OUT\"\n  echo '```' >> \"$OUT\"\n\n  # Пометка о тримминге\n  if [ \"$lines\" -gt \"$preview_lines\" ] || [ \"$size\" -gt \"$preview_bytes\" ]; then\n    echo \"> _Truncated for preview (showing up to ${preview_lines} lines or ${preview_bytes} bytes)._ \" >> \"$OUT\"\n  fi\ndone < \"$TMP.files\"\n\n# ------------------------------------------------------------------------------\n# ЭТАП 6 — Мини-пруфы HTTP-контракта (HEADS)\n{\n  echo\n  echo \"## Proof Pack (HTTP Heads)\"\n  echo\n  probe() { url=\"$1\"; printf \"- %s — \" \"$url\"; code=\"$(curl -ks -o /dev/null -w '%{http_code}' \"$url\")\"; printf \"%s\\n\" \"$code\"; head=\"$(curl -ks \"$url\" | head -c 120 | tr '\\n' ' ')\"; echo \"  body_head: \\`${head}\\`\"; }\n  probe \"https://etl-tst.chococraft.ru/openapi.json\"\n  probe \"https://etl-tst.chococraft.ru/api/v1/agents/status?fresh=0\"\n  probe \"https://etl-tst.chococraft.ru/api/v1/logs?limit=1\"\n  probe \"https://etl-tst.chococraft.ru/api/v1/index/calls?limit=1\"\n  probe \"https://etl-tst.chococraft.ru/api/v1/tasks/task_timeline_demo/trace?limit=1\"\n} >> \"$OUT\"\n\n# ------------------------------------------------------------------------------\n# ЭТАП 7 — Вывод короткого резюме на экран + путь к файлу\nprintf \"\\nDONE: %s\\n\" \"$OUT\"\nprintf \"files_total: %s\\n\" \"$(wc -l < \"$TMP.files\")\"\nprintf \"bytes_out: %s\\n\" \"$(wc -c < \"$OUT\")\"\n\n# ------------------------------------------------------------------------------\n# КРИТЕРИИ УСПЕХА (DoD)\n# - Файл $OUT существует и > 10 КБ.\n# - В шапке есть timestamp, total_files_matched.\n# - Сводная таблица содержит ≥ 20 строк (или равна числу найденных файлов).\n# - TOC кликабельно ведёт к секциям по якорям.\n# - Секций ≥ числу файлов (для пустых/отфильтрованных допускается меньше).\n# - В конце присутствует Proof Pack с кодами ответов (200/404/503 допускаются по факту).\n#\n# Что прислать в отчёт:\n#   REPORT_DOCS_SNAPSHOT_All_v1.json\n#   {\n#     \"env\":\"test\",\n#     \"out\":\".../DOCS_SNAPSHOT_All_v1.md\",\n#     \"files_total\": <int>,\n#     \"bytes_out\": <int>,\n#     \"sample_head\": \"<первые 120 байт>\",\n#     \"proofs\": [\n#       {\"url\": \"/openapi.json\", \"status\": <int>},\n#       {\"url\": \"/api/v1/agents/status?fresh=0\", \"status\": <int>},\n#       {\"url\": \"/api/v1/logs?limit=1\", \"status\": <int>},\n#       {\"url\": \"/api/v1/index/calls?limit=1\", \"status\": <int>},\n#       {\"url\": \"/api/v1/tasks/task_timeline_demo/trace?limit=1\", \"status\": <int>}\n#     ]\n#   }\n"
-            }
-          }
-        },
-        {
-          "display": "пришли отчёт по INDEX_CALLS_FIX_v1",
-          "pastedContents": {}
-        },
-        {
-          "display": "в ui вижу толкьо tsx на граяе",
-          "pastedContents": {}
-        },
-        {
-          "display": "посмотри в базе там нет py только  tsx? если да, то нужно занво всё проиндексивароть. есть скрипт для этого",
-          "pastedContents": {}
-        },
-        {
-          "display": "а граф сейчас не замокан в ui я там вижу только tsx, но нет py скриптов",
-          "pastedContents": {}
-        },
-        {
-          "display": "[Pasted text #1 +161 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "TASK — INDEX_CALLS_FIX_v1\nЧто делаем и зачем (коротко)\n\nПочинить /api/v1/index/calls, чтобы вместо 500 он стабильно отдавал корректный JSON с графом вызовов и метаданными (пагинация, total), и чтобы UI графа в админке работал без моков.\n\nGOLDEN_HEADER (минимальный SSoT для задачи)\nenv: test\nbase_url: https://etl-tst.chococraft.ru/api/v1\nendpoint: /api/v1/index/calls\nrelated_ui: /admin/call-graph\nwrappers:\n  - /opt/feature-factory/bin/ff-orch-restart-safe\ngate:\n  require_context: true\n  context_task_id: INDEX_CALLS_FIX_v1\nrules:\n  context_first: true\n  no_local_servers: true\n  no_alt_db: true\n  alembic_only_for_schema: true\n  corr_id_required: true\nperf:\n  p95_ms: 200\n\nКонтракты (что должно быть по факту)\n\nGET /api/v1/index/calls?limit={int}&offset={int} → 200 OK, JSON:\n\n{\n  \"edges\": [\n    {\n      \"id\": 123,\n      \"source_symbol\": \"src/App.tsx\",\n      \"target_symbol\": \"src/pages/Agents.tsx\",\n      \"file_path\": \"src/App.tsx\",\n      \"line_number\": 42\n    }\n  ],\n  \"total\": 156,\n  \"limit\": 50,\n  \"offset\": 0,\n  \"as_of\": \"2025-08-30T12:34:56Z\",\n  \"stale\": false\n}\n\n\nПустая выборка: 200 OK, \"edges\":[],\"total\":0 (не 500).\n\nНеверные параметры (limit>500 и т.п.): 400, JSON с detail и x-correlation-id в заголовке.\n\nЛюбая 5xx (если случится) — обязательно с x-correlation-id.\n\np95 < 200 мс на limit=50 при «нормальных» данных.\n\nОграничения\n\nНи одного мок-источника в реализации и в финальном JS-бандле UI.\n\nНикакого прямого SQL DDL — только Alembic, если понадобится схема.\n\nНет пересборки индексов «по запросу» из этого эндпоинта (только чтение). Ребилд — отдельной задачей.\n\nОбязательно стримить ошибки в логи с corr-id (для отладки).\n\nШаги (агент выполняет)\n\nGATE / Контекст: получить контекст INDEX_CALLS_FIX_v1 через GET /api/v1/context?task_description=.... Если не 200 → стоп, отчёт REPORT_IndexCalls_Fix_v1.json со статусом blocked.\n\nПодтвердить проблему: зафиксировать текущие ответы /index/calls (HTTP-код, latency, заголовки, первые 200 байт тела).\n\nДиагностика источника данных:\n\nПроверить конфиг «источника графа» (файлы в /opt/feature-factory/data/* или таблицы БД — по контексту).\n\nЕсли файлов/таблиц нет или пусты — не чинить здесь; отметить needs_reindex=true и перейти к пункту 5 (дефенсивная реализация).\n\nИсправление эндпоинта:\n\nНормализовать параметры limit/offset (границы, разумные дефолты).\n\nИспользовать только чтение из текущего источника (SQLite/файлы). Любая ошибка источника → управляемый ответ:\n\n{\"edges\": [], \"total\": 0, \"limit\": X, \"offset\": Y, \"stale\": true, \"error\": \"data_unavailable\"}\n\n\nсо статусом 200 (для UI-дефолта) и логом с corr-id.\n\nЕсли политика проекта требует 503 — отразить это в отчёте и вернуть 503 с JSON. Выбрать вариант, совместимый с текущим UI.\n\nОбновить OpenAPI-схему (модели ответа/параметры).\n\nПроизводительность:\n\nИндекс по полям/таблицам не добавлять без Alembic. Если SELECT медленный — добавить кэш (in-process) на 60с (ключ: limit,offset) с инвалидацией при ребилде индекса (флаг/mtime файла). Это не обязаловка, только если p95 > 200 мс.\n\nПерезапуск: через обёртку оркестратора.\n\nПруф-пакет: собрать фактические ответы для:\n\nGET /index/calls?limit=1\n\nGET /index/calls?limit=50&offset=0\n\nЗаголовки: x-correlation-id присутствует.\n\nЗамер p95 (не менее 20 запросов, локально/в тест-контуре).\n\nСкрин UI страницы графа (если возможно) или запись ответа UI-XHR.\n\nОтчёт: REPORT_IndexCalls_Fix_v1.json.\n\nФормат отчёта — REPORT_IndexCalls_Fix_v1.json\n{\n  \"env\": \"test\",\n  \"context\": {\n    \"url\": \"<context url>\",\n    \"status\": 200,\n    \"x_correlation_id\": \"<value>\",\n    \"latency_ms\": <int>\n  },\n  \"before\": {\n    \"status\": <int>,\n    \"body_head\": \"<str>\",\n    \"has_corr_id\": true|false\n  },\n  \"after\": {\n    \"status_smoke\": 200,\n    \"shape_ok\": true,\n    \"sample\": {\n      \"total\": <int>,\n      \"limit\": <int>,\n      \"offset\": <int>,\n      \"edges_sample\": [ { \"source_symbol\":\"...\", \"target_symbol\":\"...\" } ]\n    }\n  },\n  \"perf\": {\n    \"p95_ms\": <int>,\n    \"n_requests\": <int>\n  },\n  \"flags\": {\n    \"stale_mode\": true|false,\n    \"needs_reindex\": true|false\n  },\n  \"proofs\": [\n    {\"endpoint\": \"/api/v1/index/calls?limit=1\", \"status\": 200, \"has_corr_id\": true},\n    {\"endpoint\": \"/api/v1/index/calls?limit=50&offset=0\", \"status\": 200, \"has_corr_id\": true}\n  ],\n  \"status\": \"green|yellow|red\",\n  \"notes\": [\"краткие выводы и что осталось\"]\n}\n\nDoD (Definition of Done)\n\n/api/v1/index/calls — 200 OK с корректным JSON-контрактом, без моков.\n\nОшибочные ситуации не валят 500: возвращается управляемый ответ (200+stale:true или 503 — по принятой политике) и всегда есть x-correlation-id.\n\np95 < 200 мс на limit=50.\n\nUI графа грузится и рендерит реальные данные.\n\nПриложен отчёт REPORT_IndexCalls_Fix_v1.json с пруфами."
-            }
-          }
-        },
-        {
-          "display": "[Pasted text #1 +128 lines]",
-          "pastedContents": {
-            "1": {
-              "id": 1,
-              "type": "text",
-              "content": "GOLDEN_HEADER (минимальный SSoT для задачи)\nenv: test\nbase_url: https://etl-tst.chococraft.ru/api/v1\nhealth_paths: [/health/live, /health/ready]\nopenapi: /openapi.json\nwrappers: [/opt/feature-factory/bin/ff-orch-restart-safe]\ngate:\n  require_context: true\n  context_task_id: HEALTH_SAFE_MODE_v1\nrules:\n  context_first: true\n  no_local_servers: true\n  no_alt_db: true\n\nКонтракты (что должно быть по факту)\n\n/health/live → 200 OK, JSON {\"status\":\"ok\",\"component\":\"live\"}, заголовок x-correlation-id обязателен.\n\n/health/ready → 200 OK (если всё ок) или 503 (если есть деградация), JSON вида:\n\n{\"status\":\"ok|error\",\"component\":\"ready\",\"checks\":[{component, status, ...}, ...]}\n\n\nЗаголовок x-correlation-id обязателен. Никогда не 500.\n\n/openapi.json → 200 OK (контроль доступности документации).\n\nНа «известной 500» (/api/v1/index/calls?limit=1) — в ответе есть x-correlation-id (проверка того, что corr-id middleware/handler отрабатывают на ошибках).\n\nОграничения (важно)\n\nЗапрещено выполнять внешние HTTP-вызовы внутри /health/*.\n\nЗапрещено подтягивать в /ready тяжелые зависимости/DI, которые могут уронить эндпоинт. Проверки — «лёгкие»:\n\nSQLite-ping (по DATABASE_URL, только «SELECT 1» и наличие файла).\n\nНаличие обязательных индекс-файлов (/opt/feature-factory/data/...).\n\nЛёгкая проверка LLM CLI (если модуль недоступен — деградируем статус до warn, но не падаем исключением).\n\nЛюбая ошибка в логике /health/* должна переводиться в 503, а не в 500.\n\nГлобальный x-correlation-id — обязателен на всех ответах (200/4xx/5xx). Если его нет — добавить через middleware/handler приложения.\n\nНикаких sudo-паролей, рестарт только через штатную обёртку.\n\nШаги (агент выполняет)\n\nGATE / Контекст: получить контекст задачей HEALTH_SAFE_MODE_v1 через GET /api/v1/context?task_description=.... Если не 200 — стоп и отчёт REPORT_Health_OpenAPI_v5.json со статусом blocked.\n\nАнализ текущего состояния:\n\nЗамер /health/live, /health/ready, /openapi.json (HTTP-код, latency, тело-голова, заголовки).\n\nПроверить наличие заголовка x-correlation-id на 200 и на известной 500 (/api/v1/index/calls?limit=1).\n\nРеализация SAFE-mode:\n\nОбновить реализацию /health/live, /health/ready так, чтобы:\n\nне было внешних HTTP/тяжёлых зависимостей;\n\nвсе исключения переводились в управляемый ответ (200/503), никогда 500;\n\nвсегда присутствовал x-correlation-id.\n\nУбедиться, что глобальный corr-id middleware/handler подключены при старте приложения (без изменения других роутеров).\n\nРестарт: перезапустить бэкенд через /opt/feature-factory/bin/ff-orch-restart-safe.\n\nПруф-пакет (после рестарта):\n\nЗаголовки и первые строки тела для:\n\nGET https://etl-tst.chococraft.ru/health/live\n\nGET https://etl-tst.chococraft.ru/health/ready\n\nGET https://etl-tst.chococraft.ru/openapi.json\n\n«Известная 500»: GET https://etl-tst.chococraft.ru/api/v1/index/calls?limit=1 — доказать наличие x-correlation-id.\n\nОтчёт: собрать REPORT_Health_OpenAPI_v5.json.\n\nФормат отчёта — REPORT_Health_OpenAPI_v5.json\n{\n  \"env\": \"test\",\n  \"context\": {\n    \"url\": \"<full url used>\",\n    \"status\": 200,\n    \"latency_ms\": <int>,\n    \"x_correlation_id\": \"<uuid or value>\",\n    \"body_head\": \"<first 120 chars>\"\n  },\n  \"health_checks\": {\n    \"/health/live\":  {\"status\": <int>, \"latency_ms\": <int>, \"x_correlation_id\": \"<value|N/A>\"},\n    \"/health/ready\": {\"status\": <int>, \"latency_ms\": <int>, \"x_correlation_id\": \"<value|N/A>\"}\n  },\n  \"openapi\": {\n    \"url\": \"/openapi.json\",\n    \"status\": <int>,\n    \"latency_ms\": <int>,\n    \"paths_count\": <int|unknown>\n  },\n  \"corr_id_policy\": {\n    \"ok_on_200\": true|false,\n    \"ok_on_500\": true|false\n  },\n  \"proofs\": [\n    {\"url\":\"/api/v1/index/calls?limit=1\",\"expect\":\"500\",\"has_x_correlation_id\": true|false}\n  ],\n  \"status\": \"green|yellow|red\",\n  \"notes\": [\n    \"Краткие факты: что поменяли, на что повлияло, что осталось сделать\"\n  ]\n}\n\nDoD (Definition of Done)\n\n/health/live — 200 OK, есть x-correlation-id.\n\n/health/ready — 200 (все проверки ok) или 503 (есть деградация), никогда не 500, есть x-correlation-id.\n\n/openapi.json — 200 OK.\n\nЛюбая 500 (например, /api/v1/index/calls) содержит x-correlation-id.\n\nПриложен отчёт REPORT_Health_OpenAPI_v5.json + пруф-пакет."
-            }
-          }
         }
       ],
       "mcpContextUris": [],

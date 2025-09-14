@@ -1,0 +1,3 @@
+{"id":"9a60c7eb-7f79-4d64-87ca-a81f5c57b1e4","timestamp":"2025-09-14T14:46:16.856Z","instructions":null,"git":{"commit_hash":"23e707f36a228840ea9e4de8fdc54981ca21ee3d","branch":"feature/78_stable_test_final","repository_url":"git@github.com:basilivanov/FF-TEST.git"}}
+{"record_type":"state"}
+{"type":"message","role":"user","content":[{"type":"input_text","text":"<environment_context>\n  <cwd>/opt/feature-factory</cwd>\n  <approval_policy>never</approval_policy>\n  <sandbox_mode>danger-full-access</sandbox_mode>\n  <network_access>enabled</network_access>\n</environment_context>"}]}

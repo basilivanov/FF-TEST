@@ -12,6 +12,8 @@ from typing import Dict, Any, List, Optional
 import structlog
 from urllib.parse import urlparse
 import requests
+import jwt
+from datetime import datetime, timedelta
 
 log = structlog.get_logger()
 
@@ -19,6 +21,53 @@ log = structlog.get_logger()
 class GitIntegrationError(Exception):
     """Exception raised for Git integration errors."""
     pass
+
+
+class GitHubAppAuth:
+    """GitHub App authentication handler."""
+    
+    def __init__(self):
+        self.app_id = os.getenv("GITHUB_APP_ID")
+        self.installation_id = os.getenv("GITHUB_APP_INSTALLATION_ID")
+        self.private_key_path = os.getenv("GITHUB_APP_PRIVATE_KEY_PATH")
+        
+    def generate_jwt(self) -> str:
+        """Generate JWT for GitHub App authentication."""
+        if not all([self.app_id, self.private_key_path]):
+            raise Exception("GitHub App credentials not configured")
+            
+        now = int(time.time())
+        payload = {
+            'iat': now - 60,  # Issued 1 minute ago (to account for clock skew)
+            'exp': now + 600,  # Expires in 10 minutes
+            'iss': int(self.app_id)
+        }
+        
+        with open(self.private_key_path, 'r') as key_file:
+            private_key = key_file.read()
+            
+        return jwt.encode(payload, private_key, algorithm='RS256')
+    
+    def get_installation_token(self) -> str:
+        """Get installation access token (valid for 1 hour)."""
+        if not self.installation_id:
+            raise Exception("GitHub App installation ID not configured")
+            
+        jwt_token = self.generate_jwt()
+        
+        headers = {
+            'Authorization': f'Bearer {jwt_token}',
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'FeatureFactory-CI/1.0'
+        }
+        
+        url = f"https://api.github.com/app/installations/{self.installation_id}/access_tokens"
+        response = requests.post(url, headers=headers)
+        
+        if response.status_code == 201:
+            return response.json()['token']
+        else:
+            raise Exception(f"Failed to get installation token: {response.status_code} - {response.text}")
 
 
 class GitIntegrationService:
@@ -30,10 +79,43 @@ class GitIntegrationService:
         self.base_branch = os.getenv("GIT_BASE_BRANCH", "main")
         self.github_owner = os.getenv("GITHUB_OWNER")
         self.github_repo = os.getenv("GITHUB_REPO")
-        self.github_token = os.getenv("GITHUB_TOKEN")
+        self.github_token = os.getenv("GITHUB_TOKEN")  # Fallback PAT
         self.scm_provider = os.getenv("SCM_PROVIDER", "github")
         self.git_enabled = os.getenv("GIT_INTEGRATION_ENABLED", "false").lower() == "true"
         self.push_enabled = os.getenv("SCM_PUSH_ENABLED", "false").lower() == "true"
+        
+        # Initialize GitHub App auth
+        try:
+            self.github_app = GitHubAppAuth()
+            log.info("github_app_initialized", success=True)
+        except Exception as e:
+            self.github_app = None
+            log.info("github_app_fallback", reason=str(e), fallback="PAT")
+
+    def _get_auth_headers(self, correlation_id: str = "unknown") -> Dict[str, str]:
+        """Get authentication headers, preferring GitHub App over PAT."""
+        if self.github_app:
+            try:
+                token = self.github_app.get_installation_token()
+                log.info("github_auth_method", method="github_app", correlation_id=correlation_id)
+                return {
+                    'Authorization': f'token {token}',
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'FeatureFactory-CI/1.0'
+                }
+            except Exception as e:
+                log.warning("github_app_token_failed", error=str(e), correlation_id=correlation_id)
+                
+        # Fallback to PAT
+        if self.github_token:
+            log.info("github_auth_method", method="personal_access_token", correlation_id=correlation_id)
+            return {
+                'Authorization': f'token {self.github_token}',
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'FeatureFactory-CI/1.0'
+            }
+        
+        raise GitIntegrationError("No GitHub authentication method available")
 
     def _slugify(self, s: str) -> str:
         import re
@@ -169,11 +251,8 @@ class GitIntegrationService:
             )
             
             # TEST TOKEN BEFORE API CALLS
-            log.info("testing_github_token_before_pr", correlation_id=correlation_id)
-            test_headers = {
-                "Authorization": f"token {self.github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
+            log.info("testing_github_auth_before_pr", correlation_id=correlation_id)
+            test_headers = self._get_auth_headers(correlation_id)
             test_response = requests.get("https://api.github.com/user", headers=test_headers)
             log.info("github_token_test_result",
                      status_code=test_response.status_code,
@@ -189,10 +268,7 @@ class GitIntegrationService:
             
             # Create PR via GitHub API
             url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls"
-            headers = {
-                "Authorization": f"token {self.github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
+            headers = self._get_auth_headers(correlation_id)
             data = {
                 "title": f"Feature #{feature_id}: {feature_title}",
                 "head": branch_name,
@@ -322,10 +398,7 @@ class GitIntegrationService:
         try:
             # First, get current PR info to get the actual HEAD SHA
             pr_url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repo}/pulls/{pr_number}"
-            headers = {
-                "Authorization": f"token {self.github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
+            headers = self._get_auth_headers(correlation_id)
             
             pr_response = requests.get(pr_url, headers=headers)
             pr_response.raise_for_status()
