@@ -27,8 +27,9 @@ class GitHubAppAuth:
     """GitHub App authentication handler."""
     
     def __init__(self):
-        self.app_id = os.getenv("GITHUB_APP_ID")
-        self.installation_id = os.getenv("GITHUB_APP_INSTALLATION_ID")
+        # Normalize inputs (strip whitespace) to avoid subtle URL/build issues
+        self.app_id = (os.getenv("GITHUB_APP_ID") or "").strip()
+        self.installation_id = (os.getenv("GITHUB_APP_INSTALLATION_ID") or "").strip()
         self.private_key_path = os.getenv("GITHUB_APP_PRIVATE_KEY_PATH")
         
     def generate_jwt(self) -> str:
