@@ -707,3 +707,6 @@
 {"type":"function_call","name":"shell","arguments":"{\"command\":[\"bash\",\"-lc\",\"# Retry in smaller chunks to avoid timeouts\\necho 'Enable DEBUG logs' >&2\\ncurl -fsS -u ops:ops123 -X POST http://127.0.0.1:8081/api/v1/admin/logging/set-level -H 'Content-Type: application/json' -d '{\\\"modules\\\":{\\\"api\\\":\\\"DEBUG\\\",\\\"services.git_integration\\\":\\\"DEBUG\\\",\\\"graph\\\":\\\"DEBUG\\\",\\\"orchestrator\\\":\\\"DEBUG\\\"},\\\"ttl_sec\\\":900}' | sed -n '1,80p'\\n\"],\"timeout_ms\":120000}","call_id":"call_UYP2z5A4eOzB8gQS1R8qT1TV"}
 {"type":"function_call_output","call_id":"call_UYP2z5A4eOzB8gQS1R8qT1TV","output":"{\"output\":\"Enable DEBUG logs\\n{\\\"status\\\":\\\"ok\\\"}\",\"metadata\":{\"exit_code\":0,\"duration_seconds\":29.3}}"}
 {"record_type":"state"}
+{"record_type":"state"}
+{"type":"message","role":"user","content":[{"type":"input_text","text":"а ты модешь без скрипта делать, протсо считать логи и тикать раннер и смотреть в api, где нужно править баги"}]}
+{"record_type":"state"}
