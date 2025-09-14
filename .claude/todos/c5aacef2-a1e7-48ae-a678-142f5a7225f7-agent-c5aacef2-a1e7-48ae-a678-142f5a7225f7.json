@@ -5,23 +5,23 @@
     "activeForm": "Проверил состояние системы и prechecks"
   },
   {
-    "content": "Запустить создание NOOP Doc Feature",
+    "content": "Создать новую чистую фичу для теста (ID 72)",
     "status": "completed",
-    "activeForm": "Запустил создание NOOP Doc Feature"
+    "activeForm": "Создал новую чистую фичу для теста (ID 72)"
   },
   {
-    "content": "Мониторить выполнение задач через runner API",
-    "status": "completed",
-    "activeForm": "Промониторил выполнение задач через runner API"
-  },
-  {
-    "content": "Отслеживать создание PR и GitHub Actions",
+    "content": "Мониторить выполнение новой фичи 72",
     "status": "in_progress",
-    "activeForm": "Отслеживаю создание PR и GitHub Actions"
+    "activeForm": "Мониторю выполнение новой фичи 72"
   },
   {
-    "content": "Дождаться автомержа и проверить результат",
+    "content": "Отследить создание PR и GitHub Actions для фичи 72",
     "status": "pending",
-    "activeForm": "Жду автомержа и проверяю результат"
+    "activeForm": "Отслеживаю создание PR и GitHub Actions для фичи 72"
+  },
+  {
+    "content": "Проверить финальный результат теста",
+    "status": "pending",
+    "activeForm": "Проверяю финальный результат теста"
   }
 ]
