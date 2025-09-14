@@ -11,10 +11,10 @@
     "prompt-queue": 1,
     "enter-to-steer-in-relatime": 1,
     "todo-list": 1,
-    "# for memory": 1,
-    "install-github-app": 1,
-    "drag-and-drop-images": 1,
-    "double-esc": 1,
+    "# for memory": 11,
+    "install-github-app": 11,
+    "drag-and-drop-images": 11,
+    "double-esc": 11,
     "continue": 1,
     "shift-tab": 1,
     "ide-upsell-external-terminal": 11,
@@ -23,7 +23,7 @@
     "permissions": 11,
     "custom-commands": 11
   },
-  "promptQueueUseCount": 199,
+  "promptQueueUseCount": 201,
   "cachedStatsigGates": {
     "tengu_disable_bypass_permissions_mode": false
   },
@@ -33,6 +33,28 @@
     "/opt/feature-factory": {
       "allowedTools": [],
       "history": [
+        {
+          "display": "попробуй напрямую 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 в фацле я токен поменял",
+          "pastedContents": {}
+        },
+        {
+          "display": "попробуй  вот этот токен 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",
+          "pastedContents": {}
+        },
+        {
+          "display": "нет, он читается сервисом и пробрасываетеся в env",
+          "pastedContents": {}
+        },
+        {
+          "display": "GITHUB_TOKEN=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 вот такой токен прописан в /etc/feature-factory/ci-secrets.env\n▌но у тебя к нему нет доступа, проверь в чём проблема и устрани, чтобы работало создание PR через API. права токена сейчас вот такие на запись [Pasted text #1 +39 lines] что я могу упустить в настройках?",
+          "pastedContents": {
+            "1": {
+              "id": 1,
+              "type": "text",
+              "content": "FF-TEST-TOKEN\n\nNo description\n\nCreated on Tue, Sep 9 2025.\n This token has no expiration date\nAccess on @basilivanov basilivanov\nRepository access\nSelect the repositories this token can access. Personal access tokens can always read from all public repositories on GitHub.com\n\n\nPublic repositories\nRead-only access to public repositories.\n\nAll repositories\nThis applies to all current and future repositories you own. Also includes public repositories (read-only).\n\nOnly select repositories\nSelect at least one repository. Max 50 repositories. Also includes public repositories (read-only).\nPermissions\nChoose the minimal permissions necessary for your needs. Learn more about permissions.\n\nPermissions\nActions\nWorkflows, workflow runs and artifacts.\nLearn more.\nContents\nRepository contents, commits, branches, downloads, releases, and merges.\nLearn more.\nMetadata\nRequired\nSearch repositories, list collaborators, and access repository metadata.\nLearn more.\nPull requests\nPull requests and related comments, assignees, labels, milestones, and merges.\nLearn more.\nWebhooks\nManage the post-receive hooks for a repository.\nLearn more.\n"
+            }
+          }
+        },
         {
           "display": "● Bash(mkdir -p /opt/feature-factory/artifacts/FULL_AUTO_RUN/FULL_AUTO_$(date +%s))  тут же дата должна была поставиться ",
           "pastedContents": {}
@@ -548,22 +570,6 @@
               "content": "1) CONTEXT-FIRST (включить по умолчанию для всех задач)\n\nЦель: Агент в начале КАЖДОЙ задачи получает «контекстный пакет» из API и включает выдержку в отчёт.\n\nЭТАП 0 (обязательно): GET /api/v1/context/?task_description=\"<кратко суть текущей задачи>\" — источник: https://etl-tst.chococraft.ru.\n\nЕсли 404 — свериться с /openapi.json, затем попробовать локальный http://127.0.0.1:8081.\n\nЕсли 422 — добавить task_description.\n\nОтчёт: REPORT_ContextPolicy_Enforce_v1 (source, status, capsule_id/version, первые 200–400 символов контента).\n\nDoD: В каждом последующем отчёте по задачам есть поле context_excerpt.\n\n2) Agents: убрать заглушку, ввести кэш и «Обновить сейчас»\n\nПроблема: Мок-заглушка; прямой опрос CLI/API долгий, UI «тормозит».\n\nЦель: Снимок статуса агентов открывается мгновенно (кэш ≤100 мс), ручная кнопка «Обновить» даёт свежие данные, есть цветовая индикация.\n\nБэкенд:\n\nВвести сервис «AgentsStatus» с политикой SWR (stale-while-revalidate).\n\nХранилище: таблица agents_status_cache(model, provider, status, oauth_ok, tokens_used, latency_ms, checked_at, expires_at, meta_json); TTL 5 мин; stale_on_error=10 мин.\n\nКонтракты:\n\nGET /api/v1/agents/status?fresh=0|1 → { as_of, stale, items:[{model,provider,status,oauth_ok,latency_ms,tokens_used,expires_at}] }.\n\nPOST /api/v1/agents/refresh → запускает фоновой рефреш (APScheduler/очередь), отдаёт {job_id, accepted:true}.\n\n(опц.) GET /api/v1/agents/stream (SSE/WS) для онлайн-обновлений.\n\nФронтенд:\n\nСтраница Agents: сначала показывает кэш (бейдж as of HH:MM), индикаторы цветов, прогресс-бары по токенам/срокам OAuth, кнопка «Обновить» → триггер POST /refresh + спиннер до прихода свежих данных.\n\nОшибки/деградации помечать жёлтым; падение — красным. Интерактивная карточка каждого агента.\n\nОтчёт: REPORT_Agents_Cache_v1 (схемы, примеры JSON, скриншоты до/после).\n\nDoD: GET /agents/status < 100 мс с кэшем; «Обновить» меняет as_of, UI без моков."
             }
           }
-        },
-        {
-          "display": "ну так они замоканы сейчсас ? а если без моков ?",
-          "pastedContents": {}
-        },
-        {
-          "display": "докажи что logs и graf не пустые",
-          "pastedContents": {}
-        },
-        {
-          "display": "фикси",
-          "pastedContents": {}
-        },
-        {
-          "display": "исправляй",
-          "pastedContents": {}
         }
       ],
       "mcpContextUris": [],
