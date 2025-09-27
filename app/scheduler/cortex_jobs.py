@@ -1,97 +1,115 @@
 #!/usr/bin/env python3
-"""
-Планировщик задач для анализа кортекса.
-Запускает анализ каждый час и сохраняет результаты.
-"""
+"""Планировщик задач для анализа кортекса."""
 
 import asyncio
-import logging
-import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from typing import Any
+import sqlite3
 import sys
 
-# Добавляем путь к модулям приложения
 sys.path.append(str(Path(__file__).parent.parent))
 
+from app.logging_helpers import log, get_env, generate_correlation_id
 from app.services.cortex_analyzer import CortexAnalyzer
 
-# Простое логирование без зависимостей
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
-def get_env() -> str:
-    """Получает текущее окружение (test или prod)."""
-    return os.getenv("ENV", "test")
+def _log(level: str, event: str, run_id: str, **kv) -> None:
+    getattr(log, level)(
+        event=event,
+        env=get_env(),
+        component="cortex_scheduler",
+        agent_role="Cortex",
+        run_id=run_id,
+        task_id=run_id,
+        correlation_id=run_id,
+        kv=kv,
+    )
+
 
 class CortexScheduler:
-    """Планировщик для анализа кортекса"""
+    """Планировщик для анализа кортекса."""
 
     def __init__(self):
         self.analyzer = CortexAnalyzer()
 
-    async def run_hourly_analysis(self):
-        """Запускает ежечасный анализ кортекса"""
+    async def run_hourly_analysis(self) -> None:
+        """Запускает ежечасный анализ кортекса."""
+
+        analysis_id = generate_correlation_id()
         try:
-            logger.info("Starting scheduled cortex analysis...")
+            _log("info", "cortex_scheduler_analysis_started", analysis_id)
 
-            # Запускаем анализ
-            report = self.analyzer.run_analysis()
+            report = self.analyzer.run_analysis(analysis_id=analysis_id)
+            self.analyzer.save_report(report, analysis_id=analysis_id)
 
-            # Сохраняем результат
-            self.analyzer.save_report(report)
+            _log(
+                "info",
+                "cortex_scheduler_analysis_completed",
+                analysis_id,
+                overall_score=report.overall_score,
+                roles=len(report.roles),
+            )
 
-            # Логируем успешное выполнение
-            logger.info(f"Cortex scheduled analysis - Score: {report.overall_score:.1f}%, Roles: {len(report.roles)}, Recommendations: {len(report.recommendations)}")
-
-            logger.info(f"Cortex analysis completed. Score: {report.overall_score:.1f}%")
-
-            # Если балл критически низкий, логируем предупреждение
             if report.overall_score < 50:
                 critical_roles = [r.role for r in report.roles if r.overall_score < 50]
-                logger.warning(f"Critical cortex health! Score: {report.overall_score:.1f}%, Critical roles: {critical_roles}")
+                _log(
+                    "warning",
+                    "cortex_scheduler_analysis_critical",
+                    analysis_id,
+                    overall_score=report.overall_score,
+                    critical_roles=critical_roles,
+                )
+        except Exception as exc:  # pragma: no cover
+            _log(
+                "error",
+                "cortex_scheduler_analysis_failed",
+                analysis_id,
+                err_type=type(exc).__name__,
+                err_msg=str(exc),
+            )
 
-        except Exception as e:
-            logger.error(f"Failed to run cortex analysis: {e}")
+    async def cleanup_old_reports(self, keep_days: int = 30) -> None:
+        """Очищает старые отчёты (старше keep_days дней)."""
 
-    async def cleanup_old_reports(self, keep_days: int = 30):
-        """Очищает старые отчёты (старше keep_days дней)"""
+        job_id = generate_correlation_id()
         try:
-            import sqlite3
-            from datetime import timedelta
-
             db_path = "/opt/feature-factory/data/cortex_health.db"
-
             if not Path(db_path).exists():
+                _log("info", "cortex_scheduler_cleanup_skipped", job_id, reason="db_missing")
                 return
 
             cutoff_date = datetime.now(timezone.utc) - timedelta(days=keep_days)
 
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
-
-            # Удаляем старые записи
-            cursor.execute(
-                "DELETE FROM cortex_reports WHERE timestamp < ?",
-                (cutoff_date.isoformat(),)
-            )
-            cursor.execute(
-                "DELETE FROM role_metrics WHERE timestamp < ?",
-                (cutoff_date.isoformat(),)
-            )
-
+            cursor.execute("DELETE FROM cortex_reports WHERE timestamp < ?", (cutoff_date.isoformat(),))
             deleted_reports = cursor.rowcount
+            cursor.execute("DELETE FROM role_metrics WHERE timestamp < ?", (cutoff_date.isoformat(),))
+            deleted_roles = cursor.rowcount
             conn.commit()
             conn.close()
 
-            if deleted_reports > 0:
-                logger.info(f"Cleaned up {deleted_reports} old cortex reports")
+            _log(
+                "info",
+                "cortex_scheduler_cleanup_completed",
+                job_id,
+                reports_deleted=deleted_reports,
+                role_rows_deleted=deleted_roles,
+            )
+        except Exception as exc:  # pragma: no cover
+            _log(
+                "error",
+                "cortex_scheduler_cleanup_failed",
+                job_id,
+                err_type=type(exc).__name__,
+                err_msg=str(exc),
+            )
 
-        except Exception as e:
-            logger.error(f"Failed to cleanup old reports: {e}")
 
-def main():
-    """Основная функция для одноразового запуска анализа"""
+def main() -> None:
+    """Основная функция для одноразового запуска анализа."""
+
     import argparse
 
     parser = argparse.ArgumentParser(description="Cortex Analysis Scheduler")
@@ -101,11 +119,11 @@ def main():
     args = parser.parse_args()
 
     scheduler = CortexScheduler()
-
     if args.cleanup:
         asyncio.run(scheduler.cleanup_old_reports(args.keep_days))
     else:
         asyncio.run(scheduler.run_hourly_analysis())
+
 
 if __name__ == "__main__":
     main()

@@ -1,239 +1,319 @@
 #!/usr/bin/env python3
-"""
-API эндпоинты для мониторинга здоровья кортекса.
-"""
+"""API эндпоинты для мониторинга здоровья кортекса."""
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timezone, timedelta
-import sqlite3
 import json
-from pathlib import Path
-
-from app.services.cortex_analyzer import CortexAnalyzer, CortexHealthReport
-import logging
 import os
+import sqlite3
+import uuid
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-logger = logging.getLogger(__name__)
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 
-def get_env() -> str:
-    """Получает текущее окружение (test или prod)."""
-    return os.getenv("ENV", "test")
+from app.logging_helpers import log, get_env, generate_correlation_id
+from app.services.cortex_analyzer import CortexAnalyzer, CortexHealthReport
 
 router = APIRouter(prefix="/cortex")
 
+
+def _log(level: str, event: str, correlation_id: str, task_id: str, **kv: Any) -> None:
+    getattr(log, level)(
+        event=event,
+        env=get_env(),
+        component="cortex_api",
+        agent_role="Cortex",
+        run_id=correlation_id,
+        task_id=task_id,
+        correlation_id=correlation_id,
+        kv=kv,
+    )
+
+
 def get_db_path() -> str:
-    """Получает путь к БД с отчётами о здоровье кортекса"""
+    """Возвращает путь к БД с отчётами о здоровье кортекса."""
+
     return "/opt/feature-factory/data/cortex_health.db"
 
-@router.get("/health")
-async def get_cortex_health() -> Dict[str, Any]:
-    """
-    Получает последний отчёт о здоровье кортекса.
-    Если отчёт старше часа, запускает новый анализ.
-    """
-    try:
-        db_path = get_db_path()
 
-        # Проверяем есть ли свежий отчёт
+@router.get("/health")
+async def get_cortex_health(request: Request) -> Dict[str, Any]:
+    """Возвращает свежий отчёт по здоровью кортекса (с пересчётом при необходимости)."""
+
+    correlation_id = request.headers.get("x-correlation-id", generate_correlation_id())
+    task_id = str(uuid.uuid4())
+    db_path = get_db_path()
+
+    try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-
-        # Создаём таблицы если их нет
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS cortex_reports (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TEXT NOT NULL,
                 overall_score REAL NOT NULL,
                 report_data TEXT NOT NULL
             )
-        ''')
+            """
+        )
 
-        # Ищем последний отчёт
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT timestamp, overall_score, report_data
             FROM cortex_reports
             ORDER BY timestamp DESC
             LIMIT 1
-        ''')
-
+            """
+        )
         row = cursor.fetchone()
         conn.close()
 
         if row:
-            timestamp_str, overall_score, report_data = row
+            timestamp_str, overall_score, report_raw = row
             timestamp = datetime.fromisoformat(timestamp_str)
+            age_seconds = (datetime.now(timezone.utc) - timestamp).total_seconds()
 
-            # Проверяем свежесть отчёта (не старше часа)
-            if datetime.now(timezone.utc) - timestamp < timedelta(hours=1):
-                report = json.loads(report_data)
+            if age_seconds < 3600:
+                _log(
+                    "info",
+                    "cortex_health_cached",
+                    correlation_id,
+                    task_id,
+                    overall_score=overall_score,
+                    age_seconds=round(age_seconds, 2),
+                )
+                return format_health_response(json.loads(report_raw))
 
-                # Формируем ответ в формате UI
-                return format_health_response(report)
-
-        # Если отчёта нет или он устарел, запускаем анализ
         analyzer = CortexAnalyzer()
-        report = analyzer.run_analysis()
-        analyzer.save_report(report, db_path)
+        report = analyzer.run_analysis(analysis_id=correlation_id)
+        analyzer.save_report(report, db_path, analysis_id=correlation_id)
 
-        logger.info(f"Cortex analysis - Score: {report.overall_score:.1f}%, Roles: {len(report.roles)}")
+        _log(
+            "info",
+            "cortex_health_recomputed",
+            correlation_id,
+            task_id,
+            overall_score=report.overall_score,
+            roles=len(report.roles),
+        )
+        return format_health_response(report)
 
-        return format_health_response(report.__dict__)
+    except Exception as exc:  # pragma: no cover
+        _log(
+            "error",
+            "cortex_health_error",
+            correlation_id,
+            task_id,
+            err_type=type(exc).__name__,
+            err_msg=str(exc),
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to get cortex health: {exc}") from exc
 
-    except Exception as e:
-        logger.error(f"Cortex health error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get cortex health: {str(e)}")
 
 @router.post("/analyze")
 async def trigger_analysis(background_tasks: BackgroundTasks) -> Dict[str, str]:
-    """Запускает анализ кортекса в фоновом режиме"""
+    """Запускает асинхронный анализ кортекса."""
 
-    def run_analysis():
+    correlation_id = generate_correlation_id()
+    task_id = str(uuid.uuid4())
+
+    def run_analysis() -> None:
+        analysis_task_id = str(uuid.uuid4())
         try:
             analyzer = CortexAnalyzer()
-            report = analyzer.run_analysis()
-            analyzer.save_report(report, get_db_path())
+            report = analyzer.run_analysis(analysis_id=correlation_id)
+            analyzer.save_report(report, get_db_path(), analysis_id=correlation_id)
+            _log(
+                "info",
+                "cortex_analysis_triggered",
+                correlation_id,
+                analysis_task_id,
+                overall_score=report.overall_score,
+                roles=len(report.roles),
+            )
+        except Exception as exc:  # pragma: no cover
+            _log(
+                "error",
+                "cortex_analysis_background_error",
+                correlation_id,
+                analysis_task_id,
+                err_type=type(exc).__name__,
+                err_msg=str(exc),
+            )
 
-            logger.info(f"Cortex analysis triggered - Score: {report.overall_score:.1f}%")
-        except Exception as e:
-            logger.error(f"Cortex analysis error: {e}")
-
+    _log("info", "cortex_analysis_enqueued", correlation_id, task_id)
     background_tasks.add_task(run_analysis)
-    return {"status": "Analysis started", "message": "Cortex analysis is running in background"}
+    return {"status": "Analysis started", "correlation_id": correlation_id}
+
 
 @router.get("/history")
-async def get_health_history(days: Optional[int] = 7) -> Dict[str, Any]:
-    """Получает историю здоровья кортекса за указанное количество дней"""
+async def get_health_history(request: Request, days: Optional[int] = 7) -> Dict[str, Any]:
+    """Возвращает историю отчётов за указанное количество дней."""
+
+    correlation_id = request.headers.get("x-correlation-id", generate_correlation_id())
+    task_id = str(uuid.uuid4())
+
     try:
         db_path = get_db_path()
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Вычисляем дату начала
-        since_date = datetime.now(timezone.utc) - timedelta(days=days)
-
-        # Получаем общие отчёты
-        cursor.execute('''
+        since_date = datetime.now(timezone.utc) - timedelta(days=days or 7)
+        cursor.execute(
+            """
             SELECT timestamp, overall_score
             FROM cortex_reports
             WHERE timestamp >= ?
             ORDER BY timestamp ASC
-        ''', (since_date.isoformat(),))
-
+            """,
+            (since_date.isoformat(),),
+        )
         reports = cursor.fetchall()
 
-        # Получаем метрики по ролям
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT timestamp, role, overall_score
             FROM role_metrics
             WHERE timestamp >= ?
             ORDER BY timestamp ASC
-        ''', (since_date.isoformat(),))
-
+            """,
+            (since_date.isoformat(),),
+        )
         role_metrics = cursor.fetchall()
         conn.close()
 
-        # Форматируем данные
         history = {
-            "period_days": days,
+            "period_days": days or 7,
             "overall_trend": [
-                {
-                    "timestamp": ts,
-                    "score": score
-                }
+                {"timestamp": ts, "score": score}
                 for ts, score in reports
             ],
-            "role_trends": {}
+            "role_trends": {},
         }
 
-        # Группируем метрики по ролям
         for ts, role, score in role_metrics:
-            if role not in history["role_trends"]:
-                history["role_trends"][role] = []
-            history["role_trends"][role].append({
-                "timestamp": ts,
-                "score": score
-            })
+            history["role_trends"].setdefault(role, []).append({"timestamp": ts, "score": score})
 
+        _log(
+            "info",
+            "cortex_history_returned",
+            correlation_id,
+            task_id,
+            period_days=history["period_days"],
+            points=len(history["overall_trend"]),
+        )
         return history
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get history: {str(e)}")
+    except Exception as exc:  # pragma: no cover
+        _log(
+            "error",
+            "cortex_history_error",
+            correlation_id,
+            task_id,
+            err_type=type(exc).__name__,
+            err_msg=str(exc),
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to get history: {exc}") from exc
+
 
 @router.get("/roles/{role}")
-async def get_role_details(role: str) -> Dict[str, Any]:
-    """Получает детальную информацию о конкретной роли"""
+async def get_role_details(role: str, request: Request) -> Dict[str, Any]:
+    """Возвращает детали анализа по конкретной роли."""
+
+    correlation_id = request.headers.get("x-correlation-id", generate_correlation_id())
+    task_id = str(uuid.uuid4())
+
     try:
         db_path = get_db_path()
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-
-        # Получаем последний отчёт
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT report_data
             FROM cortex_reports
             ORDER BY timestamp DESC
             LIMIT 1
-        ''')
-
+            """
+        )
         row = cursor.fetchone()
         conn.close()
 
         if not row:
+            _log("warning", "cortex_role_report_missing", correlation_id, task_id, role=role)
             raise HTTPException(status_code=404, detail="No cortex reports found")
 
         report = json.loads(row[0])
-
-        # Ищем информацию о роли
-        role_data = None
         for role_analysis in report.get("roles", []):
-            if role_analysis["role"] == role:
-                role_data = role_analysis
-                break
+            if role_analysis.get("role") == role:
+                _log("info", "cortex_role_details_returned", correlation_id, task_id, role=role)
+                return role_analysis
 
-        if not role_data:
-            raise HTTPException(status_code=404, detail=f"Role '{role}' not found")
-
-        return role_data
+        _log("warning", "cortex_role_not_found", correlation_id, task_id, role=role)
+        raise HTTPException(status_code=404, detail=f"Role '{role}' not found")
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get role details: {str(e)}")
+    except Exception as exc:  # pragma: no cover
+        _log(
+            "error",
+            "cortex_role_error",
+            correlation_id,
+            task_id,
+            role=role,
+            err_type=type(exc).__name__,
+            err_msg=str(exc),
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to get role details: {exc}") from exc
+
 
 @router.get("/coverage")
-async def get_system_coverage() -> Dict[str, Any]:
-    """Получает информацию о покрытии системных компонентов"""
+async def get_system_coverage(request: Request) -> Dict[str, Any]:
+    """Возвращает покрытие системных компонентов."""
+
+    correlation_id = request.headers.get("x-correlation-id", generate_correlation_id())
+    task_id = str(uuid.uuid4())
+
     try:
         db_path = get_db_path()
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-
-        # Получаем последний отчёт
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT report_data
             FROM cortex_reports
             ORDER BY timestamp DESC
             LIMIT 1
-        ''')
-
+            """
+        )
         row = cursor.fetchone()
         conn.close()
 
         if not row:
-            # Если отчёта нет, запускаем анализ
             analyzer = CortexAnalyzer()
             coverage = analyzer.analyze_system_coverage()
+            _log("info", "cortex_coverage_generated", correlation_id, task_id, sources=len(coverage))
             return {"system_coverage": coverage}
 
         report = json.loads(row[0])
-        return {
+        payload = {
             "system_coverage": report.get("system_coverage", {}),
-            "timestamp": report.get("timestamp")
+            "timestamp": report.get("timestamp"),
         }
+        _log("info", "cortex_coverage_returned", correlation_id, task_id, sources=len(payload["system_coverage"]))
+        return payload
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get coverage: {str(e)}")
+    except Exception as exc:  # pragma: no cover
+        _log(
+            "error",
+            "cortex_coverage_error",
+            correlation_id,
+            task_id,
+            err_type=type(exc).__name__,
+            err_msg=str(exc),
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to get coverage: {exc}") from exc
+
 
 def format_health_response(report_data: Dict[str, Any]) -> Dict[str, Any]:
     """Форматирует данные отчёта для UI."""

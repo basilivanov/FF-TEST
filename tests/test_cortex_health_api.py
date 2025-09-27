@@ -89,10 +89,10 @@ def test_cortex_health_endpoint(monkeypatch, tmp_path):
 
     def fake_analyzer_factory():
         class FakeAnalyzer:
-            def run_analysis(self):
+            def run_analysis(self, analysis_id=None):
                 return report
 
-            def save_report(self, report_obj, target):
+            def save_report(self, report_obj, target, analysis_id=None):
                 _save_report(report_obj, Path(target))
 
         return FakeAnalyzer()

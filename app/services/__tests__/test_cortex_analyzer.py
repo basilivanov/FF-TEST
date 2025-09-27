@@ -354,14 +354,13 @@ You are a skilled developer...
         assert analysis.content_quality == 0.0
         assert analysis.content_hash == "error"
 
-    @patch('app.services.cortex_analyzer.logger')
-    def test_logging(self, mock_logger, analyzer):
+    @patch('app.services.cortex_analyzer._log')
+    def test_logging(self, mock_log, analyzer):
         """Тест логирования"""
         analyzer.roles = ["test"]
-        report = analyzer.run_analysis()
+        analyzer.run_analysis(analysis_id='test-id')
 
-        # Проверяем что логи вызывались
-        mock_logger.info.assert_called()
+        mock_log.assert_called()
 
 
 class TestFileAnalysis:

@@ -33,7 +33,9 @@ def test_ci_status_accepts_valid_auth(monkeypatch):
     payload = response.json()
     assert payload["status"] == "ok"
     assert payload["context"] == "tests"
-    log_mock.info.assert_called_once()
+    events = [call.kwargs["event"] for call in log_mock.info.call_args_list]
+    assert "ci_status_received" in events
+    assert "ci_status_processed" in events
 
 
 def test_github_webhook_valid_signature(monkeypatch):

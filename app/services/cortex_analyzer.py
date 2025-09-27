@@ -12,9 +12,22 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 import sqlite3
-import logging
 
-logger = logging.getLogger(__name__)
+from app.logging_helpers import log, get_env, generate_correlation_id
+
+
+def _log(level: str, event: str, analysis_id: str, task_id: Optional[str] = None, **kv: Any) -> None:
+    getattr(log, level)(
+        event=event,
+        env=get_env(),
+        component="cortex_analyzer",
+        agent_role="Cortex",
+        run_id=analysis_id,
+        task_id=task_id or analysis_id,
+        correlation_id=analysis_id,
+        kv=kv,
+    )
+
 
 @dataclass
 class FileAnalysis:
@@ -63,8 +76,9 @@ class CortexAnalyzer:
             "policies", "reference", "security", "stack"
         ]
 
-    def analyze_file(self, file_path: Path) -> FileAnalysis:
+    def analyze_file(self, file_path: Path, analysis_id: Optional[str] = None) -> FileAnalysis:
         """Анализирует отдельный файл"""
+        analysis_id = analysis_id or generate_correlation_id()
         try:
             stat = file_path.stat()
             content = file_path.read_text(encoding='utf-8', errors='ignore')
@@ -87,7 +101,7 @@ class CortexAnalyzer:
                 content_quality=quality
             )
         except Exception as e:
-            logger.error(f"Error analyzing file {file_path}: {e}")
+            _log("error", "cortex_file_analysis_failed", analysis_id, path=str(file_path), err_type=type(e).__name__, err_msg=str(e))
             return FileAnalysis(
                 path=str(file_path),
                 size=0,
@@ -153,30 +167,30 @@ class CortexAnalyzer:
 
         return min(100.0, (score / factors) * 100)
 
-    def analyze_role(self, role: str) -> RoleAnalysis:
+    def analyze_role(self, role: str, analysis_id: Optional[str] = None) -> RoleAnalysis:
         """Анализирует документацию для конкретной роли"""
 
-        # Собираем файлы кортекса для роли
+        analysis_id = analysis_id or generate_correlation_id()
+        task_id = f"role-{role}"
+        _log("info", "cortex_role_analysis_started", analysis_id, task_id=task_id, role=role)
+
         cortex_files = []
         role_cortex_file = self.cortex_path / "roles" / f"{role}.md"
         if role_cortex_file.exists():
-            cortex_files.append(self.analyze_file(role_cortex_file))
+            cortex_files.append(self.analyze_file(role_cortex_file, analysis_id=analysis_id))
 
-        # Собираем файлы промптов для роли
         prompt_files = []
         for prompt_file in self.prompts_path.glob(f"{role}*.md"):
-            prompt_files.append(self.analyze_file(prompt_file))
+            prompt_files.append(self.analyze_file(prompt_file, analysis_id=analysis_id))
 
-        # Расчёт метрик
         doc_coverage = self._calculate_doc_coverage(role, cortex_files, prompt_files)
         context_completeness = self._calculate_context_completeness(cortex_files, prompt_files)
         content_freshness = self._calculate_content_freshness(cortex_files + prompt_files)
 
-        # Общий балл
         overall_score = (doc_coverage * 0.4 + context_completeness * 0.4 + content_freshness * 0.2)
-
-        # Выявляем проблемы
         issues = self._identify_issues(role, cortex_files, prompt_files, overall_score)
+
+        _log("info", "cortex_role_analysis_completed", analysis_id, task_id=task_id, role=role, overall_score=overall_score, issues=len(issues))
 
         return RoleAnalysis(
             role=role,
@@ -321,27 +335,19 @@ class CortexAnalyzer:
 
         return recommendations
 
-    def run_analysis(self) -> CortexHealthReport:
+    def run_analysis(self, analysis_id: Optional[str] = None) -> CortexHealthReport:
         """Запускает полный анализ кортекса"""
-        logger.info("Starting cortex analysis...")
+        analysis_id = analysis_id or generate_correlation_id()
+        _log("info", "cortex_analysis_started", analysis_id)
 
-        # Анализируем каждую роль
         role_analyses = []
         for role in self.roles:
-            logger.info(f"Analyzing role: {role}")
-            analysis = self.analyze_role(role)
+            analysis = self.analyze_role(role, analysis_id=analysis_id)
             role_analyses.append(analysis)
 
-        # Анализируем системное покрытие
         system_coverage = self.analyze_system_coverage()
 
-        # Вычисляем общий балл
-        if role_analyses:
-            overall_score = sum(r.overall_score for r in role_analyses) / len(role_analyses)
-        else:
-            overall_score = 0.0
-
-        # Генерируем рекомендации
+        overall_score = (sum(r.overall_score for r in role_analyses) / len(role_analyses)) if role_analyses else 0.0
         recommendations = self.generate_recommendations(role_analyses, system_coverage)
 
         report = CortexHealthReport(
@@ -352,10 +358,10 @@ class CortexAnalyzer:
             recommendations=recommendations
         )
 
-        logger.info(f"Cortex analysis complete. Overall score: {overall_score:.1f}%")
+        _log("info", "cortex_analysis_completed", analysis_id, overall_score=overall_score, roles=len(role_analyses))
         return report
 
-    def save_report(self, report: CortexHealthReport, db_path: str = None):
+    def save_report(self, report: CortexHealthReport, db_path: str = None, analysis_id: Optional[str] = None):
         """Сохраняет отчёт в базу данных"""
         if db_path is None:
             db_path = str(self.data_path / "cortex_health.db")
@@ -413,7 +419,8 @@ class CortexAnalyzer:
         conn.commit()
         conn.close()
 
-        logger.info(f"Report saved to {db_path}")
+        analysis_id = analysis_id or generate_correlation_id()
+        _log("info", "cortex_analysis_saved", analysis_id, db_path=db_path)
 
 def main():
     """Основная функция для запуска анализа"""
