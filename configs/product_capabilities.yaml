@@ -1,0 +1,242 @@
+version: 1
+updated_at: 2025-09-19
+
+categories:
+  marketplaces:
+    providers: [ozon, wildberries, yandex_market, sbermegamarket]
+    common_tasks:
+      - import_orders
+      - import_sales
+      - import_stocks
+      - import_prices
+      - pricing_reprice
+      - daily_reports
+    required_fields:
+      - provider
+      - operation            # import_orders|sales|stocks|prices|pricing_reprice
+      - period               # since,to (ISO) or preset: last_7d
+      - destination          # db|sheet|file + target
+    defaults:
+      period: {preset: last_7d, tz: UTC}
+      schedule: "0 * * * *"
+      timeout_s: 30
+      retries: 3
+      batch_size: 1000
+    secrets:
+      ozon:
+        - {key: OZON_CLIENT_ID, required: true}
+        - {key: OZON_API_KEY, required: true}
+      wildberries:
+        - {key: WB_API_TOKEN, required: true}
+        - {key: WB_WAREHOUSE_ID, required: false}
+        - {key: WB_SHOP_ID, required: false}
+    request_secrets_templates:
+      ozon:
+        items:
+          - {key: OZON_CLIENT_ID, hint: "Seller Client-Id", required: true}
+          - {key: OZON_API_KEY, hint: "API Key", required: true}
+      wildberries:
+        items:
+          - {key: WB_API_TOKEN, hint: "API токен WB", required: true}
+          - {key: WB_WAREHOUSE_ID, hint: "Склад WB", required: false}
+          - {key: WB_SHOP_ID, hint: "Shop ID", required: false}
+    intent_templates:
+      import:
+        type: marketplace.import
+        provider: "<ozon|wildberries>"
+        operation: "<orders|sales|stocks|prices>"
+        period: {since: "<ISO>", to: "<ISO>", timezone: "UTC"}
+        filters: {}
+        destination: {kind: "<db|sheet|file>", target: "<name_or_path>", format: "<json|csv>"}
+        schedule: "<cron>"
+        qos: {timeout_s: 30, retries: 3}
+      reprice:
+        type: pricing.reprice
+        marketplaces: ["wildberries","ozon"]
+        skus: {source: "<sheet|db|list>", locator: "<...>"}
+        poll: {every: "30m", tz: "UTC", quiet_hours: []}
+        rules:
+          target: "<parity|baseline>"
+          min_price: null
+          max_price: null
+          min_margin: null
+          rounding: "1"
+          change_threshold: "1%"
+        leader: "<ozon|wildberries|none>"
+        audit: {store: "<db|sheet>", notify: "<telegram|none>"}
+
+  classifieds:
+    providers: [avito]
+    common_tasks: [leads_sync, messages_export, listings_export, kpi_reports]
+    required_fields: [operation, period, destination]
+    defaults: {period: {preset: last_30d}, schedule: "0 9 * * *"}
+    secrets:
+      avito:
+        - {key: AVITO_CLIENT_ID, required: true}
+        - {key: AVITO_CLIENT_SECRET, required: true}
+    request_secrets_templates:
+      avito:
+        items:
+          - {key: AVITO_CLIENT_ID, required: true}
+          - {key: AVITO_CLIENT_SECRET, required: true}
+    intent_templates:
+      leads_sync:
+        type: classifieds.avito.leads.sync
+        source: "<webhook|api>"
+        period: {preset: last_30d}
+        destination: {kind: "<db|sheet>", target: "<...>"}
+
+  docs:
+    providers: [google_sheets, google_docs, google_drive]
+    common_tasks: [sheet_create, sheet_append, export_json_drive]
+    required_fields: [operation, mapping_or_columns, destination]
+    defaults: {sheet: "Sheet1"}
+    secrets:
+      google:
+        - {key: GOOGLE_SERVICE_ACCOUNT_JSON, required: true}
+    request_secrets_templates:
+      google:
+        items:
+          - {key: GOOGLE_SERVICE_ACCOUNT_JSON, hint: "JSON сервис-аккаунта", required: true}
+    intent_templates:
+      append:
+        type: gdocs.append
+        spreadsheet: {create_if_missing: true, title: "<FF_...>", sheet: "Sheet1"}
+        mapping: {columns: ["colA","colB"]}
+        data_source: {kind: "<api|db|manual>", spec: "<...>"}
+
+  messenger:
+    providers: [telegram, vk]
+    common_tasks: [notify_on_event, daily_digest]
+    required_fields: [channel, template, triggers]
+    defaults: {parse_mode: "Markdown", retries: 3}
+    secrets:
+      telegram:
+        - {key: TELEGRAM_BOT_TOKEN, required: true}
+    request_secrets_templates:
+      telegram:
+        items:
+          - {key: TELEGRAM_BOT_TOKEN, required: true}
+    intent_templates:
+      notify:
+        type: telegram.notify
+        template: "<text with {vars}>"
+        channels: [{kind: "chat", chat_id: "<id>"}]
+        parse_mode: "Markdown"
+        triggers: ["<event|cron>"]
+
+  ads:
+    providers: [yandex_direct, vk_ads]
+    common_tasks: [reporting_daily, budget_alerts, auto_pause_rules]
+    required_fields: [provider, metrics, period, destination]
+    defaults: {period: {preset: last_30d}}
+    secrets:
+      yandex_direct:
+        - {key: DIRECT_API_TOKEN, required: true}
+      vk_ads:
+        - {key: VK_ADS_TOKEN, required: true}
+
+  analytics:
+    providers: [yandex_metrica, ga4]
+    common_tasks: [metrics_export, anomaly_alerts]
+    required_fields: [metrics, dimensions, period, destination]
+    secrets:
+      metrica: [{key: METRICA_TOKEN, required: true}]
+      ga4: [{key: GA4_CREDENTIALS_JSON, required: true}]
+
+  booking:
+    providers: [yclients]
+    common_tasks: [appointments_sync, reminders, no_show_reports]
+    required_fields: [operation, company_id, destination]
+    secrets:
+      yclients:
+        - {key: YCLIENTS_API_KEY, required: true}
+        - {key: YCLIENTS_PARTNER_TOKEN, required: false}
+        - {key: YCLIENTS_COMPANY_ID, required: true}
+    request_secrets_templates:
+      yclients:
+        items:
+          - {key: YCLIENTS_API_KEY, required: true}
+          - {key: YCLIENTS_COMPANY_ID, required: true}
+          - {key: YCLIENTS_PARTNER_TOKEN, required: false}
+    intent_templates:
+      sync:
+        type: yclients.sync
+        company_id: "<id>"
+        operation: "<appointments|clients|services>"
+        schedule: "<cron>"
+        destination: {kind: "<db|sheet>", target: "<...>"}
+
+  delivery:
+    providers: [cdek, boxberry]
+    secrets:
+      cdek:
+        - {key: CDEK_CLIENT_ID, required: true}
+        - {key: CDEK_CLIENT_SECRET, required: true}
+      boxberry:
+        - {key: BOXBERRY_TOKEN, required: true}
+
+  payments:
+    providers: [yookassa, tinkoff_acq]
+    secrets:
+      yookassa:
+        - {key: YOOKASSA_SHOP_ID, required: true}
+        - {key: YOOKASSA_SECRET_KEY, required: true}
+      tinkoff:
+        - {key: TINKOFF_TERMINAL_KEY, required: true}
+        - {key: TINKOFF_PASSWORD, required: true}
+
+  telephony:
+    providers: [mango_office, zadarma]
+    secrets:
+      mango: [{key: MANGO_TOKEN, required: true}]
+      zadarma: [{key: ZADARMA_KEY, required: true}, {key: ZADARMA_SECRET, required: true}]
+
+  sms:
+    providers: [sms_ru]
+    secrets:
+      sms_ru: [{key: SMS_RU_API_KEY, required: true}]
+
+  erp:
+    providers: [one_c]
+    common_tasks: [inventory_export, sales_import, plan_exchange]
+    required_fields: [channel, mapping, schedule]
+    secrets:
+      one_c:
+        - {key: ONEC_ENDPOINT_URL, required: false}
+        - {key: ONEC_AUTH, required: false}
+
+  forms:
+    providers: [tilda, bitrix24]
+    secrets:
+      tilda: [{key: TILDA_SECRET, required: true}]
+      bitrix: [{key: BITRIX_WEBHOOK_URL, required: true}]
+
+  ai:
+    providers: [llm]
+    common_tasks: [summary, classification, extraction, rewrite]
+    required_fields: [task, input, destination]
+    defaults: {temperature: 0.3, max_tokens: 1024}
+    intent_templates:
+      task:
+        type: ai.task
+        task: "<summary|classification|extraction|rewrite>"
+        input: {source: "<text|doc|sheet>", locator: "<...>"}
+        destination: {kind: "<db|sheet|file>", target: "<...>"}
+        quality: {temperature: 0.3, max_tokens: 1024}
+
+  ml:
+    providers: [external_rest]
+    required_fields: [endpoint, input_schema, auth, timeout]
+    secrets:
+      ml:
+        - {key: MODEL_ENDPOINT_URL, required: true}
+        - {key: MODEL_API_KEY, required: false}
+    intent_templates:
+      predict:
+        type: ml.predict
+        endpoint: "<masked>"
+        auth: "<api_key|none>"
+        input_schema: {}
+        qos: {timeout_s: 10, retries: 2}
+

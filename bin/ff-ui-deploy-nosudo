@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[ff-ui-deploy-nosudo] UI deploy..."
+
+# Проверяем что билд существует
+UI_DIST="/opt/feature-factory/app/ui/dist"
+if [[ ! -d "$UI_DIST" ]]; then
+    echo "❌ Нет папки $UI_DIST - сначала запустите: make ui-build"
+    exit 1
+fi
+
+# Копируем файлы в веб-директорию
+TARGET_DIR="/var/www/etl-tst.chococraft.ru"
+echo "🔄 Копирование UI файлов в $TARGET_DIR..."
+
+# Используем sudo как в других скриптах которые работают
+sudo /bin/cp -r "$UI_DIST"/* "$TARGET_DIR/"
+
+# Обновляем права доступа 
+sudo /bin/chown -R www-data:www-data "$TARGET_DIR"
+sudo /bin/chmod -R 644 "$TARGET_DIR"/*
+sudo /bin/find "$TARGET_DIR" -type d -exec /bin/chmod 755 {} \;
+
+echo "✅ UI задеплоен успешно"

@@ -1,6 +1,6 @@
 roles:
   Maintainer:
-    providers: [anthropic_opus41, openai_gpt5_via_codex, stub]
+    providers: [anthropic_opus41, openai_gpt5_via_codex]
     reasoning_effort: high              # GPT-5
     extended_thinking: true             # Claude Opus
     adaptive_thinking: true             # Gemini 2.5
@@ -8,32 +8,32 @@ roles:
     json_schema_ref: "configs/schemas/maintainer.intent.schema.json"
     timeout_sec: 55
   ChatMaintainer:
-    providers: [anthropic_opus41, gemini_25_pro, openai_gpt5_via_codex, stub]
+    providers: [anthropic_opus41, gemini_25_pro, openai_gpt5_via_codex]
     reasoning_effort: minimal           # для чата не нужно глубокое рассуждение  
     extended_thinking: false
     adaptive_thinking: true             # Gemini хорош для диалогов
     json_mode: off                      # простой текстовый чат
     timeout_sec: 30
   Architect:
-    providers: [anthropic_opus41, openai_gpt5_via_codex, gemini_25_pro, stub]
+    providers: [gemini_25_pro, openai_gpt5_via_codex, anthropic_opus41]
     reasoning_effort: high
     extended_thinking: true
     adaptive_thinking: true
     json_mode: json_object
     timeout_sec: 60
   Dev:
-    providers: [qwen_code, gemini_25_flash, openai_gpt5_mini, stub]
+    providers: [qwen_code, gemini_25_flash, openai_gpt5_mini]
     reasoning_effort: minimal
     json_mode: off                      # код/текст; парсеры локальные
     timeout_sec: 30
   QA:
-    providers: [qwen_code, openai_gpt5_mini, gemini_25_flash, stub]
+    providers: [qwen_code, openai_gpt5_mini, gemini_25_flash]
     reasoning_effort: minimal
     json_mode: json_object
     json_schema_ref: "configs/schemas/qa.report.schema.json"
     timeout_sec: 30
   Scribe:
-    providers: [qwen_code, openai_gpt5_mini, stub]
+    providers: [qwen_code, openai_gpt5_mini]
     reasoning_effort: minimal
     json_mode: json_object
     json_schema_ref: "configs/schemas/scribe.changelog.schema.json"
@@ -59,17 +59,33 @@ roles:
     json_mode: json_object
     timeout_sec: 10
   InternalAnalyst:
-    providers: [gemini_25_pro, stub]
+    providers: [gemini_25_pro]
     reasoning_effort: high
     extended_thinking: true
     json_mode: json_object
     timeout_sec: 60
   BusinessAnalyst:
-    providers: [gemini_25_pro, stub]
+    providers: [gemini_25_pro]
     reasoning_effort: high  
     extended_thinking: true
     json_mode: json_object
     timeout_sec: 60
+
+  Product:
+    providers: [anthropic_opus41, openai_gpt5_via_codex]
+    reasoning_effort: high
+    extended_thinking: true
+    adaptive_thinking: true
+    json_mode: json_schema
+    json_schema_ref: "configs/schemas/maintainer.intent.schema.json"
+    timeout_sec: 55
+  ChatProduct:
+    providers: [anthropic_opus41, gemini_25_pro, openai_gpt5_via_codex]
+    reasoning_effort: minimal
+    extended_thinking: false
+    adaptive_thinking: true
+    json_mode: off
+    timeout_sec: 30
 
 # --- Global routing options ---
 fallback:
@@ -78,11 +94,13 @@ fallback:
   resume_after_hours: 5                 # лимиты Opus 4.1 обновляются ~каждые 5 ч
 budgets:
   role_daily_tokens:
-    Maintainer: 5000  # Увеличено для тестирования диалогов
-    ChatMaintainer: 3000  # Для чата
-    Architect: 1800
-    Dev: 1400
-    QA: 800
-    Scribe: 800
-    InternalAnalyst: 2000
-    BusinessAnalyst: 2000
+    Maintainer: 1000000  # 1M токенов для полного E2E тестирования
+    ChatMaintainer: 1000000
+    Product: 1000000
+    ChatProduct: 1000000
+    Architect: 1000000  
+    Dev: 1000000        # 1M токенов - основная роль создания кода
+    QA: 1000000         # 1M токенов для полных тестов
+    Scribe: 1000000     # 1M токенов для документации
+    InternalAnalyst: 1000000
+    BusinessAnalyst: 1000000

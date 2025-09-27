@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Universal, nosudo watchdog loop for self-healing feature pipeline (MVP).
+# - Seeds target features via multiple payload fallbacks
+# - Detects known API errors and schedules HEAL intents
+# - Replays failed attempts with backoff
+# - Never logs secret values; uses <SECRET:KEY> references only
+
+ART_DIR="/opt/feature-factory/artifacts/watchdog"
+LOG_FILE="$ART_DIR/watchdog.log"
+DLQ_FILE="$ART_DIR/dlq.jsonl"
+STATE_FILE="$ART_DIR/state.json"
+mkdir -p "$ART_DIR"
+touch "$LOG_FILE" "$DLQ_FILE"
+
+BASE_URL="${FF_BASE_URL:-http://127.0.0.1:8081}"
+FEATURES_API="$BASE_URL/api/v1/orchestrator/features"
+RUN_ONCE_API="$BASE_URL/api/v1/runner/run-once"
+
+ts() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
+log() { echo "$(ts) | $*" | tee -a "$LOG_FILE" >&2; }
+
+post_json() {
+  local url="$1"; shift
+  curl -sS -H 'Content-Type: application/json' -H "X-Correlation-Id: ${CORR_ID}" -X POST "$url" --data-binary @- || true
+}
+
+try_create_feature() {
+  local title="$1"; shift
+  local payload_variant="$1"; shift
+
+  case "$payload_variant" in
+    A_template)
+      jq -n --arg title "$title" '{
+        title:$title,
+        autostart:true,
+        intent:{
+          template:"notifications/telegram",
+          intent:"telegram_notifications",
+          slots:{
+            bot_token:"<SECRET:TELEGRAM_BOT_TOKEN>",
+            recipient:"@basil_ivanov",
+            events:["feature_status_change"],
+            message_template:"\uD83D\uDD14 Feature {feature_id}: {title}\n{old_status} \u2192 {new_status} at {timestamp}"
+          }
+        }
+      }' | post_json "$FEATURES_API"
+      ;;
+    B_handoff)
+      # Minimal handoff message (strict YAML block)
+      local handoff
+      handoff=$(cat <<'YAML'
+Что уже сделано
+- DRY_RUN=false; LLM routing активен
+- Секреты TELEGRAM_* заведены; тик раннера/SSE включены
+
+```yaml
+task: "FF-TG-NOTIFY-001 — Реальные Telegram-уведомления о смене статуса фичи (через агентов)"
+corr_id: "AUTO-WD-TG"
+context:
+  ff_base_url: "http://127.0.0.1:8081"
+  endpoints:
+    feature_create: "http://127.0.0.1:8081/api/v1/orchestrator/features"
+    runner_once: "http://127.0.0.1:8081/api/v1/runner/run-once"
+    logs_sse: "http://127.0.0.1:8081/api/v1/logs/stream"
+  secrets:
+    keys: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_RECIPIENT_USERNAME"]
+  env:
+    ENV: "TEST"
+  constraints: ["no_mocks_in_prod", "docsync_gated", "corr_id_required"]
+prechecks:
+  - "API live: GET /health/live == 200"
+plan:
+  - "Architect: контракт/DAG"
+  - "Dev: интеграция Telegram без моков"
+  - "QA: тесты статусов"
+  - "Scribe: доки"
+  - "Apply: смоки"
+dod:
+  - "Сообщение уходит при каждой смене статуса"
+  - "Секреты из secret_store, не в логах"
+  - "QA PASS; смоки зелёные; метрики ок"
+artifacts_dir: "/opt/feature-factory/artifacts/ff-tg-notify-001"
+owner: "Coordinator"
+notes:
+  - "Координатор не пишет код; тикает runner"
+```
+YAML
+)
+      jq -n --arg title "$title" --arg msg "$handoff" '{
+        title:$title, autostart:true, intent:{handoff_message:$msg}
+      }' | post_json "$FEATURES_API"
+      ;;
+    C_minimal)
+      jq -n --arg title "$title" '{title:$title, autostart:true, intent:{}}' | post_json "$FEATURES_API"
+      ;;
+    HEAL_api)
+      local heal_title="$title"
+      local msg
+      msg=$(cat <<'YAML'
+Что уже сделано
+- Обнаружен регресс API создания фич: AttributeError на поле type
+- DRY_RUN=false; LLM routing активен; раннер тикает
+
+```yaml
+task: "HEAL-FEATURE-CREATE-API — синхронизация схемы/хендлера"
+corr_id: "AUTO-WD-HEAL-FEAT-CREATE"
+context:
+  ff_base_url: "http://127.0.0.1:8081"
+  contracts_paths:
+    schemas: "/opt/feature-factory/app/api/schemas/orchestrator_schemas.py"
+    docs: "/opt/feature-factory/cortex/docs/API-Orchestrator-001.md"
+prechecks:
+  - "POST /api/v1/orchestrator/features падает с AttributeError: .type"
+plan:
+  - "Architect: сравнить схему/обработчик, правка контракта"
+  - "Dev: исправить handler, совместить intent и intent_json"
+  - "QA: негативы/валидация"
+  - "Scribe: docs/CHANGELOG"
+dod:
+  - "POST /features принимает intent={...} и/или handoff_message"
+  - "Тесты зелёные; регресс устранён; метрики/логи без ошибок"
+artifacts_dir: "/opt/feature-factory/artifacts/heal-feature-create-api"
+owner: "Coordinator"
+notes:
+  - "Без моков; не логировать секреты"
+```
+YAML
+)
+      jq -n --arg title "$heal_title" --arg msg "$msg" '{title:$title, autostart:true, intent:{handoff_message:$msg}}' | post_json "$FEATURES_API"
+      ;;
+  esac
+}
+
+should_backoff() {
+  # Simple time-based backoff using a state file timestamp
+  local key="$1"
+  local now epoch_next
+  now=$(date +%s)
+  if [ -f "$STATE_FILE" ]; then
+    epoch_next=$(jq -r --arg k "$key" '.[$k] // 0' "$STATE_FILE" 2>/dev/null || echo 0)
+  else
+    epoch_next=0
+  fi
+  [ "$now" -lt "${epoch_next:-0}" ]
+}
+
+set_backoff() {
+  local key="$1"; local seconds="$2"
+  local now next
+  now=$(date +%s)
+  next=$((now + seconds))
+  if [ ! -f "$STATE_FILE" ]; then echo '{}' > "$STATE_FILE"; fi
+  tmp=$(mktemp)
+  jq --arg k "$key" --argjson v "$next" '.[$k]=$v' "$STATE_FILE" > "$tmp" && mv "$tmp" "$STATE_FILE"
+}
+
+main_loop() {
+  while true; do
+    CORR_ID="WD-$(date +%s)"
+
+    # 1) Try create target feature (Telegram notify) via fallbacks
+    if ! should_backoff "create_ff_tg"; then
+      for variant in A_template B_handoff C_minimal; do
+        log "Attempt create feature (variant=$variant) corr=$CORR_ID"
+        resp=$(try_create_feature "FF-TG-NOTIFY-001 — Auto (Watchdog)" "$variant")
+        echo "$resp" | jq . >/dev/null 2>&1 || true
+        if echo "$resp" | rg -q '"id"\s*:\s*'; then
+          fid=$(echo "$resp" | jq -r '.id // .feature_id // empty' 2>/dev/null || true)
+          log "Feature created (id=$fid, variant=$variant)"
+          # Kick runner once to accelerate
+          curl -sS -X POST -H "X-Correlation-Id: $CORR_ID" "$RUN_ONCE_API" >/dev/null 2>&1 || true
+          set_backoff "create_ff_tg" 120
+          break
+        else
+          detail=$(echo "$resp" | jq -r '.detail // empty' 2>/dev/null || true)
+          if echo "$detail" | rg -qi 'FeatureCreateRequest|attribute.*type'; then
+            log "Detected create API regression: $detail"
+            echo "$(ts) {\"corr_id\":\"$CORR_ID\",\"action\":\"create\",\"variant\":\"$variant\",\"error\":$(jq -Rn --arg d "$detail" '{detail:$d}'))" >> "$DLQ_FILE"
+            # Schedule HEAL feature
+            heal_resp=$(try_create_feature "HEAL-FEATURE-CREATE-API" HEAL_api || true)
+            log "HEAL create resp: $(echo "$heal_resp" | tr '\n' ' ' | cut -c1-200)"
+          else
+            log "Create failed (variant=$variant): $(echo "$resp" | tr '\n' ' ' | cut -c1-200)"
+          fi
+        fi
+      done
+    fi
+
+    # 2) Replay DLQ with gentle backoff
+    if ! should_backoff "replay_dlq"; then
+      dlq_count=$(wc -l < "$DLQ_FILE" 2>/dev/null || echo 0)
+      if [ "${dlq_count:-0}" -gt 0 ]; then
+        log "Replay DLQ ($dlq_count entries)"
+        # Currently just re-run create attempt via first variant as a probe
+        resp=$(try_create_feature "FF-TG-NOTIFY-001 — Auto (Watchdog)" A_template || true)
+        if echo "$resp" | rg -q '"id"\s*:\s*'; then
+          log "Replay success, clearing DLQ"
+          : > "$DLQ_FILE"
+        else
+          log "Replay still failing"
+        fi
+      fi
+      set_backoff "replay_dlq" 90
+    fi
+
+    # 3) Kick runner periodically regardless
+    curl -sS -X POST -H "X-Correlation-Id: $CORR_ID" "$RUN_ONCE_API" >/dev/null 2>&1 || true
+
+    sleep 10
+  done
+}
+
+main_loop
+

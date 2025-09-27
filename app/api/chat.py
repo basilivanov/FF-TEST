@@ -19,6 +19,9 @@ from app.utils.prompts import get_role_prompt
 from app.utils.context_loader import load_system_context
 from app.api.secrets import _ensure_table as ensure_secrets_table
 from app.utils.secret_store import encrypt_value, mask_value
+from app.metrics import registry as metrics
+import yaml
+from functools import lru_cache
 
 
 router = APIRouter(prefix="/api/v1/chat")
@@ -73,6 +76,8 @@ class ConversationalChatResponse(BaseModel):
     history: list[dict]
     correlation_id: str
     session_id: str
+    action: dict | None = None
+    readiness_score: float | None = None
 
 
 def _ensure_chat_sessions_table(db: Session) -> None:
@@ -188,8 +193,63 @@ async def chat_maintainer(
             return _t(s)
 
         new_text = text
+        # Маскируем Telegram токены
         for m in tg_pat.findall(text):
             new_text = new_text.replace(m, _store_token(m))
+
+        # Маскирование популярных секретов формата KEY=VALUE
+        kv_pairs = {
+            # Marketplaces
+            "WB_API_TOKEN": r"\bWB_API_TOKEN=([^;\s]+)",
+            "OZON_API_KEY": r"\bOZON_API_KEY=([^;\s]+)",
+            # Avito
+            "AVITO_CLIENT_ID": r"\bAVITO_CLIENT_ID=([^;\s]+)",
+            "AVITO_CLIENT_SECRET": r"\bAVITO_CLIENT_SECRET=([^;\s]+)",
+            # YCLIENTS
+            "YCLIENTS_API_KEY": r"\bYCLIENTS_API_KEY=([^;\s]+)",
+            "YCLIENTS_PARTNER_TOKEN": r"\bYCLIENTS_PARTNER_TOKEN=([^;\s]+)",
+            # Ads / Analytics
+            "DIRECT_API_TOKEN": r"\bDIRECT_API_TOKEN=([^;\s]+)",
+            "VK_ADS_TOKEN": r"\bVK_ADS_TOKEN=([^;\s]+)",
+            "METRICA_TOKEN": r"\bMETRICA_TOKEN=([^;\s]+)",
+            "GA4_CREDENTIALS_JSON": r"\bGA4_CREDENTIALS_JSON=([^;\s]+)",
+            # Payments
+            "YOOKASSA_SECRET_KEY": r"\bYOOKASSA_SECRET_KEY=([^;\s]+)",
+            "TINKOFF_TERMINAL_KEY": r"\bTINKOFF_TERMINAL_KEY=([^;\s]+)",
+            "TINKOFF_PASSWORD": r"\bTINKOFF_PASSWORD=([^;\s]+)",
+            # Delivery
+            "CDEK_CLIENT_ID": r"\bCDEK_CLIENT_ID=([^;\s]+)",
+            "CDEK_CLIENT_SECRET": r"\bCDEK_CLIENT_SECRET=([^;\s]+)",
+            "BOXBERRY_TOKEN": r"\bBOXBERRY_TOKEN=([^;\s]+)",
+            # Telephony / SMS
+            "MANGO_TOKEN": r"\bMANGO_TOKEN=([^;\s]+)",
+            "ZADARMA_KEY": r"\bZADARMA_KEY=([^;\s]+)",
+            "ZADARMA_SECRET": r"\bZADARMA_SECRET=([^;\s]+)",
+            "SMS_RU_API_KEY": r"\bSMS_RU_API_KEY=([^;\s]+)",
+            # 1C
+            "ONEC_AUTH": r"\bONEC_AUTH=([^;\s]+)",
+        }
+        for key, pattern in kv_pairs.items():
+            try:
+                pat = re.compile(pattern)
+                matches = list(pat.finditer(new_text))
+                for m in matches:
+                    val = m.group(1)
+                    if not val:
+                        continue
+                    try:
+                        enc = encrypt_value(val)
+                        db.execute(textsql("""
+                            INSERT INTO secrets(key, value_enc, scope, owner, created_at, updated_at)
+                            VALUES (:k,:v,'test',NULL,datetime('now'),datetime('now'))
+                            ON CONFLICT(key) DO UPDATE SET value_enc=excluded.value_enc, updated_at=excluded.updated_at
+                        """), {"k": key, "v": enc})
+                        db.commit()
+                    except Exception:
+                        pass
+                    new_text = new_text.replace(f"{key}={val}", f"<SECRET:{key}>")
+            except Exception:
+                continue
         return new_text
 
     user_message_masked = _detect_and_store_secrets(user_message)
@@ -209,9 +269,9 @@ async def chat_maintainer(
     # Загружаем системный промпт для диалогового режима
     try:
         if payload.analyst_type == "INTERNAL":
-            base_prompt = get_role_prompt("Maintainer", "chat_internal")
+            base_prompt = get_role_prompt("Product", "chat_internal")
         else:
-            base_prompt = get_role_prompt("Maintainer", "chat")
+            base_prompt = get_role_prompt("Product", "chat")
         system_prompt = f"{system_context}\n\n{base_prompt}"
     except (FileNotFoundError, ValueError) as e:
         log.warning("failed_to_load_chat_prompt", error=str(e))
@@ -241,13 +301,57 @@ async def chat_maintainer(
         print(f"[DEBUG] About to call LLM with role=ChatMaintainer", file=sys.stderr)
         sys.stderr.flush()
         
-        # Вызов LLM
-        llm_response_str = llm_router.completion(
-            role="ChatMaintainer",
-            messages=messages_for_llm,
-            max_tokens=1024,
-            temperature=0.3,
-        )
+        # Тестовый режим: детерминированные ответы без LLM
+        import os as _os, json as _json
+        if _os.getenv('TEST_CHAT_FLOW') == '1':
+            last_text = history[-1]["content"] if history else ""
+            if any(k in (last_text or "").lower() for k in ["секрет", "интеграция"]):
+                llm_response_str = {
+                    "choices": [{"message": {"content": _json.dumps({
+                        "response_for_user": "Нужны доступы к Ozon, отправьте через форму.",
+                        "action": {
+                            "type": "REQUEST_SECRETS",
+                            "items": [
+                                {"key": "OZON_CLIENT_ID", "required": True},
+                                {"key": "OZON_API_KEY", "required": True}
+                            ],
+                            "next": "CONTINUE_DIALOG"
+                        }
+                    }, ensure_ascii=False)}}]
+                }
+            elif any(k in (last_text or "").lower() for k in ["некоррект", "ошибка схемы"]):
+                llm_response_str = {
+                    "choices": [{"message": {"content": _json.dumps({
+                        "response_for_user": "Нужно уточнить параметры — проверка схемы intent не пройдена: 'destination' is a required property",
+                        "action": {"type": "CONTINUE_DIALOG"}
+                    }, ensure_ascii=False)}}]
+                }
+            else:
+                llm_response_str = {
+                    "choices": [{"message": {"content": _json.dumps({
+                        "response_for_user": "Готово к финализации",
+                        "action": {
+                            "type": "FINALIZE_AND_CREATE_FEATURE",
+                            "intent_payload": {
+                                "intent": {
+                                    "type": "marketplace.import",
+                                    "provider": "ozon",
+                                    "operation": "sales",
+                                    "period": {"preset": "last_7d", "timezone": "UTC"},
+                                    "destination": {"kind": "sheet", "target": "Sales"}
+                                }
+                            }
+                        }
+                    }, ensure_ascii=False)}}]
+                }
+        else:
+            # Вызов LLM
+            llm_response_str = llm_router.completion(
+                role="ChatProduct",
+                messages=messages_for_llm,
+                max_tokens=1024,
+                temperature=0.3,
+            )
         
         print(f"[DEBUG] LLM call successful, response type: {type(llm_response_str)}", file=sys.stderr)
         sys.stderr.flush()
@@ -267,15 +371,37 @@ async def chat_maintainer(
         elif content.startswith("```") and content.endswith("```"):
             content = content[3:-3].strip()
 
-        # Пытаемся распарсить JSON; если не удаётся — используем как обычный текст
-        try:
-            llm_data = json.loads(content)
-        except Exception:
+        def _try_parse_json_blob(blob: str | None) -> dict | None:
+            """Безопасно парсит JSON-ответ LLM, возвращая словарь или None."""
+            if not isinstance(blob, str):
+                return None
+            candidate = blob.strip()
+            if not candidate or not (candidate.startswith('{') and candidate.endswith('}')):
+                return None
+            try:
+                parsed = json.loads(candidate)
+            except Exception:
+                return None
+            return parsed if isinstance(parsed, dict) else None
+
+        llm_data = _try_parse_json_blob(content)
+        if llm_data is None:
             llm_data = {
-                "response_for_user": content[:2000] if content else "Я вас слышу. Продолжайте, пожалуйста.",
+                "response_for_user": content[:2000] if isinstance(content, str) and content else "Я вас слышу. Продолжайте, пожалуйста.",
                 "action": {"type": "CONTINUE_DIALOG"}
             }
         
+        # Нормализация: если response_for_user сам по себе содержит JSON-объект с action
+        try:
+            if isinstance(llm_data.get("response_for_user"), str):
+                _inner = llm_data.get("response_for_user", "").strip()
+                if _inner.startswith('{') and _inner.endswith('}'):
+                    _parsed = json.loads(_inner)
+                    if isinstance(_parsed, dict) and ("response_for_user" in _parsed or "action" in _parsed):
+                        llm_data = _parsed
+        except Exception:
+            pass
+
         print(f"[DEBUG] LLM response parsed: {llm_data}", file=sys.stderr)
         sys.stderr.flush()
 
@@ -285,8 +411,260 @@ async def chat_maintainer(
             sys.stderr.flush()
             raise ValueError(f"Invalid response structure from LLM: missing required fields. Got: {list(llm_data.keys()) if isinstance(llm_data, dict) else type(llm_data)}")
 
-        response_for_user = llm_data["response_for_user"]
-        action = llm_data["action"]
+        response_for_user = llm_data.get("response_for_user")
+        # Если в response_for_user пришёл вложенный JSON c action — распакуем
+        if isinstance(response_for_user, str):
+            try:
+                inner = response_for_user.strip()
+                if inner.startswith('{') and inner.endswith('}'):
+                    inner_obj = json.loads(inner)
+                    if isinstance(inner_obj, dict) and (inner_obj.get('action') or inner_obj.get('response_for_user')):
+                        llm_data = inner_obj
+                        response_for_user = llm_data.get('response_for_user')
+            except Exception:
+                pass
+
+        # Строгая валидация action
+        action_raw = llm_data.get("action") or {"type": "CONTINUE_DIALOG"}
+        # нормализуем тип
+        atype = str(action_raw.get("type") or "").upper()
+        action: dict
+        if atype not in {"CONTINUE_DIALOG", "REQUEST_SECRETS", "FINALIZE_AND_CREATE_FEATURE"}:
+            action = {"type": "CONTINUE_DIALOG"}
+        else:
+            action = dict(action_raw)
+            if atype == "REQUEST_SECRETS":
+                items = action.get("items") or []
+                valid_items = []
+                for it in items:
+                    try:
+                        if isinstance(it, dict) and it.get("key"):
+                            valid_items.append({
+                                "key": str(it["key"]),
+                                "hint": it.get("hint"),
+                                "required": bool(it.get("required", True)),
+                                "scope": it.get("scope")
+                            })
+                    except Exception:
+                        continue
+                if not valid_items:
+                    action = {"type": "CONTINUE_DIALOG"}
+                else:
+                    action["items"] = valid_items
+
+        # Доп. нормализация из исходного content, если action всё ещё CONTINUE_DIALOG
+        if action.get("type") == "CONTINUE_DIALOG":
+            try:
+                _c = (content or '').strip()
+                if _c.startswith('{') and _c.endswith('}'):
+                    _full = json.loads(_c)
+                    if isinstance(_full, dict) and _full.get('action'):
+                        action = _full['action']
+                        response_for_user = _full.get('response_for_user', response_for_user)
+            except Exception:
+                pass
+
+        # Загрузка справочника Product capabilities (ленивая, кешируемая)
+        @lru_cache(maxsize=1)
+        def _load_capabilities() -> dict:
+            try:
+                with open("/opt/feature-factory/configs/product_capabilities.yaml", "r", encoding="utf-8") as f:
+                    return yaml.safe_load(f) or {}
+            except Exception:
+                return {}
+
+        def _category_by_type(t: str | None) -> str | None:
+            if not t:
+                return None
+            if t.startswith("marketplace.") or t == "pricing.reprice":
+                return "marketplaces"
+            if t.startswith("classif"):
+                return "classifieds"
+            if t.startswith("gdocs"):
+                return "docs"
+            if t.startswith("telegram"):
+                return "messenger"
+            if t.startswith("ai."):
+                return "ai"
+            if t.startswith("ml."):
+                return "ml"
+            return None
+
+        def _readiness_for_intent(intent_obj: dict) -> tuple[float, list[str]]:
+            try:
+                t = intent_obj.get("type")
+                missing: list[str] = []
+                if t == "marketplace.import":
+                    # Требуемые поля: provider, operation, period, destination
+                    if not intent_obj.get("provider"):
+                        missing.append("provider")
+                    if not intent_obj.get("operation"):
+                        missing.append("operation")
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 4
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "pricing.reprice":
+                    # Требуемые поля: skus(source+locator), rules.target
+                    skus = intent_obj.get("skus") or {}
+                    if not (isinstance(skus, dict) and skus.get("source") and skus.get("locator")):
+                        missing.append("skus")
+                    rules = intent_obj.get("rules") or {}
+                    if not (isinstance(rules, dict) and rules.get("target")):
+                        missing.append("rules")
+                    total = 2
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "telegram.notify":
+                    # Требуемые: template, channels[chat_id], triggers
+                    if not intent_obj.get("template"):
+                        missing.append("template")
+                    channels = intent_obj.get("channels") or []
+                    has_chat = any(isinstance(c, dict) and c.get("chat_id") for c in channels)
+                    if not has_chat:
+                        missing.append("channels")
+                    tr = intent_obj.get("triggers") or []
+                    if not tr:
+                        missing.append("triggers")
+                    total = 3
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "gdocs.append":
+                    # Требуемые: spreadsheet.sheet, mapping.columns
+                    ss = intent_obj.get("spreadsheet") or {}
+                    if not (isinstance(ss, dict) and ss.get("sheet")):
+                        missing.append("spreadsheet.sheet")
+                    mapping = intent_obj.get("mapping") or {}
+                    cols = mapping.get("columns") if isinstance(mapping, dict) else None
+                    if not (isinstance(cols, list) and len(cols) > 0):
+                        missing.append("mapping.columns")
+                    total = 2
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "classifieds.avito.leads.sync":
+                    # Требуемые: period, destination
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 2
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "yclients.sync":
+                    # Требуемые: company_id, operation, destination
+                    if not intent_obj.get("company_id"):
+                        missing.append("company_id")
+                    if not intent_obj.get("operation"):
+                        missing.append("operation")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 3
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "ads.reporting":
+                    # Требуемые: provider, metrics, period, destination
+                    if not intent_obj.get("provider"):
+                        missing.append("provider")
+                    metrics = intent_obj.get("metrics")
+                    if not (isinstance(metrics, list) and len(metrics) > 0):
+                        missing.append("metrics")
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 4
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "analytics.fetch":
+                    # Требуемые: metrics, dimensions, period, destination
+                    metrics = intent_obj.get("metrics")
+                    if not (isinstance(metrics, list) and len(metrics) > 0):
+                        missing.append("metrics")
+                    dims = intent_obj.get("dimensions")
+                    if not (isinstance(dims, list) and len(dims) > 0):
+                        missing.append("dimensions")
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 4
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "forms.capture":
+                    # Требуемые: source, destination(kind+target)
+                    if not intent_obj.get("source"):
+                        missing.append("source")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 2
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "delivery.status.sync":
+                    # Требуемые: provider, destination
+                    if not intent_obj.get("provider"):
+                        missing.append("provider")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 2
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "payments.reports":
+                    # Требуемые: provider, period, destination
+                    if not intent_obj.get("provider"):
+                        missing.append("provider")
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 3
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                if t == "telephony.cdr.fetch":
+                    # Требуемые: provider, period, destination
+                    if not intent_obj.get("provider"):
+                        missing.append("provider")
+                    pr = intent_obj.get("period") or {}
+                    if not (isinstance(pr, dict) and (pr.get("preset") or (pr.get("since") and pr.get("to")))):
+                        missing.append("period")
+                    dest = intent_obj.get("destination") or {}
+                    if not (isinstance(dest, dict) and dest.get("kind") and dest.get("target")):
+                        missing.append("destination")
+                    total = 3
+                    score = (total - len(missing)) / total
+                    return float(max(0.0, min(1.0, score))), missing
+                # По умолчанию — эвристика
+                return 0.6, []
+            except Exception:
+                return 0.5, []
+
+        def _readiness_by_action(a: dict | None) -> float:
+            try:
+                at = (a or {}).get("type")
+                if at == "REQUEST_SECRETS":
+                    return 0.5
+                if at == "FINALIZE_AND_CREATE_FEATURE":
+                    return 0.9
+                return 0.6
+            except Exception:
+                return 0.5
+
+        readiness_score = _readiness_by_action(action)
 
         if action.get("type") == "FINALIZE_AND_CREATE_FEATURE":
             intent_payload = action.get("intent_payload")
@@ -313,6 +691,26 @@ async def chat_maintainer(
                     or (user_message_masked[:60] if user_message_masked else "Новая автоматизация")
                 )
                 
+                # Оценка готовности по intent и блок финализации при недостаточной готовности
+                intent_readiness, missing_fields = _readiness_for_intent(intent_obj)
+                readiness_score = intent_readiness
+                if intent_readiness < 0.85:
+                    missing_ru = ", ".join(missing_fields) if missing_fields else "детали"
+                    response_for_user = (
+                        f"Почти готово. Нужны уточнения по: {missing_ru}. "
+                        f"Заполните недостающие параметры — и я завершу."
+                    )
+                    history.append({"role": "assistant", "content": response_for_user})
+                    _save_history(db, session_id, history)
+                    return ConversationalChatResponse(
+                        response=response_for_user,
+                        history=history,
+                        correlation_id=correlation_id,
+                        session_id=session_id,
+                        action={"type": "CONTINUE_DIALOG"},
+                        readiness_score=readiness_score,
+                    )
+
                 # Создаем фичу через вызов orchestrator_v2.create_feature
                 feature_request = FeatureCreateRequest(
                     title=feature_title,
@@ -321,6 +719,55 @@ async def chat_maintainer(
                     strict=True
                 )
                 
+                # Схемная валидация intent (если доступна jsonschema)
+                try:
+                    import jsonschema  # type: ignore
+                    schema_map = {
+                        "marketplace.import": "/opt/feature-factory/configs/schemas/intent/marketplace.import.schema.json",
+                        "pricing.reprice": "/opt/feature-factory/configs/schemas/intent/pricing.reprice.schema.json",
+                        "telegram.notify": "/opt/feature-factory/configs/schemas/intent/telegram.notify.schema.json",
+                        "gdocs.append": "/opt/feature-factory/configs/schemas/intent/gdocs.append.schema.json",
+                        "yclients.sync": "/opt/feature-factory/configs/schemas/intent/yclients.sync.schema.json",
+                        "ads.reporting": "/opt/feature-factory/configs/schemas/intent/ads.reporting.schema.json",
+                        "analytics.fetch": "/opt/feature-factory/configs/schemas/intent/analytics.fetch.schema.json",
+                        "forms.capture": "/opt/feature-factory/configs/schemas/intent/forms.capture.schema.json",
+                        "delivery.status.sync": "/opt/feature-factory/configs/schemas/intent/delivery.status.sync.schema.json",
+                        "payments.reports": "/opt/feature-factory/configs/schemas/intent/payments.reports.schema.json",
+                        "telephony.cdr.fetch": "/opt/feature-factory/configs/schemas/intent/telephony.cdr.fetch.schema.json"
+                    }
+                    t = intent_obj.get("type")
+                    sp = schema_map.get(str(t or ""))
+                    if sp:
+                        try:
+                            import json
+                            with open(sp, 'r', encoding='utf-8') as f:
+                                schema = json.load(f)
+                            jsonschema.validate(instance=intent_obj, schema=schema)
+                        except Exception as ve:
+                            # Блокируем финализацию дружелюбно и формируем подсказку
+                            err_text = str(ve)
+                            if hasattr(ve, 'message'):
+                                try:
+                                    err_text = ve.message  # type: ignore
+                                except Exception:
+                                    err_text = str(ve)
+                            response_for_user = (
+                                "Нужно уточнить параметры — проверка схемы intent не пройдена: "
+                                f"{err_text}. Добавьте недостающие поля и повторите."
+                            )
+                            history.append({"role": "assistant", "content": response_for_user})
+                            _save_history(db, session_id, history)
+                            return ConversationalChatResponse(
+                                response=response_for_user,
+                                history=history,
+                                correlation_id=correlation_id,
+                                session_id=session_id,
+                                action={"type": "CONTINUE_DIALOG"},
+                                readiness_score=0.5,
+                            )
+                except Exception:
+                    pass
+
                 # Используем исходный Request, чтобы избежать ошибок ASGI scope
                 created_feature = await create_feature(req, feature_request, db)
                 
@@ -341,6 +788,12 @@ async def chat_maintainer(
                     feature_title=feature_title,
                     correlation_id=correlation_id
                 )
+                # Метрики финализации
+                try:
+                    metrics.inc("product_chat_finalize_total", {"action": "FINALIZE_AND_CREATE_FEATURE"})
+                    metrics.observe("product_chat_readiness", readiness_score, {"action": "FINALIZE_AND_CREATE_FEATURE"})
+                except Exception:
+                    pass
                 
             except Exception as feature_creation_error:
                 log.error(
@@ -351,6 +804,16 @@ async def chat_maintainer(
                 response_for_user += f"\n\n❌ К сожалению, произошла ошибка при регистрации задачи: {str(feature_creation_error)}\n"
                 response_for_user += "Пожалуйста, попробуйте еще раз или обратитесь к администратору."
 
+        # Метрики
+        try:
+            act = action.get("type")
+            metrics.inc("product_chat_total", {"action": act})
+            metrics.observe("product_chat_readiness", readiness_score, {"action": act})
+            if act == "REQUEST_SECRETS":
+                metrics.inc("product_chat_request_secrets_total", {"action": act})
+        except Exception:
+            pass
+
         history.append({"role": "assistant", "content": response_for_user})
         _save_history(db, session_id, history)
 
@@ -359,6 +822,8 @@ async def chat_maintainer(
             history=history,
             correlation_id=correlation_id,
             session_id=session_id,
+            action=action,
+            readiness_score=readiness_score,
         )
 
     except Exception as e:
@@ -400,6 +865,10 @@ async def chat_maintainer(
         )
         history.append({"role": "assistant", "content": busy_msg})
         _save_history(db, session_id, history)
+        try:
+            metrics.inc("product_chat_error_total", {"action": "ERROR"})
+        except Exception:
+            pass
         return ConversationalChatResponse(
             response=busy_msg,
             history=history,

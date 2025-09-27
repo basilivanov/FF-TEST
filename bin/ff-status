@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Show Feature Factory services status via wrappers or systemctl.
+set -euo pipefail
+
+if [[ -x "/opt/feature-factory/bin/ff-orch-status-safe" ]]; then
+  echo "[ff-status] TEST status via wrapper:"
+  /opt/feature-factory/bin/ff-orch-status-safe || true
+else
+  if command -v systemctl >/dev/null 2>&1; then
+    echo "[ff-status] TEST status via systemctl:"
+    systemctl status feature-factory-test.service --no-pager || true
+  fi
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+  echo "[ff-status] PROD status via systemctl:"
+  systemctl status feature-factory-prod.service --no-pager || true
+fi

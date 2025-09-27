@@ -17,11 +17,32 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
+import subprocess
+import time
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from sqlalchemy import create_engine, text
-import structlog
+try:
+    from sqlalchemy import create_engine, text  # type: ignore
+except Exception:  # pragma: no cover - soft dependency
+    create_engine = None  # type: ignore
+    def text(x: str) -> str:  # type: ignore
+        return x
+try:
+    import structlog  # type: ignore
+except Exception:  # pragma: no cover
+    class _DummyLogger:
+        def info(self, *args, **kwargs):
+            pass
+        def warning(self, *args, **kwargs):
+            pass
+        def error(self, *args, **kwargs):
+            pass
+    class structlog:  # type: ignore
+        @staticmethod
+        def get_logger():
+            return _DummyLogger()
 
 
 REPO_ROOT = "/opt/feature-factory"
@@ -39,12 +60,47 @@ class ContextPackager:
     def __init__(self, index_db_url: Optional[str] = None):
         self.index_db_url = index_db_url or os.getenv("INDEX_DATABASE_URL", DEFAULT_INDEX_DB)
         self._index_engine = None
-        try:
-            self._index_engine = create_engine(self.index_db_url)
-        except Exception:
-            # Индекс может отсутствовать в окружении — работаем по best-effort
-            self._index_engine = None
+        self._connect_index_engine()
+        self._selector_source = "none"
         self.logger = structlog.get_logger()
+
+    def _connect_index_engine(self) -> None:
+        """Ленивая и устойчивная инициализация подключения к индексу.
+
+        Приоритет: INDEX_DATABASE_URL → fallback на DATABASE_URL, если там есть таблицы индекса.
+        """
+        if create_engine is None:
+            self._index_engine = None
+            return
+        # 1) Пытаемся INDEX_DATABASE_URL
+        try:
+            eng = create_engine(self.index_db_url)
+            with eng.connect() as conn:
+                try:
+                    conn.execute(text("SELECT 1 FROM sqlite_master WHERE type='table' AND name='symbol_index'"))
+                    self._index_engine = eng
+                    return
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # 2) Fallback: DATABASE_URL
+        try:
+            db_url = os.getenv("DATABASE_URL")
+            if not db_url:
+                self._index_engine = None
+                return
+            eng = create_engine(db_url)
+            with eng.connect() as conn:
+                res = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('symbol_index','call_graph_edges')"))
+                rows = res.fetchall()
+                if rows:
+                    self._index_engine = eng
+                else:
+                    self._index_engine = None
+        except Exception:
+            self._index_engine = None
 
     def _load_playbook(self) -> str:
         try:
@@ -76,31 +132,89 @@ class ContextPackager:
         except Exception:
             return ""
 
-    def _load_cortex_rules(self, role: Optional[str]) -> str:
+    def _load_cortex_context(self, role: Optional[str]) -> str:
+        """Загружает контекст Cortex V2 (core → role → patterns) с fallback на старые пути."""
         if not role:
             return ""
 
-        cortex_paths = []
-        if role == "Dev":
-            cortex_paths.extend([
-                "/opt/feature-factory/cortex/db/rules.md",
-                "/opt/feature-factory/cortex/logging_rules.md",
-            ])
-        elif role == "Ops":
-            cortex_paths.append("/opt/feature-factory/cortex/ops_tools.md")
-
-        content = []
-        for path in cortex_paths:
+        context_parts = []
+        # Cortex V2 — core
+        core_modules_v2 = [
+            "/opt/feature-factory/cortex/core/invariants.md",
+            "/opt/feature-factory/cortex/core/principles.md",
+            "/opt/feature-factory/cortex/core/output_formats.md",
+            "/opt/feature-factory/cortex/core/envelope.md",
+            "/opt/feature-factory/cortex/core/self_documenting.md",
+        ]
+        for module_path in core_modules_v2:
             try:
-                with open(path, "r", encoding="utf-8") as f:
-                    content.append(f.read())
+                with open(module_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if content.strip():
+                        module_name = module_path.split("/")[-1].replace(".md", "").replace("_", " ").title()
+                        context_parts.append(f"## {module_name}\n\n{content}")
             except Exception:
                 pass
-        
-        if not content:
-            return ""
 
-        return "\n\n".join(content)
+        # Cortex V2 — роль
+        role_lc = (role or "").strip()
+        try:
+            role_path = f"/opt/feature-factory/cortex/roles/{role_lc.lower()}.md"
+            if os.path.exists(role_path):
+                with open(role_path, "r", encoding="utf-8") as f:
+                    context_parts.append(f"## Role — {role}\n\n" + f.read())
+        except Exception:
+            pass
+
+        # Cortex V2 — patterns (например, фронтенд для Dev)
+        if role == "Dev":
+            try:
+                with open("/opt/feature-factory/cortex/patterns/frontend_tech_stack.md", "r", encoding="utf-8") as f:
+                    context_parts.append("## Frontend Patterns\n\n" + f.read())
+            except Exception:
+                pass
+
+        # Старые пути (fallback)
+        if not context_parts:
+            core_modules = [
+                "/opt/feature-factory/app/agents/prompts/core/role_definitions.md",
+                "/opt/feature-factory/app/agents/prompts/core/tech_stack.md",
+                "/opt/feature-factory/app/agents/prompts/core/anti_patterns.md",
+                "/opt/feature-factory/app/agents/prompts/core/output_formats.md",
+            ]
+            if role == "Dev":
+                core_modules.append("/opt/feature-factory/app/agents/prompts/core/frontend_tech_stack.md")
+            for module_path in core_modules:
+                try:
+                    with open(module_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        if content.strip():
+                            module_name = module_path.split("/")[-1].replace(".md", "").replace("_", " ").title()
+                            context_parts.append(f"## {module_name}\n\n{content}")
+                except Exception:
+                    pass
+        
+        # Fallback к старой системе, если новые модули не найдены
+        if not context_parts:
+            cortex_paths = []
+            if role == "Dev":
+                cortex_paths.extend([
+                    "/opt/feature-factory/cortex/db/rules.md",
+                    "/opt/feature-factory/cortex/logging_rules.md",
+                ])
+            elif role == "Ops":
+                cortex_paths.append("/opt/feature-factory/cortex/ops_tools.md")
+
+            for path in cortex_paths:
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        if content.strip():
+                            context_parts.append(content)
+                except Exception:
+                    pass
+        
+        return "\n\n".join(context_parts) if context_parts else ""
 
     def _find_api_specs(self, keywords: Set[str]) -> List[Dict[str, Any]]:
         specs = []
@@ -133,7 +247,7 @@ class ContextPackager:
         """
         playbook_content = self._load_playbook()
         role = task.get("role")
-        cortex_content = self._load_cortex_rules(role)
+        cortex_content = self._load_cortex_context(role)
         
         # ВСЕГДА добавляем доктрину (правила и анти-паттерны)
         doctrine_content = self._load_doctrine()
@@ -204,6 +318,7 @@ class ContextPackager:
 
         file_entries = self._read_files(uniq_paths)
 
+        t0 = time.time()
         md = self._compose_markdown(task, dsl, selectors, file_entries, call_edges, api_specs)
         
         # Prepend all context content in order of priority
@@ -228,7 +343,25 @@ class ContextPackager:
         # 5. Основной контент
         context_parts.append(md)
         
-        return "\n\n".join(context_parts)
+        result = "\n\n".join(context_parts)
+        try:
+            self.logger.info(
+                "context_packager_end",
+                role=role,
+                selector_source=getattr(self, "_selector_source", "unknown"),
+                files=len(uniq_paths),
+                size_bytes=len(result.encode("utf-8"))
+            )
+        except Exception:
+            pass
+        # Metrics
+        try:
+            from app.metrics.registry import record_packager
+            duration_ms = (time.time() - t0) * 1000.0
+            record_packager(role or "", getattr(self, "_selector_source", "unknown"), float(duration_ms), len(result.encode("utf-8")), len(uniq_paths))
+        except Exception:
+            pass
+        return result
 
     def _compose_markdown(
         self,
@@ -385,7 +518,17 @@ class ContextPackager:
         if not selectors:
             return paths
         if not self._index_engine:
-            return paths
+            # Fallback: попробуем ctags, затем ripgrep
+            ct_paths = self._execute_selectors_via_ctags(selectors)
+            if ct_paths:
+                self._selector_source = "ctags"
+                return ct_paths
+            rg_paths = self._execute_selectors_via_rg(selectors)
+            if rg_paths:
+                self._selector_source = "ripgrep"
+            else:
+                self._selector_source = "none"
+            return rg_paths
         try:
             with self._index_engine.connect() as conn:
                 for sel in selectors:
@@ -398,7 +541,7 @@ class ContextPackager:
                             """
                             SELECT DISTINCT file_path
                             FROM symbol_index
-                            WHERE module_path LIKE :p OR file_path LIKE :p
+                            WHERE file_path LIKE :p
                             LIMIT :k
                             """
                         )
@@ -411,7 +554,7 @@ class ContextPackager:
                             """
                             SELECT DISTINCT file_path
                             FROM symbol_index
-                            WHERE symbol LIKE :s
+                            WHERE symbol_name LIKE :s
                             LIMIT :k
                             """
                         )
@@ -420,11 +563,12 @@ class ContextPackager:
                         for r in rows:
                             paths.append(r[0])
                     if f.get("calls_to"):
+                        # По целевому символу найдём файлы, где он вызывается
                         q = text(
                             """
-                            SELECT DISTINCT callee_path as file_path
+                            SELECT DISTINCT file_path
                             FROM call_graph_edges
-                            WHERE callee_path LIKE :p OR callee_symbol LIKE :p
+                            WHERE target_symbol LIKE :p
                             LIMIT :k
                             """
                         )
@@ -435,9 +579,9 @@ class ContextPackager:
                     if f.get("calls_from"):
                         q = text(
                             """
-                            SELECT DISTINCT caller_path as file_path
+                            SELECT DISTINCT file_path
                             FROM call_graph_edges
-                            WHERE caller_path LIKE :p OR caller_symbol LIKE :p
+                            WHERE source_symbol LIKE :p
                             LIMIT :k
                             """
                         )
@@ -445,10 +589,128 @@ class ContextPackager:
                         rows = conn.execute(q, {"p": p, "k": top_k}).fetchall()
                         for r in rows:
                             paths.append(r[0])
+            # зафиксируем источник
+            self._selector_source = "index_db"
         except Exception:
             # Индекс/схема может отличаться — не падаем
+            self._selector_source = "index_db_error"
             return []
         return paths
+
+    def _execute_selectors_via_ctags(self, selectors: List[Selector]) -> List[str]:
+        """Попытка получить пути через universal-ctags (в stdout), если бинарь доступен.
+
+        Генерируем тэги на лету (без файлов) и фильтруем по имени символа/пути.
+        """
+        if not selectors:
+            return []
+        if not shutil.which("ctags"):
+            return []
+        try:
+            cmd = [
+                "ctags", "-R", "-f", "-", "--fields=+n", "--sort=no",
+                "--languages=Python,TypeScript,TSX,JavaScript",
+                REPO_ROOT,
+            ]
+            proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True, text=True)
+            lines = proc.stdout.splitlines()
+        except Exception:
+            return []
+
+        sym_filters: List[str] = []
+        path_filters: List[str] = []
+        for sel in selectors:
+            f = sel.filters or {}
+            if f.get("symbol"):
+                sym_filters.append(str(f["symbol"]))
+            if f.get("module_path"):
+                path_filters.append(str(f["module_path"]))
+        sym_filters = [s for s in sym_filters if s]
+        path_filters = [p for p in path_filters if p]
+
+        matched_paths: List[str] = []
+        seen: Set[str] = set()
+        for ln in lines:
+            # Формат: <tagName> <TAB> <file> <TAB> ...
+            try:
+                parts = ln.split("\t")
+                if len(parts) < 2:
+                    continue
+                tag, file_path = parts[0], parts[1]
+                rel = os.path.relpath(file_path, REPO_ROOT) if os.path.isabs(file_path) else os.path.relpath(os.path.join(REPO_ROOT, file_path), REPO_ROOT)
+                cond_sym = (not sym_filters) or any(tag.find(sf) != -1 for sf in sym_filters)
+                cond_path = (not path_filters) or any(rel.find(pf) != -1 for pf in path_filters)
+                if cond_sym or cond_path:
+                    if rel not in seen:
+                        seen.add(rel)
+                        matched_paths.append(rel)
+                if len(matched_paths) > 24:
+                    break
+            except Exception:
+                continue
+        return matched_paths
+
+    def _execute_selectors_via_rg(self, selectors: List[Selector]) -> List[str]:
+        """Fallback на ripgrep по имени символа/пути, если нет ctags/индекса."""
+        if not selectors:
+            return []
+        if not shutil.which("rg"):
+            return []
+        sym_filters: List[str] = []
+        path_filters: List[str] = []
+        for sel in selectors:
+            f = sel.filters or {}
+            if f.get("symbol"):
+                sym_filters.append(str(f["symbol"]))
+            if f.get("module_path"):
+                path_filters.append(str(f["module_path"]))
+        candidates: List[str] = []
+        try:
+            # Ограничим поиск: попробуем выбрать корень по первому module_path
+            search_root = REPO_ROOT
+            for pf in path_filters:
+                pf_clean = pf.strip().lstrip("/")
+                if pf_clean:
+                    cand = os.path.join(REPO_ROOT, pf_clean.split("/")[0])
+                    if os.path.isdir(cand):
+                        search_root = cand
+                        break
+            # Собираем дополнительные исключения
+            rg_args = [
+                "-g", "!node_modules",
+                "-g", "!**/node_modules*",
+                "-g", "!.venv",
+                "-g", "!**/.venv*",
+                "-g", "!__pycache__",
+                "-g", "!**/.cache*",
+                "-g", "*.py",
+                "-g", "*.ts",
+                "-g", "*.tsx",
+                "-g", "*.js",
+                "-g", "*.md",
+                "-m", "200",
+            ]
+            for sym in sym_filters[:5]:
+                cmd = [
+                    "rg", "-n", "-S", sym, search_root,
+                ]
+                cmd.extend(rg_args)
+                proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+                for ln in proc.stdout.splitlines():
+                    # Формат: path:line:match
+                    p = ln.split(":", 1)[0]
+                    if p.startswith(REPO_ROOT + os.sep):
+                        rel = os.path.relpath(p, REPO_ROOT)
+                    else:
+                        rel = p
+                    if path_filters and not any(rel.find(pf) != -1 for pf in path_filters):
+                        continue
+                    candidates.append(rel)
+        except Exception:
+            return []
+        # Дедуп и ограничение
+        out = self._unique_keep_order(candidates)
+        return out[:12]
 
     def _expand_via_callgraph(self, seed_paths: List[str], keywords: Set[str]) -> Tuple[List[str], List[Tuple[str, str, str, str]]]:
         """Расширяет список файлов, используя call_graph_edges от pyan3.
@@ -468,37 +730,33 @@ class ContextPackager:
                     for p in seed_paths[:10]:
                         q = text(
                             """
-                            SELECT caller_symbol, callee_symbol, caller_path, callee_path
+                            SELECT source_symbol, target_symbol, file_path, line_number
                             FROM call_graph_edges
-                            WHERE caller_path LIKE :p OR callee_path LIKE :p
+                            WHERE file_path LIKE :p
                             LIMIT 50
                             """
                         )
                         rows = conn.execute(q, {"p": f"%{p}%"}).fetchall()
-                        for cs, es, cp, ep in rows:
-                            edges.append((cs or "", es or "", cp or "", ep or ""))
-                            if cp:
-                                add_paths.append(cp)
-                            if ep:
-                                add_paths.append(ep)
+                        for cs, es, fp, ln in rows:
+                            edges.append((cs or "", es or "", fp or "", ""))
+                            if fp:
+                                add_paths.append(fp)
                 # Ищем связи по символам (если есть ключевые слова на символы)
                 sym_kw = [k for k in keywords if re.match(r"^[A-Za-z_][A-Za-z0-9_]+$", k or "")]
                 for sym in sym_kw[:10]:
                     q = text(
                         """
-                        SELECT caller_symbol, callee_symbol, caller_path, callee_path
+                        SELECT source_symbol, target_symbol, file_path, line_number
                         FROM call_graph_edges
-                        WHERE caller_symbol LIKE :s OR callee_symbol LIKE :s
+                        WHERE source_symbol LIKE :s OR target_symbol LIKE :s
                         LIMIT 50
                         """
                     )
                     rows = conn.execute(q, {"s": f"%{sym}%"}).fetchall()
-                    for cs, es, cp, ep in rows:
-                        edges.append((cs or "", es or "", cp or "", ep or ""))
-                        if cp:
-                            add_paths.append(cp)
-                        if ep:
-                            add_paths.append(ep)
+                    for cs, es, fp, ln in rows:
+                        edges.append((cs or "", es or "", fp or "", ""))
+                        if fp:
+                            add_paths.append(fp)
         except Exception:
             return [], []
         return add_paths, edges

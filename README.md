@@ -144,6 +144,10 @@ npm run build
 - `configs/feature-factory-test.env` - тестовое окружение
 - `configs/feature-factory-prod.env` - продакшен окружение
 
+Ключевые переменные для доступа в админку:
+- `ADMIN_BASIC_AUTH_USERS` — список `login:password`, разделённых запятыми (например, `ops:ops123,admin:password`).
+- `ADMIN_USERNAME` и `ADMIN_PASSWORD` — устаревший формат для одной пары (сохраняется для совместимости).
+
 ### Конфигурация Nginx
 
 Конфигурационные файлы Nginx:

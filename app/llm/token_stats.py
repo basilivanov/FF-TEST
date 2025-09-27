@@ -4,9 +4,10 @@
 """
 
 import sqlite3
-from datetime import datetime, date
+from datetime import date
 from typing import Dict, Optional
-import os
+
+from app.db.guard import get_db_connection_string
 
 class TokenStats:
     """Класс для хранения статистики токенов."""
@@ -19,9 +20,7 @@ class TokenStats:
             db_path (str): Путь к базе данных. Если None, используется DATABASE_URL из переменных окружения.
         """
         if db_path is None:
-            database_url = os.getenv("DATABASE_URL")
-            if not database_url:
-                raise ValueError("DATABASE_URL environment variable is required")
+            database_url = get_db_connection_string() or "sqlite:////opt/feature-factory/data/test.db"
             if database_url.startswith("sqlite:///"):
                 db_path = database_url.replace("sqlite:///", "")
             else:

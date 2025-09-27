@@ -1,13 +1,26 @@
 # Declarative CLI assembly for LLM providers (Nexus)
 
 providers:
+  local:
+    binary_path: "/opt/feature-factory/bin/ff-local-llm"
+    probe: ["--version"]
+    stdin: "messages_json"
+    env: {}
+    flags:
+      base: []
+    models:
+      default:
+        id: "local-1"
+    output_parser: "text"
+    modes:
+      reasoning: { model: "default" }
+      fast: { model: "default" }
   claude:
     binary_path: "/usr/local/bin/claude"
-    probe: ["version"]
+    probe: ["--version"]
     stdin: "messages_json"
     env:
       HOME: "/home/feature"
-      ANTHROPIC_API_KEY: "<SECRET:ANTHROPIC_API_KEY>"
     flags:
       base: ["messages", "create", "--dangerously-skip-permissions"]
       model_flag: "--model"
@@ -36,8 +49,8 @@ providers:
     probe: ["-v"]
     stdin: "prompt"
     env:
-      HOME: "/opt/feature-factory"   # здесь хранится .gemini
-      GOOGLE_CLOUD_PROJECT: "<SECRET:GOOGLE_CLOUD_PROJECT>"
+      HOME: "/home/feature"   # здесь хранится .gemini
+      GOOGLE_CLOUD_PROJECT: "etl-marketplace"
     flags:
       base: []
     models:
@@ -86,9 +99,8 @@ providers:
     stdin: "prompt"
     env:
       HOME: "/home/feature"
-      QWEN_API_KEY: "<SECRET:QWEN_API_KEY>"
     flags:
-      base: ["run", "-y", "--no-color", "--quiet"]
+      base: ["-y"]
     models:
       default:
         id: "qwen-code-latest"

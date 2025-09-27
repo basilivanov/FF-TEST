@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-import secrets
 import os
 from app.logging_helpers import log_http
+from app.admin.auth import ensure_admin_credentials
 from app.api.llm_status import llm_status as get_llm_status
 import structlog
 
@@ -31,19 +31,8 @@ def get_env() -> str:
     return os.getenv("ENV", "test")
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    """Verify basic auth credentials."""
-    # В реальной реализации здесь должна быть проверка с БД или env vars
-    # Для демонстрации используем простую проверку
-    correct_username = secrets.compare_digest(credentials.username, "ops")
-    correct_password = secrets.compare_digest(credentials.password, "ops123")
-    
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
+    """Verify basic auth credentials using shared admin auth helpers."""
+    return ensure_admin_credentials(credentials)
 
 @router.get("/")
 def admin_root():

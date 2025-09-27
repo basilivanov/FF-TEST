@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "[ff-ui-basic-auth-reset-safe] Must be run as root (via sudo)." >&2
+  exit 1
+fi
+
+USER_NAME="${FF_UI_BASIC_AUTH_USER:-ops}"
+USER_PASS="${FF_UI_BASIC_AUTH_PASS:-ops123}"
+HTPASSWD="/etc/nginx/.htpasswd"
+
+echo "[ff-ui-basic-auth-reset-safe] Resetting BasicAuth for UI to user=$USER_NAME"
+if command -v htpasswd >/dev/null 2>&1; then
+  htpasswd -bc "$HTPASSWD" "$USER_NAME" "$USER_PASS"
+else
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "[ff-ui-basic-auth-reset-safe] Need htpasswd or openssl installed" >&2
+    exit 1
+  fi
+  HASH=$(openssl passwd -apr1 "$USER_PASS"); echo "$USER_NAME:$HASH" > "$HTPASSWD"
+fi
+chmod 640 "$HTPASSWD"; chown root:www-data "$HTPASSWD"
+
+echo "[ff-ui-basic-auth-reset-safe] Reloading Nginx…"
+nginx -t
+systemctl reload nginx
+echo "[ff-ui-basic-auth-reset-safe] Done."
+

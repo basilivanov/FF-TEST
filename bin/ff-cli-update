@@ -1,0 +1,213 @@
+#!/usr/bin/env bash
+# Update CLI tools (codex, claude, gemini, qwen) used by Feature Factory.
+# - Installs latest versions under the NVM env of user 'feature'
+# - Ensures /usr/local/bin symlinks point to that NVM bin
+# - Verifies versions and basic auth status
+
+set -euo pipefail
+
+PACKAGES=(
+  "@openai/codex@latest"
+  "@anthropic-ai/claude-code@latest"
+  "@google/gemini-cli@latest"
+  "@qwen-code/qwen-code@latest"
+)
+
+CLIS=(codex claude gemini qwen)
+
+RED="\033[31m"; GREEN="\033[32m"; YELLOW="\033[33m"; RESET="\033[0m"
+
+die() { echo -e "${RED}[ff-cli-update] $*${RESET}" >&2; exit 1; }
+info() { echo -e "${GREEN}[ff-cli-update]${RESET} $*"; }
+warn() { echo -e "${YELLOW}[ff-cli-update]${RESET} $*"; }
+
+usage() {
+  cat <<EOF
+Usage: bin/ff-cli-update [--dry-run] [--no-relink] [--restart-services]
+
+Run as root to update under user 'feature' and fix /usr/local/bin symlinks.
+Run as 'feature' if you only want to install packages into NVM (no relink).
+
+Options:
+  --dry-run           Show actions without executing installs/links
+  --no-relink         Skip fixing /usr/local/bin/* symlinks
+  --restart-services  Restart systemd services after update (if present)
+
+This script:
+  1) Detects NVM Node bin path used by the platform
+  2) npm i -g latest CLI packages in that environment
+  3) Ensures /usr/local/bin symlinks -> NVM bin (when run as root)
+  4) Prints resulting versions and basic status
+EOF
+}
+
+DRY_RUN=0
+DO_RELINK=1
+RESTART=0
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage; exit 0;;
+    --dry-run) DRY_RUN=1;;
+    --no-relink) DO_RELINK=0;;
+    --restart-services) RESTART=1;;
+    *) die "Unknown option: $arg (use --help)";;
+  esac
+done
+
+# Resolve NVM bin directory used by Feature Factory wrappers
+resolve_nvm_bin() {
+  local nvm_bin=""
+  # Prefer the target of /usr/local/bin/codex if it exists and points into NVM
+  if [[ -L "/usr/local/bin/codex" ]]; then
+    local target
+    target="$(readlink -f /usr/local/bin/codex || true)"
+    if [[ -n "$target" && -x "$target" ]]; then
+      local dir
+      dir="$(dirname "$target")"
+      if [[ -x "$dir/npm" ]]; then
+        nvm_bin="$dir"
+      fi
+    fi
+  fi
+  # Fallback: choose the newest NVM node bin
+  if [[ -z "$nvm_bin" ]]; then
+    local latest_bin
+    latest_bin="$(ls -d /opt/feature-factory/.nvm/versions/node/v*/bin 2>/dev/null | sort -V | tail -1 || true)"
+    if [[ -n "$latest_bin" && -x "$latest_bin/npm" ]]; then
+      nvm_bin="$latest_bin"
+    fi
+  fi
+  echo -n "$nvm_bin"
+}
+
+NVM_BIN="$(resolve_nvm_bin)"
+[[ -n "$NVM_BIN" ]] || die "Could not locate NVM bin (checked /usr/local/bin/codex target and /opt/feature-factory/.nvm/versions/node)"
+[[ -x "$NVM_BIN/npm" ]] || die "npm not found in $NVM_BIN"
+
+info "Using NVM bin: $NVM_BIN (node: $($NVM_BIN/node -v))"
+
+run_as_feature() {
+  # Запускаем команду от имени 'feature' БЕЗ login-сессии, чтобы обойти nologin
+  # Если не root — просто bash -lc
+  if [[ "${EUID}" -eq 0 ]]; then
+    sudo -u feature bash -lc "$*"
+  else
+    bash -lc "$*"
+  fi
+}
+
+install_packages() {
+  local pkgs=("${PACKAGES[@]}")
+  info "Installing/upgrading: ${pkgs[*]}"
+  local cmd="$NVM_BIN/npm i -g ${pkgs[*]}"
+  if [[ $DRY_RUN -eq 1 ]]; then
+    warn "DRY-RUN: $cmd"
+  else
+    if ! run_as_feature "PATH='$NVM_BIN':\$PATH $cmd"; then
+      warn "Install under 'feature' failed. Falling back to root install into NVM path."
+      # Фолбэк: выполнить установку от root в нужный NVM и затем восстановить владельца
+      PATH="$NVM_BIN:$PATH" bash -lc "$cmd"
+      if [[ "${EUID}" -eq 0 ]]; then
+        local ver_dir
+        ver_dir="$(dirname "$NVM_BIN")" # .../versions/node/vXX.YY.ZZ
+        if [[ -d "$ver_dir" ]]; then
+          chown -R feature:feature "$ver_dir" || warn "chown failed for $ver_dir"
+        fi
+      fi
+    fi
+  fi
+}
+
+ensure_symlink() {
+  local name="$1"
+  local target="$NVM_BIN/$name"
+  local link="/usr/local/bin/$name"
+  if [[ $DO_RELINK -eq 0 ]]; then
+    warn "Skip relink for $name (--no-relink)"
+    return 0
+  fi
+  if [[ ! -x "$target" ]]; then
+    warn "Target $target does not exist or is not executable; skipping symlink"
+    return 0
+  fi
+  if [[ "${EUID}" -ne 0 ]]; then
+    warn "Not root; cannot modify $link. To relink: sudo ln -sf '$target' '$link'"
+    return 0
+  fi
+  if [[ -L "$link" ]]; then
+    local curr
+    curr="$(readlink -f "$link" || true)"
+    if [[ "$curr" == "$target" ]]; then
+      info "$name link OK: $link -> $target"
+      return 0
+    fi
+  fi
+  if [[ $DRY_RUN -eq 1 ]]; then
+    warn "DRY-RUN: ln -sf '$target' '$link'"
+  else
+    ln -sf "$target" "$link"
+    info "Linked $link -> $target"
+  fi
+}
+
+print_versions() {
+  for name in "${CLIS[@]}"; do
+    local bin="/usr/local/bin/$name"
+    if [[ -x "$bin" ]]; then
+      local ver
+      ver="$($bin --version 2>/dev/null || true)"
+      if [[ -n "$ver" ]]; then
+        info "$name version: $ver"
+      else
+        warn "$name: no version output"
+      fi
+    else
+      warn "$name not found at $bin"
+    fi
+  done
+}
+
+basic_health() {
+  # Codex auth probe if available
+  if command -v /usr/local/bin/codex >/dev/null 2>&1; then
+    if /usr/local/bin/codex status >/dev/null 2>&1; then
+      info "codex status: OK"
+    else
+      warn "codex status failed. Run: codex auth login"
+    fi
+  fi
+}
+
+restart_services() {
+  if [[ $RESTART -eq 1 ]]; then
+    if command -v systemctl >/dev/null 2>&1; then
+      if [[ "${EUID}" -ne 0 ]]; then
+        warn "Not root; cannot restart services. Please run: sudo systemctl restart feature-factory-test.service feature-factory-prod.service"
+      else
+        warn "Restarting services via wrappers if available..."
+        systemctl restart feature-factory-test.service 2>/dev/null || true
+        systemctl restart feature-factory-prod.service 2>/dev/null || true
+        if [ -x /opt/feature-factory/bin/ff-orch-restart-safe ]; then
+          /opt/feature-factory/bin/ff-orch-restart-safe || true
+        fi
+        if command -v systemctl >/dev/null 2>&1; then
+          systemctl restart feature-factory-test.service 2>/dev/null || true
+          systemctl restart feature-factory-prod.service 2>/dev/null || true
+        fi
+        info "Services restart attempted (check ff-status or systemctl)."
+      fi
+    fi
+  else
+    warn "Services not restarted (use --restart-services if needed)."
+  fi
+}
+
+install_packages
+for name in "${CLIS[@]}"; do
+  ensure_symlink "$name"
+done
+print_versions
+basic_health
+restart_services
+
+info "Done. If versions didn't change, ensure you're using the same NVM node ($NVM_BIN) and re-run as root for relinking."

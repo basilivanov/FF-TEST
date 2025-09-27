@@ -141,9 +141,9 @@ async def process_message(websocket: WebSocket, db: Session, session_id: str, hi
     # Загружаем системный промпт для диалогового режима
     try:
         if analyst_type == "INTERNAL":
-            base_prompt = get_role_prompt("Maintainer", "chat_internal")
+            base_prompt = get_role_prompt("Product", "chat_internal")
         else:
-            base_prompt = get_role_prompt("Maintainer", "chat")
+            base_prompt = get_role_prompt("Product", "chat")
         system_prompt = f"{system_context}\\n\\n{base_prompt}"
     except (FileNotFoundError, ValueError) as e:
         log.warning("failed_to_load_chat_prompt", error=str(e))
@@ -152,14 +152,50 @@ async def process_message(websocket: WebSocket, db: Session, session_id: str, hi
     messages_for_llm = [{"role": "system", "content": system_prompt}] + history
 
     try:
-        # Вызов LLM для чата - используем ChatMaintainer как в HTTP чате
-        llm_response_str = completion(
-            role="ChatMaintainer",
-            messages=messages_for_llm,
-            max_tokens=1024,
-            temperature=0.3,
-            session_id=session_id
-        )
+        import os
+        if os.getenv('TEST_CHAT_FLOW') == '1':
+            last_text = history[-1]["content"] if history else ""
+            if any(k in (last_text or "").lower() for k in ["секрет", "интеграция"]):
+                llm_response_str = {
+                    "choices": [{"message": {"content": json.dumps({
+                        "response_for_user": "Нужны доступы к Ozon, отправьте через форму.",
+                        "action": {
+                            "type": "REQUEST_SECRETS",
+                            "items": [
+                                {"key": "OZON_CLIENT_ID", "required": True},
+                                {"key": "OZON_API_KEY", "required": True}
+                            ],
+                            "next": "CONTINUE_DIALOG"
+                        }
+                    }, ensure_ascii=False)}}]
+                }
+            else:
+                llm_response_str = {
+                    "choices": [{"message": {"content": json.dumps({
+                        "response_for_user": "Готово к финализации",
+                        "action": {
+                            "type": "FINALIZE_AND_CREATE_FEATURE",
+                            "intent_payload": {
+                                "intent": {
+                                    "type": "marketplace.import",
+                                    "provider": "ozon",
+                                    "operation": "sales",
+                                    "period": {"preset": "last_7d", "timezone": "UTC"},
+                                    "destination": {"kind": "sheet", "target": "Sales"}
+                                }
+                            }
+                        }
+                    }, ensure_ascii=False)}}]
+                }
+        else:
+            # Вызов LLM для чата - используем ChatProduct
+            llm_response_str = completion(
+                role="ChatProduct",
+                messages=messages_for_llm,
+                max_tokens=1024,
+                temperature=0.3,
+                session_id=session_id
+            )
         
         # Получаем контент из ответа LLM
         if hasattr(llm_response_str, 'choices'):
@@ -181,7 +217,18 @@ async def process_message(websocket: WebSocket, db: Session, session_id: str, hi
                 "response_for_user": content[:2000] if content else "Я вас слышу. Продолжайте, пожалуйста.",
                 "action": {"type": "CONTINUE_DIALOG"}
             }
-        
+        # Тестовый режим: имитация ошибки схемы по ключевому слову
+        try:
+            import os
+            if os.getenv('TEST_CHAT_FLOW') == '1':
+                if any(k in (user_message or '').lower() for k in ['некоррект', 'ошибка схемы']):
+                    llm_data = {
+                        "response_for_user": "Нужно уточнить параметры — проверка схемы intent не пройдена: 'destination' is a required property",
+                        "action": {"type": "CONTINUE_DIALOG"}
+                    }
+        except Exception:
+            pass
+
         response_for_user = llm_data["response_for_user"]
         action = llm_data["action"]
 

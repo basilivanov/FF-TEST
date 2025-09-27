@@ -14,7 +14,8 @@ import {
   Wrench,
   Briefcase
 } from 'lucide-react'
-// import { post } from '@/lib/api' // УДАЛЯЕМ ЭТОТ ИМПОРТ
+import { post as apiPost } from '@/lib/api'
+import SecretModal from '@/components/SecretModal'
 import { useUIStore } from '@/state/uiStore'
 
 interface ChatMessage {
@@ -55,6 +56,11 @@ const MaintainerChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const ws = useRef<WebSocket | null>(null) // Ссылка на WebSocket
+  const [secretOpen, setSecretOpen] = useState(false)
+  const [secretItems, setSecretItems] = useState<Array<{ key: string; hint?: string; required?: boolean; scope?: string }>>([])
+  const [readinessScore, setReadinessScore] = useState<number | null>(null)
+  const [missingHints, setMissingHints] = useState<string[]>([])
+  const [featureCreatedId, setFeatureCreatedId] = useState<string | null>(null)
 
   // Опции переключателя типа аналитика
   const analystOptions = [
@@ -148,6 +154,48 @@ const MaintainerChat: React.FC = () => {
           }
         }
       }
+
+      // Обработка action (REQUEST_SECRETS)
+      const action = data.action
+      if (action && action.type === 'REQUEST_SECRETS') {
+        const items = Array.isArray(action.items) ? action.items : []
+        if (items.length > 0) {
+          setSecretItems(items)
+          setSecretOpen(true)
+        }
+      }
+
+      // Примерная готовность (REST может прислать readiness_score; WS — нет)
+      const rs = typeof data.readiness_score === 'number'
+        ? data.readiness_score
+        : (action?.type === 'REQUEST_SECRETS' ? 0.5 : (action?.type === 'FINALIZE_AND_CREATE_FEATURE' ? 0.9 : 0.6))
+      if (!Number.isNaN(rs)) setReadinessScore(rs)
+
+      // Подсказки по недостающим полям: парсим из последнего ответа
+      const lastText: string | undefined = data.response || (data.history && data.history.length > 0 ? data.history[data.history.length - 1]?.content : undefined)
+      const hints: string[] = []
+      if (typeof lastText === 'string') {
+        // Ищем "Нужны уточнения по: ..."
+        const m1 = lastText.match(/Нужны уточнения по:\s*([^\.\n]+)/i)
+        if (m1 && m1[1]) {
+          m1[1].split(',').forEach((x) => {
+            const t = x.trim()
+            if (t) hints.push(t)
+          })
+        }
+        // Ищем сообщения про схему intent
+        const m2 = lastText.match(/проверка схемы intent не пройдена:?\s*([^\.\n]+)/i)
+        if (m2 && m2[1]) {
+          const frag = m2[1].replace(/['"\[\]]/g, '').trim()
+          if (frag) hints.push(frag)
+        }
+        // Ищем номер задачи
+        const m3 = lastText.match(/Номер задачи\D+(\d+)/i)
+        if (m3 && m3[1]) {
+          setFeatureCreatedId(m3[1])
+        }
+      }
+      setMissingHints(hints)
     }
 
     ws.current.onclose = () => {
@@ -220,14 +268,62 @@ const MaintainerChat: React.FC = () => {
     }
   }
 
+  const handleRequestFinalize = async () => {
+    if (isLoading) return
+    const text = 'Готово, пожалуйста, финализируй и создай задачу'
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text,
+      timestamp: new Date().toISOString()
+    }
+    setMessages(prev => [...prev, userMessage])
+    setIsLoading(true)
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      const payload = { message: text, session_id: sessionId, analyst_type: analystType }
+      ws.current.send(JSON.stringify(payload))
+    } else {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-200px)] gap-6">
+      <SecretModal
+        open={secretOpen}
+        items={secretItems}
+        onClose={() => setSecretOpen(false)}
+        onSubmit={async (values) => {
+          try {
+            for (const [key, v] of Object.entries(values)) {
+              await apiPost('/secrets/upsert', { key, value: v.value, scope: v.scope || 'test' })
+              const okMsg: ChatMessage = {
+                id: `${Date.now()}-${key}`,
+                role: 'assistant',
+                content: `Секрет ${key} принят и сохранён (маскировано).`,
+                timestamp: new Date().toISOString()
+              }
+              setMessages(prev => [...prev, okMsg])
+            }
+          } catch (e: any) {
+            const errMsg: ChatMessage = {
+              id: `${Date.now()}-err`,
+              role: 'assistant',
+              content: `Не удалось сохранить секреты: ${e?.message || 'ошибка'}`,
+              timestamp: new Date().toISOString()
+            }
+            setMessages(prev => [...prev, errMsg])
+          } finally {
+            setSecretOpen(false)
+          }
+        }}
+      />
       {/* Chat Messages */}
       <div className="flex-1 flex flex-col">
         <Card className="flex-1 flex flex-col">
           <CardHeader className="flex flex-col gap-3 pb-3">
             <div className="flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-medium">Чат с Аналитиком</CardTitle>
+              <CardTitle className="text-sm font-medium">Чат с Продуктом</CardTitle>
               <MessageCircle className="h-4 w-4 text-muted-foreground" />
             </div>
             
@@ -271,6 +367,21 @@ const MaintainerChat: React.FC = () => {
                           }`}>
                             {new Date(message.timestamp).toLocaleTimeString()}
                           </p>
+                          {/* Бейдж готовности и подсказки для ассистента (только у последнего ответа) */}
+                          {message.role === 'assistant' && message.id === messages[messages.length - 1]?.id && (
+                            <div className="mt-2 space-y-1">
+                              {typeof readinessScore === 'number' && (
+                                <span className="inline-flex items-center text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                                  Готовность: {readinessScore.toFixed(2)}
+                                </span>
+                              )}
+                              {!!missingHints.length && (
+                                <div className="text-xs text-amber-700 dark:text-amber-300">
+                                  Недостаёт: {missingHints.join(', ')}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -296,7 +407,7 @@ const MaintainerChat: React.FC = () => {
             
             {/* Input Area */}
             <div className="border-t p-4">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Input
                   ref={inputRef}
                   value={inputValue}
@@ -310,15 +421,21 @@ const MaintainerChat: React.FC = () => {
                   onClick={handleSend} 
                   disabled={!inputValue.trim() || isLoading}
                   size="icon"
+                  data-testid="btn-send"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
+                {typeof readinessScore === 'number' && readinessScore >= 0.85 && (
+                  <Button variant="outline" onClick={handleRequestFinalize} disabled={isLoading} data-testid="btn-request-finalize">
+                    Попросить финализацию
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Context Panel */}
       <div className="w-80 hidden lg:block">
         <Card className="h-full flex flex-col">
@@ -378,6 +495,20 @@ const MaintainerChat: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Toast: создана задача */}
+      {featureCreatedId && (
+        <div className="fixed bottom-4 right-4 z-50" data-testid="toast-feature-created">
+          <div className="bg-white dark:bg-gray-800 border rounded shadow-lg px-4 py-3 text-sm">
+            <div className="font-medium mb-1">Задача создана</div>
+            <div className="mb-2">Номер: {featureCreatedId}</div>
+            <div className="flex gap-2 justify-end">
+              <a href={`/features/${featureCreatedId}`} className="text-blue-600 hover:underline">Перейти</a>
+              <button className="text-gray-500 hover:text-gray-700" onClick={() => setFeatureCreatedId(null)}>Закрыть</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

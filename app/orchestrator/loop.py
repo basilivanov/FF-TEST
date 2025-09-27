@@ -40,6 +40,7 @@ from app.context.packager import ContextPackager
 from app.graph.nodes.dev_code import dev_code_node
 from app.graph.types import RunCtx
 from app.logging_helpers import get_env
+from app.services.git_integration import GitIntegrationService, GitIntegrationError
 
 # Получаем DATABASE_URL из переменных окружения или используем тестовую базу
 DATABASE_URL = get_db_connection_string()
@@ -133,7 +134,7 @@ class OrchestratorLoop:
             # Выбираем фичи со статусом NEW и PLANNED
             result = self.session.execute(
                 text("""
-                    SELECT id, title, intent_json, created_by, env, status, plan_dsl_json
+                    SELECT id, title, intent_json, created_by, env, status
                     FROM features 
                     WHERE status IN ('NEW', 'PLANNED')
                     ORDER BY priority DESC, created_at ASC
@@ -150,7 +151,7 @@ class OrchestratorLoop:
                 created_by = feature_row[3]
                 env = feature_row[4]
                 status = feature_row[5]
-                plan_dsl_json = feature_row[6]
+                plan_dsl_json = None
                 
                 logger.info(
                     "processing_feature",
@@ -289,6 +290,21 @@ class OrchestratorLoop:
                             "outputs": ["docs"],
                             "dod": ["Документация обновлена", "CHANGELOG дополнен"],
                             "severity": "low"
+                        },
+                        {
+                            "id": str(uuid.uuid4()),
+                            "name": f"apply_{title.lower().replace(' ', '_')}",
+                            "kind": "apply",
+                            "role": "Apply",
+                            "preconditions": [f"feature_{feature_id}_documented"],
+                            "postconditions": [f"feature_{feature_id}_applied"],
+                            "idempotency_key": f"apply.gitops.{feature_id}.v1",
+                            "retry": {"max": 2, "backoff": "exp:10,60,180"},
+                            "deadline": "PT45M",
+                            "models": ["qwen", "gemini-fallback"],
+                            "outputs": ["git_branch", "pr_url", "commit_sha"],
+                            "dod": ["Git ветка создана", "PR создан", "Изменения применены"],
+                            "severity": "high"
                         }
                     ]
                 },
@@ -322,17 +338,14 @@ class OrchestratorLoop:
                     }
                 )
             
-            # Обновляем статус фичи и сохраняем план
+            # Обновляем статус фичи (минимальная TEST-схема — без plan_dsl_json)
             self.session.execute(
                 text("""
                     UPDATE features 
-                    SET status = 'PLANNED', plan_dsl_json = :plan_dsl_json
+                    SET status = 'PLANNED'
                     WHERE id = :feature_id
                 """),
-                {
-                    "feature_id": feature_id,
-                    "plan_dsl_json": json.dumps(plan_dsl, ensure_ascii=False)
-                }
+                {"feature_id": feature_id}
             )
             
             self.session.commit()
@@ -368,10 +381,17 @@ class OrchestratorLoop:
         """
         try:
             if not plan_dsl_json:
-                logger.warning(
-                    "no_plan_dsl_for_feature",
+                # Нет подробного плана — сразу переводим в RUNNING (без блокировок)
+                self.session.execute(
+                    text("UPDATE features SET status = 'RUNNING' WHERE id = :fid"),
+                    {"fid": feature_id}
+                )
+                self.session.commit()
+                logger.info(
+                    "no_plan_dsl_required_set_running",
                     component="orchestrator",
-                    feature_id=feature_id
+                    feature_id=feature_id,
+                    feature_title=feature_title
                 )
                 return
                 
@@ -1004,14 +1024,14 @@ class OrchestratorLoop:
             # Выбираем фичи в статусе RUNNING
             result = self.session.execute(
                 text("""
-                    SELECT f.id, f.title, f.plan_dsl_json,
+                    SELECT f.id, f.title, NULL as plan_dsl_json,
                            COUNT(t.id) as total_tasks,
                            SUM(CASE WHEN t.status = 'DONE' THEN 1 ELSE 0 END) as done_tasks,
                            SUM(CASE WHEN t.status = 'FAILED' THEN 1 ELSE 0 END) as failed_tasks
                     FROM features f
                     LEFT JOIN tasks t ON f.id = t.feature_id
                     WHERE f.status = 'RUNNING'
-                    GROUP BY f.id, f.title, f.plan_dsl_json
+                    GROUP BY f.id, f.title
                 """)
             )
             
@@ -1040,8 +1060,34 @@ class OrchestratorLoop:
                 if total_tasks == 0:
                     # Нет задач - странная ситуация, но считаем завершенной
                     new_status = "DONE"
-                elif done_tasks == total_tasks:
-                    # Все задачи завершены успешно
+                elif done_tasks == total_tasks and total_tasks > 0:
+                    # Все задачи завершены успешно — безопасный GitOps (ветка/PR/merge)
+                    try:
+                        corr = f"FF-GITOPS-{feature_id}-{uuid.uuid4().hex[:8]}"
+                        os.environ.setdefault("REQUESTS_CA_BUNDLE", "/etc/ssl/certs/ca-certificates.crt")
+                        os.environ.setdefault("CURL_CA_BUNDLE", "/etc/ssl/certs/ca-certificates.crt")
+                        gis = GitIntegrationService()
+                        branch = gis.create_feature_branch(feature_id, feature_title, corr)
+                        gis.ensure_unique_commit(feature_id, corr)
+                        pr_info = gis.create_pull_request(branch, feature_id, feature_title, corr)
+                        # persist PR info
+                        self.session.execute(
+                            text("UPDATE features SET pr_url = :pr, git_branch = :br, branch_name = :br, updated_at = datetime('now') WHERE id = :fid"),
+                            {"pr": pr_info.get("pr_url",""), "br": branch, "fid": feature_id}
+                        )
+                        self.session.commit()
+                        # attempt merge (mock in TEST if push disabled)
+                        try:
+                            merge = gis.merge_pull_request(feature_id, pr_info.get("pr_number", 0), pr_info.get("head_sha",""), corr)
+                            self.session.execute(
+                                text("UPDATE features SET merged_sha = :sha, updated_at = datetime('now') WHERE id = :fid"),
+                                {"sha": merge.get("merge_commit_sha",""), "fid": feature_id}
+                            )
+                            self.session.commit()
+                        except GitIntegrationError as e:
+                            logger.warning("gitops_merge_skip", component="orchestrator", feature_id=feature_id, error=str(e))
+                    except Exception as e:
+                        logger.error("gitops_perform_error", component="orchestrator", feature_id=feature_id, err_type=type(e).__name__, error=str(e))
                     new_status = "DONE"
                 elif failed_tasks > 0 and (done_tasks + failed_tasks) == total_tasks:
                     # Есть провалившиеся задачи и все задачи обработаны

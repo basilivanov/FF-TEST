@@ -31,7 +31,7 @@ def load_prompt_from_file(prompt_file: str) -> str:
 
 def get_role_prompt(role: str, prompt_type: Optional[str] = None) -> str:
     """
-    Получает промпт для роли из конфигурации.
+    Получает промпт для роли из конфигурации с fallback поддержкой.
     
     Args:
         role: Название роли (Maintainer, Dev, QA, etc.)
@@ -58,8 +58,20 @@ def get_role_prompt(role: str, prompt_type: Optional[str] = None) -> str:
             # Если специальный промпт не найден, используем основной
             pass
     
-    # Используем основной промпт роли
-    return load_prompt_from_file(role_config['file'])
+    # Пробуем загрузить основной промпт роли
+    try:
+        return load_prompt_from_file(role_config['file'])
+    except FileNotFoundError:
+        # Если основной промпт не найден, пробуем fallback
+        fallback_file = role_config.get('fallback_file')
+        if fallback_file:
+            try:
+                return load_prompt_from_file(fallback_file)
+            except FileNotFoundError:
+                pass
+        
+        # Если ничего не найдено, поднимаем ошибку
+        raise FileNotFoundError(f"Neither main prompt file '{role_config['file']}' nor fallback file '{fallback_file}' found for role {role}")
 
 
 def load_prompt_content(prompt_filename: str) -> str:

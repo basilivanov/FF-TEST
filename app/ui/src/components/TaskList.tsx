@@ -19,12 +19,13 @@ import { formatDate } from '@/lib/format'
 
 interface Task {
   id: number
-  feature_id: number
-  feature_title: string
   role: string
   status: string
-  attempts: number
-  scheduled_at: string
+  // Optional fields when backend provides extended view
+  feature_id?: number
+  feature_title?: string
+  attempts?: number
+  scheduled_at?: string
   started_at?: string
 }
 
@@ -66,10 +67,10 @@ const TaskList: React.FC<TaskListProps> = ({ onRefresh }) => {
   // Фильтрация задач
   const filteredTasks = tasks.filter(task => {
     // Поиск по тексту
-    if (searchTerm && 
-        !task.feature_title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    if (searchTerm &&
+        !(task.feature_title || '').toLowerCase().includes(searchTerm.toLowerCase()) &&
         !task.id.toString().includes(searchTerm) &&
-        !task.feature_id.toString().includes(searchTerm)) {
+        !(task.feature_id?.toString() || '').includes(searchTerm)) {
       return false
     }
     
@@ -201,7 +202,7 @@ const TaskList: React.FC<TaskListProps> = ({ onRefresh }) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="flex items-center">
-                        <h3 className="text-sm font-medium">{task.feature_title}</h3>
+                        <h3 className="text-sm font-medium">Задача #{task.id}</h3>
                         <Badge 
                           variant={getStatusBadgeVariant(task.status)} 
                           className="ml-2"
@@ -210,11 +211,13 @@ const TaskList: React.FC<TaskListProps> = ({ onRefresh }) => {
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Задача #{task.id} • Фича #{task.feature_id} • Роль: {task.role}
+                        Роль: {task.role}{task.feature_id ? ` • Фича #${task.feature_id}` : ''}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        Попытки: {task.attempts} • Запланировано: {formatDate(task.scheduled_at)}
-                      </p>
+                      {task.scheduled_at && (
+                        <p className="text-xs text-muted-foreground">
+                          Запланировано: {formatDate(task.scheduled_at)}{typeof task.attempts === 'number' ? ` • Попытки: ${task.attempts}` : ''}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </Link>

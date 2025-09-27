@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "marketplace.import",
+  "type": "object",
+  "properties": {
+    "type": {"const": "marketplace.import"},
+    "provider": {"type": "string"},
+    "operation": {"type": "string"},
+    "period": {
+      "type": "object",
+      "properties": {
+        "preset": {"type": "string"},
+        "since": {"type": "string"},
+        "to": {"type": "string"},
+        "timezone": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "destination": {
+      "type": "object",
+      "properties": {
+        "kind": {"type": "string"},
+        "target": {"type": "string"}
+      },
+      "required": ["kind", "target"],
+      "additionalProperties": true
+    }
+  },
+  "required": ["type", "provider", "operation", "period", "destination"],
+  "additionalProperties": true
+}
+

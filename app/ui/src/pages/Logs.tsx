@@ -19,11 +19,14 @@ import {
   ChevronRight,
   Eye,
   ExternalLink,
-  X
+  X,
+  Activity
 } from 'lucide-react'
 import { formatDate } from '@/lib/format'
 import { get } from '@/lib/api'
+import { sseClient } from '@/lib/sse'
 import { useLocation } from 'react-router-dom'
+import LogsCharts from '@/components/LogsCharts'
 
 // Реальная схема API
 interface LogEntry {
@@ -79,6 +82,9 @@ const Logs: React.FC = () => {
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null)
   const [logDetail, setLogDetail] = useState<LogDetailResponse | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  // UI client errors (ingested from browser)
+  const [uiClientItems, setUiClientItems] = useState<Array<{ ts: number|string; level: string; message: string; url?: string }>>([])
+  const [uiClientError, setUiClientError] = useState<string| null>(null)
 
   // Level options for filtering
   const levelOptions = ['ALL', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL']
@@ -156,10 +162,23 @@ const Logs: React.FC = () => {
   // Initial fetch
   useEffect(() => {
     fetchLogs(currentPage, levelFilter, searchTerm)
+    // Also fetch recent UI client errors
+    ;(async () => {
+      try {
+        const r = await get<{items: any[]; total: number}>(`/logs/client/recent`)
+        const items = Array.isArray(r.data?.items) ? r.data.items : []
+        setUiClientItems(items as any)
+        setUiClientError(null)
+      } catch (e) {
+        setUiClientError(e instanceof Error ? e.message : 'Не удалось получить UI client logs')
+        setUiClientItems([])
+      }
+    })()
   }, [currentPage, levelFilter, searchTerm])
 
-  // Live tail setup
+  // Live tail setup (polling + SSE augmentation)
   useEffect(() => {
+    // Poll tail
     if (liveTail && lastTailTimestamp) {
       tailInterval.current = setInterval(fetchTail, 3000) // 3 seconds
     } else {
@@ -168,11 +187,49 @@ const Logs: React.FC = () => {
         tailInterval.current = null
       }
     }
-    
+
+    // SSE connection (adds near-real-time events)
+    let offAny: (() => void) | null = null
+    if (liveTail) {
+      sseClient.connect('/stream/events')
+      offAny = sseClient.onAny((_type, data) => {
+        // Only handle recognized event envelopes
+        if (!data) return
+        try {
+          const ts = typeof data.timestamp === 'number' ? new Date(data.timestamp * 1000).toISOString() : (data.timestamp || new Date().toISOString())
+          const level = (data.error || data.error_type) ? 'ERROR' : 'INFO'
+          const svc = data.service || 'stream'
+          const msg = data.message || data.event || 'event'
+          const entry: LogEntry = {
+            timestamp: ts,
+            level: level as any,
+            service: svc,
+            message: typeof msg === 'string' ? msg : JSON.stringify(msg),
+            correlation_id: (data.correlation_id || null),
+            request_id: null,
+            user: null,
+            source: 'sse',
+            feature_id: null,
+            task_id: null,
+            run_id: data.run_id || null,
+            duration_ms: null,
+            status_code: null,
+            ip_address: null,
+            user_agent: null,
+            error: data.error ? { message: data.error, type: data.error_type || 'Error' } : null,
+            context: data
+          }
+          setLogs(prev => [entry, ...prev].slice(0, 1000))
+          setTotal(prev => prev + 1)
+        } catch { /* ignore */ }
+      })
+    }
+
     return () => {
       if (tailInterval.current) {
         clearInterval(tailInterval.current)
       }
+      if (offAny) offAny()
     }
   }, [liveTail, lastTailTimestamp, levelFilter, searchTerm])
 
@@ -276,7 +333,29 @@ const Logs: React.FC = () => {
   const totalPages = Math.ceil(total / pageLimit)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 min-h-screen">
+      {/* UI client errors quick panel */}
+      <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm font-semibold">UI Errors (client)</div>
+          <div className="text-xs text-muted-foreground">последние {uiClientItems.length}</div>
+        </div>
+        {uiClientError && (
+          <div className="text-xs text-red-600">{uiClientError}</div>
+        )}
+        {!uiClientError && uiClientItems.length === 0 && (
+          <div className="text-xs text-gray-500">Нет клиентских ошибок</div>
+        )}
+        {uiClientItems.length > 0 && (
+          <ul className="text-xs space-y-1 max-h-40 overflow-auto">
+            {uiClientItems.slice().reverse().slice(0,10).map((it: any, idx) => (
+              <li key={idx} className="truncate">
+                [{formatDate(it.ts)}] {String(it.level || '').toUpperCase()} — {it.message} {it.url ? `• ${it.url}` : ''}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       {/* Error banner */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between" role="alert">
@@ -290,11 +369,30 @@ const Logs: React.FC = () => {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      {/* Красивый заголовок */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center space-x-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+          <FileText className="h-6 w-6 text-blue-600 animate-pulse" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Logs & Events
+          </h1>
+          <Activity className="h-6 w-6 text-purple-600" />
+        </div>
+        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Системные события в реальном времени — логи, ошибки и события с фильтрацией и Live tail
+        </p>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Logs</h1>
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${liveTail ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">
+              {liveTail ? 'Live Tail активен' : 'Live Tail отключён'}
+            </span>
+          </div>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Системные логи с фильтрацией и Live tail
+            Всего событий: {total.toLocaleString()}
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex space-x-2">
@@ -317,6 +415,9 @@ const Logs: React.FC = () => {
         </div>
       </div>
 
+      {/* Добавляем красивые графики */}
+      <LogsCharts logs={logs} liveTail={liveTail} />
+
       {/* Controls */}
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
@@ -329,7 +430,7 @@ const Logs: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <div className="flex flex-wrap gap-2">
@@ -399,39 +500,39 @@ const Logs: React.FC = () => {
 
       {/* Logs Table */}
       {!loading && logs.length > 0 && (
-        <div className="border rounded-lg overflow-hidden bg-gray-900 text-gray-100">
+        <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-800 shadow-lg">
           <div className="overflow-y-auto max-h-[calc(100vh-400px)]">
             <table className="min-w-full divide-y divide-gray-700">
-              <thead className="bg-gray-800 sticky top-0">
+              <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 sticky top-0">
                 <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     Время
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     Уровень
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     Сервис
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     Сообщение
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     ID
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">
                     Действия
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {logs.map((log, index) => (
                   <tr 
                     key={`${log.correlation_id}-${index}`} 
-                    className="hover:bg-gray-800 cursor-pointer transition-colors"
+                    className="hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:shadow-md"
                     onClick={() => handleRowClick(log)}
                   >
-                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-1 text-gray-400" />
                         {formatDate(log.timestamp)}
@@ -445,12 +546,12 @@ const Logs: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       <Badge variant="outline" className="text-xs">
                         {log.service}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm max-w-md">
+                    <td className="px-4 py-3 text-sm max-w-md text-gray-900 dark:text-gray-100">
                       <div className="truncate" title={log.message}>
                         {log.message}
                       </div>
@@ -465,7 +566,7 @@ const Logs: React.FC = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm">
+                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                       <div className="space-y-1">
                         {log.correlation_id && (
                           <div className="text-xs text-blue-400 font-mono">

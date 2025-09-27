@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ART_BASE="/opt/feature-factory/artifacts"
+WD_DIR="$ART_BASE/watchdog"
+mkdir -p "$WD_DIR"
+
+start_bg() {
+  local cmd="$1"; local pidfile="$2"; local logfile="$3"
+  if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+    echo "already running: $(basename "$pidfile") PID $(cat "$pidfile")"
+  else
+    nohup bash -lc "$cmd" >> "$logfile" 2>&1 & echo $! > "$pidfile"
+    echo "started: $(basename "$pidfile") PID $(cat "$pidfile")"
+  fi
+}
+
+# SSE collector
+start_bg "curl -sN -H 'Accept: text/event-stream' http://127.0.0.1:8081/api/v1/logs/stream" "$WD_DIR/sse.pid" "$WD_DIR/sse.log"
+
+# Runner ticker (3s)
+start_bg "while true; do curl -sS -X POST -H 'X-Correlation-Id: WD-TICK' http://127.0.0.1:8081/api/v1/runner/run-once; sleep 3; done" "$WD_DIR/ticker.pid" "$WD_DIR/ticker.log"
+
+# Watchdog loop
+chmod +x /opt/feature-factory/bin/ff-watchdog-loop-nosudo || true
+start_bg "/opt/feature-factory/bin/ff-watchdog-loop-nosudo" "$WD_DIR/watchdog.pid" "$WD_DIR/watchdog.log"
+
+ls -la "$WD_DIR"

@@ -133,3 +133,45 @@ def log_scheduler_iteration(scheduled_tasks_count: int, running_tasks_count: int
             **extra
         }
     )
+
+
+async def _send_feature_status_telegram_notification(feature_id: int, title: str, 
+                                                   old_status: str, new_status: str,
+                                                   run_id: str = None, correlation_id: str = None):
+    """
+    Отправляет Telegram уведомление об изменении статуса фичи.
+    """
+    try:
+        from app.api.notifications import send_telegram_message_with_retry, TelegramMessage
+        
+        # Реальный токен бота и chat_id
+        bot_token = "8255054922:AAF7tM68DgVKM1s3B5I-5kuobSB7YIxVIEg"
+        # Пока используем тестовый chat_id - в production нужно получить real chat_id для basil_ivanov@inbox.ru
+        chat_id = 123456789
+        
+        # Формируем текст уведомления
+        message_text = f"""🔄 Статус фичи изменился
+
+📋 Feature #{feature_id}: {title}
+📍 {old_status} → {new_status}
+🕐 {get_env()} environment
+⚡ Run ID: {run_id or 'N/A'}"""
+
+        message = TelegramMessage(
+            chat_id=chat_id,
+            text=message_text,
+            parse_mode=None
+        )
+        
+        result = await send_telegram_message_with_retry(bot_token, message)
+        
+        if result.ok:
+            log.info("Telegram notification sent successfully", 
+                    feature_id=feature_id, chat_id=chat_id)
+        else:
+            log.warning("Telegram notification failed", 
+                       feature_id=feature_id, error_code=result.error_code)
+                       
+    except Exception as e:
+        log.error("Failed to send Telegram notification", 
+                 feature_id=feature_id, error=str(e))

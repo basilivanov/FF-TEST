@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://feature-factory.local/schemas/intent.schema.json",
+  "title": "Maintainer Intent",
+  "type": "object",
+  "required": ["intent"],
+  "properties": {
+    "intent": {
+      "type": "string",
+      "enum": [
+        "plan_feature",
+        "run_import_ozon",
+        "run_normalize",
+        "run_export_sheets",
+        "set_schedule",
+        "status_jobs",
+        "logs_tail",
+        "docs_status",
+        "docs_rebuild",
+        "dry_run_toggle"
+      ]
+    },
+    "env": { "type": "string", "enum": ["test", "prod" ] },
+    "slots": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": true
+}
+

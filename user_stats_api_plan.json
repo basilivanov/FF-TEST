@@ -1,0 +1,275 @@
+{
+  "plan": {
+    "description": "Create a comprehensive user statistics dashboard API endpoint with user activity metrics",
+    "acceptance_criteria": [
+      "GET /api/v1/users/{user_id}/stats endpoint created",
+      "Returns JSON with user activity metrics (login count, last activity, session duration)",
+      "Includes proper error handling for invalid user IDs",
+      "Has comprehensive input validation and rate limiting",
+      "Includes unit tests covering all scenarios and edge cases",
+      "Updates API documentation with OpenAPI spec",
+      "Includes proper logging and monitoring"
+    ],
+    "tasks": [
+      {
+        "id": "task_001",
+        "name": "Create user activity tracking database tables",
+        "description": "Design and create database tables for tracking user activities, sessions, and statistics",
+        "dependencies": [],
+        "estimated_duration": "2 hours",
+        "acceptance_criteria": [
+          "Users table with basic user information",
+          "User_sessions table for tracking login sessions",
+          "User_activities table for tracking various user actions",
+          "Database migration script created",
+          "Proper indexes for performance optimization"
+        ],
+        "artifacts": [
+          "app/db/migrations/versions/create_user_tables.py",
+          "app/db/models/user_models.py"
+        ]
+      },
+      {
+        "id": "task_002", 
+        "name": "Create Pydantic schemas for user stats API",
+        "description": "Define request/response schemas for the user statistics endpoint",
+        "dependencies": ["task_001"],
+        "estimated_duration": "1 hour",
+        "acceptance_criteria": [
+          "UserStatsResponse schema with all required metrics",
+          "UserStatsRequest schema for query parameters",
+          "Error response schemas defined",
+          "Proper validation and documentation"
+        ],
+        "artifacts": [
+          "app/api/schemas/user_stats_schemas.py"
+        ]
+      },
+      {
+        "id": "task_003",
+        "name": "Implement user statistics service layer",
+        "description": "Create service layer for calculating and retrieving user statistics",
+        "dependencies": ["task_001", "task_002"],
+        "estimated_duration": "3 hours",
+        "acceptance_criteria": [
+          "UserStatsService class with statistics calculation methods",
+          "Login count calculation functionality",
+          "Last activity tracking functionality", 
+          "Session duration calculation logic",
+          "Proper error handling and logging",
+          "Database query optimization"
+        ],
+        "artifacts": [
+          "app/services/user_stats_service.py"
+        ]
+      },
+      {
+        "id": "task_004",
+        "name": "Create user statistics API endpoint",
+        "description": "Implement the FastAPI endpoint for user statistics",
+        "dependencies": ["task_002", "task_003"],
+        "estimated_duration": "2 hours",
+        "acceptance_criteria": [
+          "GET /api/v1/users/{user_id}/stats endpoint implemented",
+          "Proper path parameter validation for user_id",
+          "Integration with UserStatsService",
+          "Structured JSON response matching schema",
+          "Proper HTTP status codes",
+          "Correlation ID middleware integration"
+        ],
+        "artifacts": [
+          "app/api/user_stats.py"
+        ]
+      },
+      {
+        "id": "task_005",
+        "name": "Add input validation and error handling",
+        "description": "Implement comprehensive input validation and error handling",
+        "dependencies": ["task_004"],
+        "estimated_duration": "1.5 hours",
+        "acceptance_criteria": [
+          "User ID format validation (integer, positive)",
+          "Proper 404 handling for non-existent users",
+          "400 error handling for invalid input",
+          "500 error handling for server errors",
+          "Standardized error response format",
+          "Proper logging of validation errors"
+        ],
+        "artifacts": [
+          "app/api/validators/user_validators.py"
+        ]
+      },
+      {
+        "id": "task_006",
+        "name": "Implement rate limiting middleware",
+        "description": "Add rate limiting to prevent API abuse",
+        "dependencies": ["task_004"],
+        "estimated_duration": "2 hours",
+        "acceptance_criteria": [
+          "Rate limiting middleware implemented",
+          "Configurable rate limits (requests per minute/hour)",
+          "Proper 429 (Too Many Requests) responses",
+          "Rate limit headers in responses",
+          "Redis or in-memory rate limiting backend",
+          "Per-user rate limiting logic"
+        ],
+        "artifacts": [
+          "app/api/middleware/rate_limit.py",
+          "app/utils/rate_limiter.py"
+        ]
+      },
+      {
+        "id": "task_007",
+        "name": "Add comprehensive logging and monitoring",
+        "description": "Implement detailed logging and monitoring for the endpoint",
+        "dependencies": ["task_004"],
+        "estimated_duration": "1 hour", 
+        "acceptance_criteria": [
+          "Request/response logging with correlation IDs",
+          "Performance metrics logging (response times)",
+          "Error rate monitoring",
+          "User activity audit logging",
+          "Structured logging using existing structlog setup",
+          "Integration with existing middleware"
+        ],
+        "artifacts": [
+          "app/utils/monitoring.py"
+        ]
+      },
+      {
+        "id": "task_008",
+        "name": "Create comprehensive unit tests",
+        "description": "Implement unit tests covering all scenarios and edge cases",
+        "dependencies": ["task_004", "task_005", "task_006"],
+        "estimated_duration": "3 hours",
+        "acceptance_criteria": [
+          "Test coverage >= 95% for all new code",
+          "Happy path tests for valid user IDs",
+          "Error case tests (404, 400, 500)",
+          "Rate limiting tests",
+          "Input validation tests",
+          "Service layer unit tests",
+          "Database integration tests",
+          "Mock tests for external dependencies"
+        ],
+        "artifacts": [
+          "tests/api/test_user_stats.py",
+          "tests/services/test_user_stats_service.py",
+          "tests/middleware/test_rate_limit.py"
+        ]
+      },
+      {
+        "id": "task_009",
+        "name": "Update API documentation",
+        "description": "Update OpenAPI documentation with new endpoint specifications",
+        "dependencies": ["task_004", "task_005"],
+        "estimated_duration": "1 hour",
+        "acceptance_criteria": [
+          "OpenAPI schema updated with new endpoint",
+          "Detailed endpoint description and examples",
+          "Request/response schema documentation",
+          "Error response documentation",
+          "Rate limiting documentation",
+          "Authentication requirements documented"
+        ],
+        "artifacts": [
+          "Updated FastAPI auto-generated OpenAPI spec"
+        ]
+      },
+      {
+        "id": "task_010",
+        "name": "Integration with main application",
+        "description": "Integrate the new endpoint into the main FastAPI application",
+        "dependencies": ["task_004", "task_006"],
+        "estimated_duration": "0.5 hours",
+        "acceptance_criteria": [
+          "Router imported in main.py",
+          "Endpoint accessible via FastAPI app",
+          "Rate limiting middleware properly configured",
+          "No breaking changes to existing functionality"
+        ],
+        "artifacts": [
+          "app/main.py (updated)"
+        ]
+      },
+      {
+        "id": "task_011",
+        "name": "Performance optimization and caching",
+        "description": "Implement caching and performance optimizations",
+        "dependencies": ["task_003", "task_004"],
+        "estimated_duration": "2 hours",
+        "acceptance_criteria": [
+          "Redis caching for frequently accessed user stats",
+          "Database query optimization with proper indexes",
+          "Response time < 200ms for cached results",
+          "Cache invalidation strategy implemented",
+          "Performance benchmarking completed"
+        ],
+        "artifacts": [
+          "app/utils/cache.py",
+          "Performance benchmark results"
+        ]
+      },
+      {
+        "id": "task_012",
+        "name": "End-to-end testing and validation",
+        "description": "Perform comprehensive end-to-end testing of the complete feature",
+        "dependencies": ["task_008", "task_009", "task_010", "task_011"],
+        "estimated_duration": "2 hours",
+        "acceptance_criteria": [
+          "All acceptance criteria validated",
+          "Load testing completed",
+          "Security testing completed",
+          "API documentation verified",
+          "Rate limiting functionality verified",
+          "Error handling scenarios tested",
+          "Performance requirements met"
+        ],
+        "artifacts": [
+          "tests/e2e/test_user_stats_e2e.py",
+          "Load testing results",
+          "Security audit report"
+        ]
+      }
+    ],
+    "dependencies_graph": {
+      "task_001": [],
+      "task_002": ["task_001"],
+      "task_003": ["task_001", "task_002"],
+      "task_004": ["task_002", "task_003"],
+      "task_005": ["task_004"],
+      "task_006": ["task_004"],
+      "task_007": ["task_004"], 
+      "task_008": ["task_004", "task_005", "task_006"],
+      "task_009": ["task_004", "task_005"],
+      "task_010": ["task_004", "task_006"],
+      "task_011": ["task_003", "task_004"],
+      "task_012": ["task_008", "task_009", "task_010", "task_011"]
+    },
+    "technical_specifications": {
+      "framework": "FastAPI",
+      "database": "SQLite with Alembic migrations",
+      "validation": "Pydantic schemas",
+      "caching": "Redis or in-memory",
+      "logging": "structlog with JSON format",
+      "testing": "pytest with comprehensive coverage",
+      "documentation": "OpenAPI/Swagger auto-generated",
+      "middleware": "Custom correlation ID and rate limiting",
+      "error_handling": "Standardized JSON error responses"
+    },
+    "estimated_total_duration": "20 hours",
+    "risk_factors": [
+      "Database performance with large user datasets",
+      "Rate limiting configuration complexity",
+      "Cache invalidation timing issues",
+      "Backward compatibility with existing systems"
+    ],
+    "success_metrics": [
+      "API response time < 200ms (95th percentile)",
+      "Test coverage >= 95%",
+      "Zero breaking changes to existing functionality",
+      "Complete OpenAPI documentation",
+      "Comprehensive error handling coverage"
+    ]
+  }
+}

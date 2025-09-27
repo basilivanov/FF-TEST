@@ -16,26 +16,15 @@ import os
 
 # Импортируем logging_helpers
 from app.logging_helpers import log, get_env, generate_correlation_id
+from app.admin.auth import ensure_admin_credentials
 
 # Создаем роутер
 router = APIRouter(prefix="/api/v1/admin")
 security = HTTPBasic()
 
-# Конфигурация аутентификации
-AUTH_USERNAME = os.getenv("ADMIN_USERNAME", "ops")
-AUTH_PASSWORD = os.getenv("ADMIN_PASSWORD", "ops123")
-
 def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
-    """Проверка BasicAuth для admin endpoints"""
-    is_correct_username = credentials.username == AUTH_USERNAME
-    is_correct_password = credentials.password == AUTH_PASSWORD
-    if not (is_correct_username and is_correct_password):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
+    """Проверка BasicAuth для admin endpoints."""
+    return ensure_admin_credentials(credentials)
 
 
 # Модели данных согласно R-TokensStats.json

@@ -77,6 +77,9 @@ class ArtifactApplier:
                     }
                 )
             
+            # Auto-register new API routers
+            self._register_api_routers(files_to_apply)
+            
             # Save package to database
             self._save_package_to_db(manifest)
             
@@ -178,6 +181,87 @@ class ArtifactApplier:
         except Exception as e:
             log.error(
                 event="index_update_failed",
+                component="orchestrator",
+                agent_role="Orchestrator",
+                kv={
+                    "error": str(e)
+                },
+                stack=True
+            )
+    
+    def _register_api_routers(self, files_to_apply: List[str]):
+        """
+        Automatically register new API routers in main.py
+        
+        Args:
+            files_to_apply: List of files being applied
+        """
+        try:
+            # Find API router files
+            api_files = [f for f in files_to_apply if f.startswith('app/api/') and f.endswith('.py') and 'schema' not in f]
+            
+            if not api_files:
+                return
+                
+            main_py_path = "/opt/feature-factory/app/main.py"
+            
+            # Read current main.py
+            with open(main_py_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Track if we made changes
+            changes_made = False
+            
+            for api_file in api_files:
+                # Extract module name (e.g., app/api/hello.py -> hello)
+                module_name = os.path.splitext(os.path.basename(api_file))[0]
+                import_name = f"app.api.{module_name}"
+                router_var = f"{module_name}_router"
+                
+                # Skip if already imported
+                if f"from {import_name} import router as {router_var}" in content:
+                    continue
+                    
+                # Add import after existing API imports
+                import_line = f"    from {import_name} import router as {router_var}"
+                include_line = f"    app.include_router({router_var})"
+                
+                # Find the ping router section and add after it
+                ping_section = "try:\n    from app.api.ping import router as ping_router\n    app.include_router(ping_router)\nexcept Exception:\n    # Нет ping-роутера — ничего страшного, он может появиться как артефакт\n    pass"
+                
+                if ping_section in content:
+                    # Add new router after ping section
+                    new_section = f"{ping_section}\n\n# Auto-generated router for {module_name}\ntry:\n{import_line}\n{include_line}\nexcept Exception:\n    # {module_name} router not available yet\n    pass"
+                    content = content.replace(ping_section, new_section)
+                    changes_made = True
+                    
+                    log.info(
+                        event="router_registered",
+                        component="orchestrator",
+                        agent_role="Orchestrator",
+                        kv={
+                            "module": module_name,
+                            "router": router_var
+                        }
+                    )
+            
+            # Write back if changes were made
+            if changes_made:
+                with open(main_py_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                    
+                log.info(
+                    event="main_py_updated",
+                    component="orchestrator", 
+                    agent_role="Orchestrator",
+                    kv={
+                        "routers_added": len([f for f in api_files if f"app.api.{os.path.splitext(os.path.basename(f))[0]}" not in content])
+                    }
+                )
+                
+        except Exception as e:
+            log.error(
+                event="router_registration_failed",
                 component="orchestrator",
                 agent_role="Orchestrator",
                 kv={

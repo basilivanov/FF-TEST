@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "telegram.notify",
+  "type": "object",
+  "properties": {
+    "type": {"const": "telegram.notify"},
+    "template": {"type": "string"},
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {"kind": {"type": "string"}, "chat_id": {"type": "string"}},
+        "required": ["chat_id"],
+        "additionalProperties": true
+      }
+    },
+    "triggers": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": ["type", "template", "channels", "triggers"],
+  "additionalProperties": true
+}
+

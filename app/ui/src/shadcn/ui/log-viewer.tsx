@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/shadcn/ui/button'
 import { Input } from '@/shadcn/ui/input'
 import { Badge } from '@/shadcn/ui/badge'
+import { cn } from '@/lib/utils'
 import { 
   Search, 
   Pause, 
@@ -9,13 +10,12 @@ import {
   Copy,
   Filter,
   Calendar,
-  AlertCircle,
   Info,
   AlertTriangle,
   XCircle,
-  CheckCircle
+  FileText
 } from 'lucide-react'
-import { formatLogLevel, formatDate } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 import { LogEntry, LogSeverity, Role } from '@/lib/types'
 
 interface LogViewerProps {

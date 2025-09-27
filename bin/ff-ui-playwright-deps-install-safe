@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "[ff-ui-playwright-deps-install-safe] Must be run as root (via sudo)." >&2
+  exit 1
+fi
+
+echo "[ff-ui-playwright-deps-install-safe] Updating apt cache…"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -y
+
+echo "[ff-ui-playwright-deps-install-safe] Installing system libs via Playwright helper…"
+npx --yes playwright install-deps chromium || true
+
+echo "[ff-ui-playwright-deps-install-safe] Installing Playwright Chromium browser…"
+cd /opt/feature-factory/app/ui
+sudo -u feature -H bash -lc "npx --yes playwright install chromium"
+
+echo "[ff-ui-playwright-deps-install-safe] Done."

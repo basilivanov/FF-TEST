@@ -17,6 +17,8 @@ from app.graph.nodes.qa import qa_node
 from app.graph.nodes.scribe import scribe_node
 from app.graph.nodes.apply import apply_node
 from app.graph.nodes.watchdog import watchdog_check_node # Импорт Watchdog
+from app.graph.nodes.spec_synth import spec_synth_node
+from app.graph.nodes.test_synth import test_synth_node
 
 # Настройка логгера
 logger = structlog.get_logger()
@@ -41,9 +43,19 @@ class GraphState(dict):
 # Функция решения для Watchdog
 def decide_after_watchdog(state: GraphState) -> str:
     """Решает, куда идти после проверки Watchdog."""
-    if state.get("watchdog_decision") == "ESCALATE_L1":
-        return "dev"  # Возвращаемся к dev для повторной попытки с контекстом
-    return "gate" # Продолжаем нормальный поток
+    watchdog_decision = state.get("watchdog_decision", "CONTINUE")
+    if watchdog_decision in ("ESCALATE_L1", "ESCALATE_L2"):
+        return "dev"  # Возвращаемся к dev для повторной попытки с контекстом (L1/L2)
+    # Для CONTINUE и всех других случаев продолжаем нормальный поток
+    return "gate"
+
+
+# Функция решения после QA: при провале тестов возвращаемся к Watchdog
+def decide_after_qa(state: GraphState) -> str:
+    qa_result = state.get("qa_result")
+    if qa_result and qa_result != "PASS":
+        return "watchdog_check"
+    return "scribe"
 
 # Создаем граф
 def create_g1_graph() -> StateGraph:
@@ -57,6 +69,8 @@ def create_g1_graph() -> StateGraph:
     workflow = StateGraph(GraphState)
     
     # Добавляем узлы
+    workflow.add_node("spec", spec_synth_node)
+    workflow.add_node("tests", test_synth_node)
     workflow.add_node("dev", dev_code_node)
     workflow.add_node("watchdog_check", watchdog_check_node) # Узел Watchdog
     workflow.add_node("gate", gate_node)
@@ -65,9 +79,11 @@ def create_g1_graph() -> StateGraph:
     workflow.add_node("apply", apply_node)
     
     # Устанавливаем начальный узел
-    workflow.set_entry_point("dev")
+    workflow.set_entry_point("spec")
 
     # Добавляем ребра с учетом Watchdog
+    workflow.add_edge("spec", "tests")
+    workflow.add_edge("tests", "dev")
     workflow.add_edge("dev", "watchdog_check")
     workflow.add_conditional_edges(
         "watchdog_check",
@@ -80,7 +96,14 @@ def create_g1_graph() -> StateGraph:
     
     # Остальные ребра
     workflow.add_edge("gate", "qa")
-    workflow.add_edge("qa", "scribe")
+    workflow.add_conditional_edges(
+        "qa",
+        decide_after_qa,
+        {
+            "watchdog_check": "watchdog_check",
+            "scribe": "scribe",
+        }
+    )
     workflow.add_edge("scribe", "apply")
     workflow.add_edge("apply", END)
     

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd /opt/feature-factory/app/ui
+echo "[ff-ui-playwright-run-nosudo] Installing Playwright browsers (chromium only)…"
+npx --yes playwright install chromium >/dev/null 2>&1 || npx --yes playwright install chromium
+
+echo "[ff-ui-playwright-run-nosudo] Running admin e2e on chromium against live baseURL…"
+if [[ $# -gt 0 ]]; then
+  npx --yes playwright test -c playwright.admin.config.ts --project=chromium --reporter=line "$@"
+else
+  npx --yes playwright test -c playwright.admin.config.ts --project=chromium --reporter=line tests/e2e/*.spec.ts
+fi

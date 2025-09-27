@@ -5,6 +5,7 @@
 
 import asyncio
 import os
+from pathlib import Path
 import subprocess
 import structlog
 import json
@@ -20,9 +21,10 @@ from app.logging_helpers import log, get_env
 logger = structlog.get_logger()
 
 async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    logger.debug("Вход в узел QA", state=state)
     """
     Узел QA - выполняет статический анализ и тесты.
+    """
+    logger.debug("Вход в узел QA", state=state)
     try:
         run_ctx = state.get("run_ctx")
         if not run_ctx:
@@ -137,23 +139,18 @@ async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 pass # test_code_text уже содержит весь текст
 
             if not test_code_text.strip():
-                # Фолбэк: детерминированный тест для ping-роутера
-                test_code_text = (
-                    "import pytest\n"
-                    "from fastapi import FastAPI\n"
-                    "from fastapi.testclient import TestClient\n"
-                    "def test_ping_endpoint():\n"
-                    "    app = FastAPI()\n"
-                    "    try:\n"
-                    "        from app.api.ping import router as ping_router\n"
-                    "    except Exception as e:\n"
-                    "        pytest.skip(f'ping router not available: {e}')\n"
-                    "    app.include_router(ping_router)\n"
-                    "    client = TestClient(app)\n"
-                    "    r = client.get('/api/v1/ping')\n"
-                    "    assert r.status_code == 200\n"
-                    "    assert r.json() == {\"ping\": \"pong\"}\n"
+                logger.error(
+                    "qa_node_llm_no_test_code",
+                    component="graph",
+                    agent_role="QA",
+                    run_id=run_id,
+                    feature_id=feature_id,
+                    correlation_id=correlation_id
                 )
+                return {
+                    "status": "qa_failed",
+                    "result": "LLM failed to generate test code"
+                }
 
         except Exception as llm_error:
             logger.error(
@@ -178,25 +175,25 @@ async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
         # 4. Запустить тесты (pytest)
         qa_report_path = os.path.join(artifacts_dir, "qa_report.json")
         try:
-            # Убедимся, что pytest установлен
-            try:
-                subprocess.run(["pytest", "--version"], check=True, capture_output=True)
-            except Exception:
-                subprocess.run(["pip", "install", "pytest", "pytest-json-report"], check=True, capture_output=True)
-            
+            # Используем pytest из виртуального окружения, если доступен
+            pytest_bin = "/opt/feature-factory/.venv/bin/pytest"
+            if not (Path(pytest_bin).exists() and os.access(pytest_bin, os.X_OK)):
+                pytest_bin = "pytest"
+
             pytest_command = [
-                "pytest",
+                pytest_bin,
                 "--json-report",
                 f"--json-report-file={qa_report_path}",
-                test_file_path
+                "-q",
+                "."
             ]
             
             # Добавляем путь к тестируемому коду в PYTHONPATH
             env = os.environ.copy()
-            if "PYTHONPATH" in env:
-                env["PYTHONPATH"] = f"{artifacts_dir}:{env['PYTHONPATH']}"
-            else:
-                env["PYTHONPATH"] = artifacts_dir
+            project_root = "/opt/feature-factory"
+            prev = env.get("PYTHONPATH", "")
+            parts = [artifacts_dir, project_root] + ([prev] if prev else [])
+            env["PYTHONPATH"] = ":".join([p for p in parts if p])
 
             result = subprocess.run(
                 pytest_command,
@@ -229,31 +226,10 @@ async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 stdout=e.stdout,
                 stderr=e.stderr
             )
-            # Фолбэк: сформировать минимальный отчёт PASS, проверив модуль напрямую
-            try:
-                qa_report = {"cases": [], "pass": 0, "fail": []}
-                # Пробуем импортировать и выполнить проверку вручную
-                from fastapi import FastAPI
-                from fastapi.testclient import TestClient
-                app = FastAPI()
-                try:
-                    from app.api.ping import router as ping_router
-                    app.include_router(ping_router)
-                    client = TestClient(app)
-                    r = client.get('/api/v1/ping')
-                    assert r.status_code == 200 and r.json()=={"ping":"pong"}
-                    qa_report["cases"].append({"id": str(uuid.uuid4()), "name": "manual_ping_check", "status": "PASS", "notes": ""})
-                    qa_report["pass"] = 1
-                    overall_qa_result = "PASS"
-                except Exception as ee:
-                    qa_report["cases"].append({"id": str(uuid.uuid4()), "name": "manual_ping_check", "status": "FAIL", "notes": str(ee)})
-                    qa_report["fail"].append("manual_ping_check")
-                    overall_qa_result = "FAIL"
-                # Сохраним отчёт
-                with open(qa_report_path, 'w', encoding='utf-8') as f:
-                    json.dump({"test_cases": qa_report["cases"]}, f)
-            except Exception as ee:
-                logger.error("qa_node_fallback_manual_failed", error=str(ee))
+            return {
+                "status": "qa_failed",
+                "result": f"Pytest execution failed: {str(e)}"
+            }
         except subprocess.TimeoutExpired as e:
             logger.error(
                 "qa_node_pytest_timeout",
@@ -334,6 +310,16 @@ async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
             )
             qa_report["fail"].append("no_report_file")
 
+        # Валидация отчёта по JSON‑схеме (если доступна)
+        try:
+            from app.orchestrator.gates import ManifestValidator
+            mv = ManifestValidator()
+            _ = mv.validate_qa_report(qa_report)
+            if not _:
+                overall_qa_result = "FAIL"
+        except Exception:
+            pass
+
         logger.info(
             "qa_node_finished",
             component="graph",
@@ -345,13 +331,32 @@ async def qa_node(state: Dict[str, Any]) -> Dict[str, Any]:
             qa_report=qa_report
         )
 
-        return {
+        # Если тесты провалены — подготовим запись для Watchdog (tool_errors + escalation_context)
+        watchdog_payload = {}
+        if overall_qa_result != "PASS":
+            failed = qa_report.get("fail", []) or []
+            ctx_lines = ["Отчёт о провале тестов (QA):"]
+            for name in failed[:10]:
+                ctx_lines.append(f"- Тест провален: {name}")
+            escalation_context = "\n".join(ctx_lines)
+            watchdog_payload = {
+                "tool_errors": [{
+                    "tool_name": "qa_tests",
+                    "error_type": "TestsFailed",
+                    "error_message": escalation_context,
+                }],
+                "escalation_context": escalation_context,
+            }
+
+        result_state = {
             "status": "qa_completed",
             "result": "QA testing completed",
             "qa_result": overall_qa_result,
             "qa_report": qa_report,
-            "artifacts_dir": artifacts_dir # Передаем artifacts_dir дальше
+            "artifacts_dir": artifacts_dir
         }
+        result_state.update(watchdog_payload)
+        return result_state
 
     except Exception as e:
         logger.error(

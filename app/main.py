@@ -26,8 +26,13 @@ from app.api.ops import router as ops_router
 from app.api.secrets import router as secrets_router
 from app.api.analyst import router as analyst_router
 from app.api.context import router as context_router
+from app.api.metrics import router as metrics_router
 from app.api.agents_status import router as agents_status_router
 from app.api.tasks import router as tasks_router
+from app.api.notifications import router as notifications_router
+from app.api.runner_endpoints import router as runner_router
+from app.api.client_logs import router as client_logs_router, router2 as client_logs_router2
+from app.api.cortex_health import router as cortex_health_router
 
 # Импортируем модуль защиты БД
 try:
@@ -102,6 +107,7 @@ app.include_router(analyst_router)
 
 # Подключаем маршруты context
 app.include_router(context_router, prefix="/api/v1/context", tags=["Context"])
+app.include_router(metrics_router, tags=["Metrics"])
 
 # Подключаем маршруты кэшированного статуса агентов
 app.include_router(agents_status_router, tags=["Agents"])
@@ -109,9 +115,22 @@ app.include_router(agents_status_router, tags=["Agents"])
 # Подключаем маршруты tasks
 app.include_router(tasks_router, prefix="/api/v1/tasks", tags=["Tasks"])
 
+# Подключаем маршруты уведомлений
+app.include_router(notifications_router, tags=["Notifications"])
+
+# Подключаем маршруты runner (ручной тик)
+app.include_router(runner_router, tags=["Runner"])
+
+# Ингест клиентских логов UI
+app.include_router(client_logs_router, tags=["ClientLogs"])
+app.include_router(client_logs_router2, tags=["ClientLogs"])
+
 # Подключаем маршруты трассировки
 from app.api.trace import router as trace_router
 app.include_router(trace_router, prefix="/api/v1", tags=["Trace"])
+
+# Подключаем маршруты мониторинга здоровья кортекса
+app.include_router(cortex_health_router, prefix="/api/v1", tags=["Cortex Health"])
 
 """
 Подключение дополнительных роутеров, которые могут появляться как артефакты

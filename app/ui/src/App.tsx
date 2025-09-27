@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AppShell } from '@/components/AppShell'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { installGlobalClientErrorHooks } from '@/lib/clientLog'
 import Dashboard from '@/pages/Dashboard'
 import Features from '@/pages/Features'
 import FeatureDetail from '@/pages/FeatureDetail'
@@ -21,11 +23,13 @@ import Agents from '@/pages/Agents'
 import CallGraph from '@/pages/CallGraph'
 
 const App: React.FC = () => {
+  useEffect(() => { installGlobalClientErrorHooks() }, [])
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="agents" element={<Agents />} />
+    <ErrorBoundary>
+      <AppShell>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="agents" element={<Agents />} />
         <Route path="now" element={<Now />} />
         <Route path="queue" element={<Queue />} />
         <Route path="errors" element={<Errors />} />
@@ -42,9 +46,10 @@ const App: React.FC = () => {
         <Route path="docs" element={<Docs />} />
         <Route path="settings" element={<Settings />} />
         <Route path="chat" element={<Chat />} />
-        <Route path="*" element={<Dashboard />} />
-      </Routes>
-    </AppShell>
+          <Route path="*" element={<Dashboard />} />
+        </Routes>
+      </AppShell>
+    </ErrorBoundary>
   )
 }
 

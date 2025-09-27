@@ -16,6 +16,7 @@ from app.llm.router import completion
 from app.graph.types import RunCtx
 from app.logging_helpers import log, get_env
 from app.db.session import get_db
+from app.utils.prompts import get_role_prompt
 from sqlalchemy import text
 
 def _get_capsule_hash() -> str:
@@ -78,13 +79,65 @@ async def dev_code_node(state: Dict[str, Any]) -> Dict[str, Any]:
             }
         )
         
-        system_prompt = '''Ты Python разработчик. Верни YAML artifact_manifest + файлы в fenced-блоках. 
-        
-Правила:
-- Python 3.12, типы обязательны (from __future__ import annotations)
-- Сначала YAML блок, потом файлы
-- Используй structlog для логов
-        '''
+        # Загружаем промпт из системы промптов
+        try:
+            system_prompt = get_role_prompt("Dev")
+            log.info("dev_prompt_loaded", run_id=run_id, task_id=task_id, prompt_hash=hashlib.md5(system_prompt.encode()).hexdigest()[:8])
+        except Exception as e:
+            log.error("dev_prompt_load_failed", run_id=run_id, task_id=task_id, error=str(e))
+            # Используем встроенный промпт как fallback
+            system_prompt = '''Ты опытный Python разработчик FastAPI. Твоя задача - создать код на основе описания задачи.
+
+ВАЖНО: Отвечай ТОЛЬКО YAML манифест + код в fenced блоках. Никаких объяснений.
+
+ФОРМАТ ОТВЕТА:
+```yaml
+files:
+  - app/api/[endpoint_name].py
+  - tests/test_[endpoint_name].py  # ОБЯЗАТЕЛЬНО тесты
+package_contract:
+  package_id: PKG-[FEATURE_ID]-v1
+```
+
+```python
+# app/api/[endpoint_name].py
+from __future__ import annotations
+from fastapi import APIRouter
+from datetime import datetime
+
+router = APIRouter(prefix="/api/v1")
+
+@router.get("/[endpoint]")
+async def [function_name]():
+    return {"message": "Hello, World!", "timestamp": datetime.now().isoformat()}
+```
+
+```python
+# tests/test_[endpoint_name].py
+from __future__ import annotations
+import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+def test_[endpoint]_endpoint():
+    app = FastAPI()
+    from app.api.[endpoint_name] import router
+    app.include_router(router)
+    client = TestClient(app)
+    
+    response = client.get("/api/v1/[endpoint]")
+    assert response.status_code == 200
+    data = response.json()
+    assert "message" in data
+    assert "timestamp" in data
+```
+
+ПРАВИЛА:
+- Python 3.12 с type hints
+- FastAPI роутеры с prefix="/api/v1"  
+- ОБЯЗАТЕЛЬНО включай unit tests
+- Только реальный код, без TODO/заглушек
+- Имена файлов должны точно совпадать с files в YAML'''
 
         # *** WATCHDOG INTEGRATION START ***
         escalation_context = state.get("escalation_context")
@@ -150,12 +203,14 @@ async def dev_code_node(state: Dict[str, Any]) -> Dict[str, Any]:
             
             tool_errors = [] # Для Watchdog
             try:
+                provider_start_index = int(state.get("next_provider_index", 0) or 0)
                 result = completion(
                     role=llm_role,
                     messages=messages,
                     max_tokens=1400,
                     temperature=0,
-                    timeout_s=120
+                    timeout_s=120,
+                    provider_start_index=provider_start_index,
                 )
                 response_text = result.get("text", "")
                 if not response_text and 'choices' in result:
@@ -167,26 +222,27 @@ async def dev_code_node(state: Dict[str, Any]) -> Dict[str, Any]:
             except Exception as llm_error:
                 # Предполагаем, что ошибка LLM - это тип ошибки инструмента
                 tool_errors.append({"tool_name": "llm_completion", "error_type": type(llm_error).__name__, "error_message": str(llm_error)})
-                if strict_hard:
-                    raise
-                log.warning(
-                    event="llm_fallback",
+                log.error(
+                    event="llm_error_no_fallback",
                     agent_role="Dev",
                     run_id=run_id,
                     task_id=task_id,
                     kv={"llm_error": str(llm_error)}
                 )
-                response_text = "LLM fallback mode"
-                artifact_manifest = {"files": ["main.py"], "package_contract": {"package_id": f"PKG-{feature_id.upper().replace('-', '_')}-v1"}}
-                files = {"main.py": f'''print("Hello from {feature_id}")''')}
+                # NO MORE FALLBACK - fail the task if LLM fails
+                raise Exception(f"Dev agent LLM failed: {llm_error}. No fallback allowed.")
                 
             artifacts_dir = f"/opt/feature-factory/tmp/{run_id}"
             os.makedirs(artifacts_dir, exist_ok=True)
             
             if not artifact_manifest or not artifact_manifest.get("files"):
-                ping_rel = "app/api/ping.py"
-                artifact_manifest = {"files": [ping_rel], "package_contract": {"package_id": f"PKG-PING-{feature_id}"}}
-                files = {ping_rel: "from fastapi import APIRouter\n\nrouter = APIRouter()\n@router.get(\"/ping\")\nasync def ping(): return {\"ping\":\"pong\"}"}
+                log.error(
+                    event="dev_no_artifacts_generated",
+                    agent_role="Dev",
+                    run_id=run_id,
+                    task_id=task_id
+                )
+                raise Exception("Dev agent did not generate any artifacts. LLM response was empty or invalid.")
 
             manifest_path = os.path.join(artifacts_dir, "artifact_manifest.yaml")
             with open(manifest_path, "w") as f:
@@ -214,7 +270,8 @@ async def dev_code_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 "package_contract": artifact_manifest.get("package_contract", {}),
                 "tool_errors": tool_errors, # Передаем ошибки в Watchdog
                 "escalation_context": "", # Очищаем контекст
-                "watchdog_failures": [] # Очищаем историю для следующего чистого запуска
+                "watchdog_failures": [], # Очищаем историю для следующего чистого запуска
+                "next_provider_index": 0, # Сбрасываем эскалацию провайдера после успешной генерации
             }
             
         finally:

@@ -1,44 +1,64 @@
-# Карта промптов по ролям
+# Карта промптов по ролям (v2.0 с 100% покрытием контекстом)
 
 roles:
   Architect:
-    file: "app/agents/prompts/architect.md"
+    file: "app/agents/prompts/architect_v2.md"
+    fallback_file: "app/agents/prompts/architect.md"
     required_sections:
-      - "Persona"
-      - "Контекст"
-      - "Формат ответа"
-      - "Политики"
-    version: "1.0.0"
+      - "Context Loading"
+      - "Role Definition"
+      - "Chain of Thought Process"
+      - "Architecture Pattern Library"
+      - "Output Format"
+    version: "2.0.0"
   
   Dev:
-    file: "app/agents/prompts/developer.md"
+    file: "app/agents/prompts/developer_v2.md"
+    fallback_file: "app/agents/prompts/developer.md"
     required_sections:
-      - "Persona"
-      - "Контекст"
-      - "Формат ответа"
-      - "Политики"
-    version: "1.0.0"
+      - "Context Loading"
+      - "Role Definition"
+      - "Chain of Thought Process"
+      - "Implementation Patterns Library"
+      - "Frontend React/TypeScript Patterns"
+      - "Testing Patterns"
+      - "Output Format"
+    version: "2.0.0"
   
   QA:
-    file: "app/agents/prompts/validator.md"
+    file: "app/agents/prompts/validator_v2.md"
+    fallback_file: "app/agents/prompts/validator.md"
     required_sections:
-      - "Persona"
-      - "Контекст"
-      - "Формат ответа"
-      - "Политики"
-    version: "1.0.0"
+      - "Context Loading"
+      - "Role Definition"
+      - "Chain of Thought Process"
+      - "Testing Strategy Matrix"
+      - "Quality Validation Checklist"
+      - "Output Format"
+    version: "2.0.0"
   
   Scribe:
-    file: "app/agents/prompts/scribe.md"
+    file: "app/agents/prompts/scribe_v2.md"
+    fallback_file: "app/agents/prompts/scribe.md"
     required_sections:
-      - "Persona"
-      - "Контекст"
-      - "Формат ответа"
-      - "Политики"
-    version: "1.0.0"
+      - "Context Loading"
+      - "Role Definition"
+      - "Chain of Thought Process"
+      - "Documentation Impact Matrix"
+      - "Output Format"
+    version: "2.0.0"
   
   Maintainer:
     file: "app/agents/prompts/maintainer.md"
+    required_sections:
+      - "Persona"
+      - "Контекст"
+      - "Формат ответа"
+      - "Политики"
+    version: "1.0.0"
+
+  Product:
+    file: "app/agents/prompts/product.md"
     required_sections:
       - "Persona"
       - "Контекст"

@@ -51,6 +51,7 @@
 - docs/Nginx-Configuration-Guide.md
 - docs/Ops-DB.md
 - docs/Ops-Guide.md
+- docs/Ops-Watchdog-SelfHealing.md
 - docs/Orch-Prompt-Load-Policy.md
 - docs/package_contract.schema.json
 - docs/Permissions-000.md
@@ -84,7 +85,11 @@
 - playbook/main.md
 - README.md
 - reference/TOC.md
+- reference/Cortex-Subsystem.md
+- reference/Cortex-UI-Integration.md
+- reference/Index-And-Docs-Contracts.md
 - security/credentials.md
 - SSOT.yaml
 - stack/stack_and_ports.md
 - policies/agent_file_access.md
+- policies/watchdog.md

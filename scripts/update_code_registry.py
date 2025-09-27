@@ -18,8 +18,15 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
 def get_database_url():
-    """Получает URL базы данных из переменной окружения или использует тестовую базу."""
-    return os.getenv("DATABASE_URL", "sqlite:///./feature.test.db")
+    """Получает URL базы данных индексатора.
+
+    Приоритет: INDEX_DATABASE_URL → DATABASE_URL → локальная тестовая БД.
+    """
+    return (
+        os.getenv("INDEX_DATABASE_URL")
+        or os.getenv("DATABASE_URL")
+        or "sqlite:////opt/feature-factory/data/index.db"
+    )
 
 def calculate_file_hash(file_path):
     """Вычисляет SHA256 хэш файла."""
@@ -29,25 +36,50 @@ def calculate_file_hash(file_path):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def get_python_files(root_dir):
-    """Получает все Python файлы в директории."""
-    python_files = []
-    for root, _, files in os.walk(root_dir):
+def get_python_files(root_dir: str):
+    """Получает все Python файлы в директории (бэкенд), без шума.
+
+    Исключаем .venv, __pycache__, node_modules, build/dist.
+    """
+    excludes = (".venv", "__pycache__", "node_modules", "dist", "build")
+    out = []
+    for root, dirs, files in os.walk(root_dir):
+        # Фильтруем каталоги на месте
+        dirs[:] = [d for d in dirs if d not in excludes and not d.endswith('.backup')]
         for file in files:
-            if file.endswith('.py'):
-                python_files.append(os.path.join(root, file))
-    return python_files
+            if file.endswith(".py"):
+                out.append(os.path.join(root, file))
+    return out
+
+
+def get_frontend_files(ui_src_dir: str):
+    """Получает TS/TSX/JS файлы фронтенда из src без шума.
+
+    Включаем только app/ui/src/** с расширениями .ts, .tsx, .js.
+    Исключаем каталоги __tests__, tests, e2e, node_modules, dist, build.
+    """
+    if not os.path.isdir(ui_src_dir):
+        return []
+    excludes = ("__tests__", "tests", "e2e", "node_modules", "dist", "build")
+    out = []
+    for root, dirs, files in os.walk(ui_src_dir):
+        # Фильтруем каталоги
+        dirs[:] = [d for d in dirs if d not in excludes and not d.endswith('.backup')]
+        for file in files:
+            if file.endswith((".ts", ".tsx", ".js")):
+                out.append(os.path.join(root, file))
+    return out
 
 def run_ctags(file_paths):
-    """Запускает ctags для извлечения символов из Python файлов."""
+    """Запускает ctags для извлечения символов (Python + TypeScript/TSX/JS)."""
     try:
         # Запускаем ctags с правильными параметрами
         result = subprocess.run([
-            'ctags', 
+            'ctags',
             '--extras=+p',
-            '--fields=+S',
+            '--fields=+n+S',
             '--output-format=json',
-            '--languages=python'
+            '--languages=Python,TypeScript,JavaScript'
         ] + file_paths, capture_output=True, text=True, check=True)
         
         # Парсим JSONL вывод
@@ -206,31 +238,39 @@ def main():
     """Основная функция скрипта."""
     print("Начинаем обновление реестра кода и индексов...")
     
-    # Получаем все Python файлы в приложении
+    # Получаем backend и frontend файлы
     app_dir = Path(__file__).parent.parent / 'app'
     python_files = get_python_files(str(app_dir))
+    ui_src_dir = Path(__file__).parent.parent / 'app' / 'ui' / 'src'
+    fe_files = get_frontend_files(str(ui_src_dir))
     
-    if not python_files:
-        print("Не найдено Python файлов для индексации")
+    total_files = python_files + fe_files
+    if not total_files:
+        print("Не найдено файлов для индексации (backend/frontend)")
         return
-    
-    print(f"Найдено {len(python_files)} Python файлов для индексации")
+
+    print(f"Найдено {len(python_files)} backend .py и {len(fe_files)} frontend (.ts/.tsx/.js) файлов для индексации")
     
     # Создаем подключение к базе данных
     database_url = get_database_url()
     engine = create_engine(database_url)
     
     # Очищаем существующие индексы
-    print("Очищаем существующие индексы...")
-    clear_indexes(engine)
+    # Инкрементальный режим по ENV INDEXER_INCREMENTAL=true
+    incremental = os.getenv("INDEXER_INCREMENTAL", "false").lower() == "true"
+    if not incremental:
+        print("Очищаем существующие индексы...")
+        clear_indexes(engine)
+    else:
+        print("ИНКРЕМЕНТАЛЬНЫЙ РЕЖИМ: очистка индексов пропущена")
     
     # Обновляем реестр кода
     print("Обновляем реестр кода...")
-    update_code_registry(engine, python_files)
+    update_code_registry(engine, total_files)
     
     # Запускаем ctags для извлечения символов
     print("Запускаем ctags для извлечения символов...")
-    symbols = run_ctags(python_files)
+    symbols = run_ctags(total_files)
     print(f"Извлечено {len(symbols)} символов")
     
     # Обновляем индекс символов
@@ -242,7 +282,7 @@ def main():
     
     # Запускаем pyan3 для построения графа вызовов
     print("Запускаем pyan3 для построения графа вызовов...")
-    dot_content = run_pyan3(python_files)
+    dot_content = run_pyan3(python_files)  # граф вызовов строим только для Python
     
     if dot_content:
         # Парсим граф вызовов
@@ -260,7 +300,7 @@ def main():
         "event": "index_updated",
         "component": "indexer",
         "agent_role": "Dev",
-        "files_processed": len(python_files),
+        "files_processed": len(total_files),
         "symbols_found": len(symbols),
         "edges_found": len(edges) if 'edges' in locals() else 0
     })

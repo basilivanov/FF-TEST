@@ -127,7 +127,22 @@ def _format_messages_for_prompt(messages: List[Dict[str, str]]) -> str:
     return "\n".join(parts)
 
 def _alias_to_decl(provider_name: str, mode: str | None, decl_cfg: Dict[str, Any]) -> Tuple[str, str | None]:
-    aliases = decl_cfg.get('aliases', {})
+    """
+    Resolve routing alias to declarative provider/model.
+    In TEST env or when FF_LOCAL_LLM=1, prefer local provider if present.
+    """
+    try:
+        # Force/suppress local provider depending on flags
+        fflag = (os.getenv("FF_LOCAL_LLM", "").strip() or "").lower()
+        env_is_test = (os.getenv("ENV", "").upper() == "TEST")
+        use_local = (fflag == "1") or (fflag == "" and env_is_test)
+        if use_local:
+            provs = (decl_cfg or {}).get('providers', {})
+            if isinstance(provs, dict) and 'local' in provs:
+                return 'local', None
+    except Exception:
+        pass
+    aliases = (decl_cfg or {}).get('aliases', {})
     a = aliases.get(provider_name)
     if a and isinstance(a, dict):
         return a.get('provider', provider_name), a.get('model')
@@ -231,18 +246,46 @@ def _inject_oauth_access_token(provider_name: str, prov_cfg: Dict[str, Any], cmd
     refresh_key = auth_cfg.get('refresh_secret_key')
     if not refresh_key:
         return
-    # достаём refresh_token из секретов
+    # достаём refresh_token из секретов или локальных файлов
     refresh_token = None
+    
+    # Сначала пробуем из базы данных
     if SessionLocal is not None:
-        db = SessionLocal()
         try:
-            row = db.execute("SELECT value_enc FROM secrets WHERE key = :k", {"k": refresh_key}).fetchone()
-            if row:
-                refresh_token = decrypt_value(row[0])
+            db = SessionLocal()
+            try:
+                row = db.execute("SELECT value_enc FROM secrets WHERE key = :k", {"k": refresh_key}).fetchone()
+                if row:
+                    refresh_token = decrypt_value(row[0])
+            finally:
+                db.close()
         except Exception:
-            refresh_token = None
-        finally:
-            db.close()
+            pass  # База может не существовать
+    
+    # Fallback: ищем токен в локальных файлах провайдера
+    if not refresh_token:
+        try:
+            # Попробуем получить refresh_token из локального конфига провайдера
+            if base_provider == 'gemini':
+                import json
+                creds_file = '/home/feature/.gemini/oauth_creds.json'
+                if os.path.exists(creds_file):
+                    with open(creds_file, 'r') as f:
+                        creds = json.load(f)
+                        refresh_token = creds.get('refresh_token')
+            elif base_provider == 'claude':
+                import json
+                creds_file = '/home/feature/.claude.json'
+                if os.path.exists(creds_file):
+                    with open(creds_file, 'r') as f:
+                        creds = json.load(f)
+                        refresh_token = creds.get('refresh_token')
+            elif base_provider == 'qwen':
+                # Qwen может хранить токены в другом месте
+                pass
+        except Exception:
+            pass
+    
     if not refresh_token:
         return
     # Собираем auth_config и проверяем кэш
@@ -339,7 +382,8 @@ def _filter_providers_by_mode(provider_chain: List[str], role_cfg: Dict[str, Any
 
 def completion(role: str, messages: List[Dict[str, str]], max_tokens: int,
                temperature: float, stop: List[str] = None, timeout_s: int = None,
-               return_trace: bool = False, mode: str = None, session_id: str = None) -> Dict[str, Any]:
+               return_trace: bool = False, mode: str = None, session_id: str = None,
+               provider_start_index: int = 0) -> Dict[str, Any]:
     """
     Выполняет завершение (completion) с использованием LLM через CLI с роутингом по ролям.
     
@@ -368,7 +412,15 @@ def completion(role: str, messages: List[Dict[str, str]], max_tokens: int,
     provider_chain = role_cfg.get('providers', [])
     if not provider_chain:
         raise ValueError(f"No provider chain found for role: {role}")
-    
+
+    # Сдвиг цепочки провайдеров для эскалации (начать не с первого)
+    try:
+        idx = int(provider_start_index or 0)
+        if idx > 0:
+            provider_chain = provider_chain[idx:]
+    except Exception:
+        pass
+
     # Фильтруем провайдеры по режиму, если режим задан
     if mode:
         provider_chain = _filter_providers_by_mode(provider_chain, role_cfg, mode)

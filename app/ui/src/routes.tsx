@@ -8,7 +8,7 @@ import TaskDetail from '@/pages/TaskDetail'
 import Runs from '@/pages/Runs'
 import RunDetail from '@/pages/RunDetail'
 import Logs from '@/pages/Logs'
-import Errors from '@/pages/Errors'
+// import Errors from '@/pages/Errors' // Removed - use Logs instead
 import Tokens from '@/pages/Tokens'
 import Docs from '@/pages/Docs'
 import Settings from '@/pages/Settings'
@@ -29,13 +29,13 @@ export const routes = (
     <Route path="/admin/runs/:id" element={<RunDetail />} />
     <Route path="/admin/tasks/:id" element={<TaskDetail />} />
     <Route path="/admin/logs" element={<Logs />} />
-    <Route path="/admin/errors" element={<Errors />} />
+    <Route path="/admin/errors" element={<Logs />} /> {/* Redirect to Logs */}
     <Route path="/admin/llm-metrics" element={<Tokens />} />
     <Route path="/admin/call-graph" element={<CallGraph />} />
 
     <Route path="/now" element={<Now />} />
     <Route path="/queue" element={<Queue />} />
-    <Route path="/errors" element={<Errors />} />
+    <Route path="/errors" element={<Logs />} /> {/* Redirect to Logs */}
     <Route path="/budget" element={<Budget />} />
     <Route path="/features" element={<Features />} />
     <Route path="/features/:id" element={<FeatureDetail />} />

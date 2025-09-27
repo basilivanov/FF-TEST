@@ -20,13 +20,20 @@ log = structlog.get_logger()
 class ManifestValidator:
     """Validator for artifact manifests and package contracts."""
     
-    def __init__(self, package_contract_schema_path: str = "docs/package_contract.schema.json",
-                 artifact_manifest_schema_path: str = "configs/schemas/artifact_manifest.schema.json"):
+    def __init__(self, package_contract_schema_path: str = "cortex/docs/package_contract.schema.json",
+                 artifact_manifest_schema_path: str = "cortex/docs/artifact_manifest.schema.json",
+                 qa_report_schema_path: str = "cortex/docs/qa_report.schema.json",
+                 intent_schema_path: str = "cortex/contracts/intent.schema.json"):
         """Initialize validator with schema paths."""
         self.package_contract_schema_path = package_contract_schema_path
         self.artifact_manifest_schema_path = artifact_manifest_schema_path
         self.package_contract_schema = self._load_schema(self.package_contract_schema_path)
         self.artifact_manifest_schema = self._load_schema(self.artifact_manifest_schema_path)
+        self.qa_report_schema_path = qa_report_schema_path
+        self.intent_schema_path = intent_schema_path
+        # Ленивая загрузка доп. схем
+        self._qa_report_schema = None
+        self._intent_schema = None
 
     def _load_schema(self, path: str) -> Dict[str, Any]:
         """Load JSON schema for validation."""
@@ -36,6 +43,16 @@ class ManifestValidator:
         except Exception as e:
             log.error("schema_load_failed", path=path, error=str(e))
             raise
+
+    def _ensure_qa_report_schema(self) -> Dict[str, Any]:
+        if self._qa_report_schema is None:
+            self._qa_report_schema = self._load_schema(self.qa_report_schema_path)
+        return self._qa_report_schema
+
+    def _ensure_intent_schema(self) -> Dict[str, Any]:
+        if self._intent_schema is None:
+            self._intent_schema = self._load_schema(self.intent_schema_path)
+        return self._intent_schema
 
     def validate_artifact_manifest_schema(self, manifest: Dict[str, Any]) -> bool:
         """
@@ -203,7 +220,7 @@ class ManifestValidator:
             package_contract = manifest["package_contract"]
             
             # Validate against schema
-            jsonschema.validate(instance=package_contract, schema=self.schema)
+            jsonschema.validate(instance=package_contract, schema=self.package_contract_schema)
             
             return True
         except jsonschema.exceptions.ValidationError as e:
@@ -215,6 +232,52 @@ class ManifestValidator:
                     "reason": f"Package contract validation failed: {str(e)}",
                     "validation_error": str(e)
                 }
+            )
+            return False
+
+    def validate_qa_report(self, report: Dict[str, Any]) -> bool:
+        """Validate QA report JSON against schema."""
+        try:
+            schema = self._ensure_qa_report_schema()
+            jsonschema.validate(instance=report, schema=schema)
+            return True
+        except jsonschema.exceptions.ValidationError as e:
+            log.error(
+                event="qa_report_invalid",
+                component="orchestrator",
+                agent_role="Gate",
+                kv={"reason": str(e)}
+            )
+            return False
+        except Exception as e:
+            log.error(
+                event="qa_report_validation_error",
+                component="orchestrator",
+                agent_role="Gate",
+                kv={"error": str(e)}
+            )
+            return False
+
+    def validate_intent(self, intent_json: Dict[str, Any]) -> bool:
+        """Validate maintainer intent JSON against schema."""
+        try:
+            schema = self._ensure_intent_schema()
+            jsonschema.validate(instance=intent_json, schema=schema)
+            return True
+        except jsonschema.exceptions.ValidationError as e:
+            log.error(
+                event="intent_invalid",
+                component="orchestrator",
+                agent_role="Maintainer",
+                kv={"reason": str(e)}
+            )
+            return False
+        except Exception as e:
+            log.error(
+                event="intent_validation_error",
+                component="orchestrator",
+                agent_role="Maintainer",
+                kv={"error": str(e)}
             )
             return False
         except Exception as e:

@@ -1,45 +1,11 @@
-model_list:
-  - model_name: flash
-    litellm_params:
-      model: openai/gpt-4o-mini
-      api_base: https://api.openai.com/v1
-      api_key: os.environ/OPENAI_API_KEY
-      rpm: 1000
-      tpm: 1000000
-
-  - model_name: qwen
-    litellm_params:
-      model: openai/qwen-preview
-      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
-      api_key: os.environ/QWEN_API_KEY
-      rpm: 100
-      tpm: 100000
-
-  - model_name: claude
-    litellm_params:
-      model: anthropic/claude-3-5-sonnet-20240620
-      api_base: https://api.anthropic.com/v1
-      api_key: os.environ/ANTHROPIC_API_KEY
-      rpm: 1000
-      tpm: 1000000
-
-  - model_name: gpt
-    litellm_params:
-      model: openai/gpt-4-turbo
-      api_base: https://api.openai.com/v1
-      api_key: os.environ/OPENAI_API_KEY
-      rpm: 1000
-      tpm: 1000000
+model_list: []  # LiteLLM disabled: agents use OAuth via CLI providers
 
 router_settings:
   routing_strategy: "leastbusy"
-  default_deployment: "flash"
+  default_deployment: ""
 
 litellm_settings:
   drop_params: true
   request_timeout: 30
 
-environment_variables:
-  OPENAI_API_KEY: os.environ/OPENAI_API_KEY
-  QWEN_API_KEY: os.environ/QWEN_API_KEY
-  ANTHROPIC_API_KEY: os.environ/ANTHROPIC_API_KEY
+environment_variables: {}

@@ -176,23 +176,34 @@ async def create_feature(
         
         # Создаем новую фичу
         intent_json = json.dumps(feature_request.intent) if feature_request.intent else "{}"
-        
-        result = db.execute(
-            text("""
-                INSERT INTO features (
-                    title, intent_json, status, created_at, created_by, env, type
-                ) VALUES (
-                    :title, :intent_json, 'NEW', datetime('now'), 'API', :env, :type
-                )
-            """
-            ),
-            {
-                "title": feature_request.title,
-                "intent_json": intent_json,
-                "env": env,
-                "type": feature_request.type
-            }
-        )
+
+        # Совместимость со схемой БД: определяем доступные колонки таблицы features
+        cols_res = db.execute(text("PRAGMA table_info(features)"))
+        feature_cols = {row[1] for row in cols_res.fetchall()}  # row[1] = name
+
+        # Базовые колонки, присутствующие во всех вариантах схемы
+        columns = ["title", "intent_json", "status", "created_at", "created_by", "env"]
+        values = [":title", ":intent_json", "'NEW'", "datetime('now')", "'API'", ":env"]
+
+        # Опциональная колонка 'type' — добавляем ТОЛЬКО если есть в БД и задано значение
+        params: Dict[str, Any] = {
+            "title": feature_request.title,
+            "intent_json": intent_json,
+            "env": env,
+        }
+        feat_type = getattr(feature_request, "type", None)
+        if "type" in feature_cols:
+            # Если значение не передано в запросе — используем безопасный дефолт согласно CHECK-конSTRAINTу БД
+            # Допустимые значения: 'INTERNAL' | 'BUSINESS'; выбираем 'BUSINESS' по умолчанию
+            if feat_type is None:
+                feat_type = "BUSINESS"
+            columns.append("type")
+            values.append(":type")
+            params["type"] = feat_type
+
+        insert_sql = f"INSERT INTO features ({', '.join(columns)}) VALUES ({', '.join(values)})"
+
+        result = db.execute(text(insert_sql), params)
         
         feature_id = result.lastrowid
         db.commit()
@@ -227,9 +238,29 @@ async def create_feature(
                     {"role": "system", "content": "You are an Architect AI. Your task is to generate a detailed plan (DAG of tasks) based on the provided intent. The plan should be in JSON format, strictly following the architect.plan.schema.json."},
                     {"role": "user", "content": f"Generate a plan for the following intent: {json.dumps(intent_json)}"}
                 ]
-                llm_response = completion(role="Architect", messages=messages, max_tokens=4000, temperature=0.7, timeout_s=60)
-                plan_content = llm_response['choices'][0]['message']['content']
-                plan_data = json.loads(plan_content)
+                llm_arch_role = "test_Architect" if os.getenv("TEST_MODE") == "true" else "Architect"
+
+                # Robust JSON plan synthesis: try providers in chain order with fallback index
+                plan_data = None
+                last_err = None
+                for start_idx in (0, 1, 2):
+                    try:
+                        llm_response = completion(
+                            role=llm_arch_role,
+                            messages=messages,
+                            max_tokens=4000,
+                            temperature=0.7,
+                            timeout_s=60,
+                            provider_start_index=start_idx,
+                        )
+                        plan_content = llm_response['choices'][0]['message']['content']
+                        plan_data = json.loads(plan_content)
+                        break
+                    except Exception as e:
+                        last_err = e
+                        continue
+                if plan_data is None:
+                    raise RuntimeError(f"Architect plan JSON not obtained: {last_err}")
                 # Валидация схемы (если strict)
                 if strict:
                     validate(instance=plan_data, schema=architect_plan_schema)
@@ -276,6 +307,8 @@ async def create_feature(
                             from app.graph.nodes.qa import qa_node
                             from app.graph.nodes.scribe import scribe_node
                             from app.graph.nodes.apply import apply_node
+                            from app.graph.nodes.spec_synth import spec_synth_node
+                            from app.graph.nodes.test_synth import test_synth_node
                             from app.graph.types import RunCtx
 
                             async def run_nodes():
@@ -293,6 +326,10 @@ async def create_feature(
                                 task_id = str(dev_row[0])
                                 run_ctx = RunCtx(run_id=run_id, feature_id=str(feature_id), task_id=task_id, correlation_id=corr_id, env=env_local)
                                 state: Dict[str, Any] = {"run_ctx": run_ctx, "package_contract": package_contract, "strict_hard": strict_hard}
+                                state = await spec_synth_node(state)
+                                state["run_ctx"] = run_ctx; state["strict_hard"] = strict_hard
+                                state = await test_synth_node(state)
+                                state["run_ctx"] = run_ctx; state["strict_hard"] = strict_hard
                                 state = await dev_code_node(state)
                                 state["run_ctx"] = run_ctx; state["strict_hard"] = strict_hard
                                 state = await gate_node(state)
@@ -1069,7 +1106,6 @@ async def run_feature(
                                 text("UPDATE features SET status = 'DONE' WHERE id = :id"),
                                 {"id": feature_id}
                             )
-                            
                             # Логируем изменение статуса
                             log_feature_status_change(
                                 feature_id=feature_id,

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Restart Feature Factory services via provided wrappers when available.
+# Usage: bin/ff-restart [--test] [--prod]
+set -euo pipefail
+
+want_test=0
+want_prod=0
+if [[ $# -eq 0 ]]; then
+  want_test=1; want_prod=1
+else
+  for a in "$@"; do
+    case "$a" in
+      --test) want_test=1 ;;
+      --prod) want_prod=1 ;;
+      -h|--help) echo "Usage: bin/ff-restart [--test] [--prod]"; exit 0 ;;
+      *) echo "Unknown arg: $a" >&2; exit 2 ;;
+    esac
+  done
+fi
+
+restart_test() {
+  if [[ -x "/opt/feature-factory/bin/ff-orch-restart-safe" ]]; then
+    echo "[ff-restart] restarting TEST via wrapper..."
+    /opt/feature-factory/bin/ff-orch-restart-safe || true
+  else
+    echo "[ff-restart] wrapper not found; systemctl restart feature-factory-test.service"
+    if command -v systemctl >/dev/null 2>&1; then
+      sudo -n systemctl restart feature-factory-test.service || systemctl restart feature-factory-test.service
+    else
+      echo "systemctl not available" >&2
+    fi
+  fi
+}
+
+restart_prod() {
+  if command -v systemctl >/dev/null 2>&1; then
+    echo "[ff-restart] restarting PROD via systemctl..."
+    sudo -n systemctl restart feature-factory-prod.service || systemctl restart feature-factory-prod.service
+  else
+    echo "systemctl not available to restart PROD" >&2
+  fi
+}
+
+status_test() {
+  if [[ -x "/opt/feature-factory/bin/ff-orch-status-safe" ]]; then
+    echo "[ff-restart] TEST status via wrapper:"
+    /opt/feature-factory/bin/ff-orch-status-safe || true
+  elif command -v systemctl >/dev/null 2>&1; then
+    echo "[ff-restart] TEST status via systemctl:"
+    systemctl status feature-factory-test.service --no-pager || true
+  fi
+}
+
+status_prod() {
+  if command -v systemctl >/dev/null 2>&1; then
+    echo "[ff-restart] PROD status via systemctl:"
+    systemctl status feature-factory-prod.service --no-pager || true
+  fi
+}
+
+(( want_test == 1 )) && restart_test
+(( want_prod == 1 )) && restart_prod
+sleep 1
+(( want_test == 1 )) && status_test
+(( want_prod == 1 )) && status_prod

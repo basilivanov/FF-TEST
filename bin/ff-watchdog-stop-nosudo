@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+WD_DIR="/opt/feature-factory/artifacts/watchdog"
+for pf in sse.pid ticker.pid watchdog.pid; do
+  if [ -f "$WD_DIR/$pf" ]; then
+    pid=$(cat "$WD_DIR/$pf")
+    if kill -0 "$pid" 2>/dev/null; then
+      kill "$pid" || true
+      echo "stopped $pf (PID $pid)"
+    fi
+    rm -f "$WD_DIR/$pf"
+  fi
+done
+echo "OK"

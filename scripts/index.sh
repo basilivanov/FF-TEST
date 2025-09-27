@@ -27,7 +27,8 @@ mkdir -p "$OUT_DIR"
 # Запускаем скрипт обновления реестра кода с новой базой данных
 echo "Запускаем обновление реестра кода и индексов..."
 log "INFO" "update_code_registry_started"
-DATABASE_URL=sqlite:///./feature.test.db "$APP_DIR/.venv/bin/python3" "$APP_DIR/scripts/update_code_registry.py"
+# removed DATABASE_URL override to use defaults
+"$APP_DIR/.venv/bin/python3" "$APP_DIR/scripts/update_code_registry.py"
 log "INFO" "update_code_registry_completed"
 
 # Индексируем код с помощью ctags

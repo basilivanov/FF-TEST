@@ -1,0 +1,312 @@
+```yaml
+files:
+  - app/api/telegram_notifications.py
+  - tests/test_telegram_notifications.py
+package_contract:
+  package_id: PKG-FEATURE-73
+  type: backend
+```
+
+```python
+# app/api/telegram_notifications.py
+from __future__ import annotations
+from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
+import httpx
+import os
+from tenacity import retry, stop_after_attempt, wait_exponential_jitter
+import asyncio
+import structlog
+
+logger = structlog.get_logger()
+
+router = APIRouter(prefix="/api/v1")
+
+class TelegramMessage(BaseModel):
+    chat_id: str
+    text: str
+    parse_mode: Optional[str] = None
+
+class TelegramTemplateMessage(BaseModel):
+    chat_id: str
+    template: str
+    template_data: Dict[str, Any]
+    parse_mode: Optional[str] = None
+
+class TelegramResponse(BaseModel):
+    ok: bool
+    result: Optional[dict] = None
+    error_code: Optional[int] = None
+    description: Optional[str] = None
+
+def get_bot_token() -> str:
+    """Get bot token from environment variables."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if not token:
+        raise HTTPException(status_code=500, detail="TELEGRAM_BOT_TOKEN environment variable not set")
+    return token
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential_jitter(initial=1, max=10)
+)
+async def send_telegram_message_async(message: TelegramMessage, bot_token: str) -> TelegramResponse:
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = message.dict(exclude_none=True)
+    
+    async with httpx.AsyncClient(timeout=httpx.Timeout(connect=3.0, read=10.0)) as client:
+        try:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            return TelegramResponse(**data)
+        except httpx.HTTPStatusError as e:
+            logger.error("HTTP error occurred while sending Telegram message", 
+                        status_code=e.response.status_code, 
+                        response_text=e.response.text)
+            raise HTTPException(status_code=502, detail=f"Telegram API error: {e.response.status_code}")
+        except httpx.RequestError as e:
+            logger.error("Request error occurred while sending Telegram message", 
+                        error=str(e))
+            raise HTTPException(status_code=503, detail=f"Network error: {str(e)}")
+        except Exception as e:
+            logger.error("Unexpected error occurred while sending Telegram message", 
+                        error=str(e))
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential_jitter(initial=1, max=10)
+)
+async def send_telegram_template_message_async(
+    message: TelegramTemplateMessage, 
+    bot_token: str
+) -> TelegramResponse:
+    """Send a templated message via Telegram."""
+    try:
+        # Format the template with provided data
+        formatted_text = message.template.format(**message.template_data)
+    except KeyError as e:
+        logger.error("Missing template parameter", missing_key=str(e))
+        raise HTTPException(status_code=400, detail=f"Missing template parameter: {e}")
+    except Exception as e:
+        logger.error("Failed to format template message", error=str(e))
+        raise HTTPException(status_code=400, detail=f"Failed to format template: {str(e)}")
+    
+    # Create a regular message with the formatted text
+    telegram_message = TelegramMessage(
+        chat_id=message.chat_id,
+        text=formatted_text,
+        parse_mode=message.parse_mode
+    )
+    
+    return await send_telegram_message_async(telegram_message, bot_token)
+
+@router.post("/telegram/send-message", response_model=TelegramResponse)
+async def send_message(message: TelegramMessage, bot_token: str = Depends(get_bot_token)):
+    try:
+        response = await send_telegram_message_async(message, bot_token)
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to send message", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to send message")
+
+@router.post("/telegram/send-template-message", response_model=TelegramResponse)
+async def send_template_message(message: TelegramTemplateMessage, bot_token: str = Depends(get_bot_token)):
+    """Send a templated message via Telegram."""
+    try:
+        response = await send_telegram_template_message_async(message, bot_token)
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to send template message", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to send template message")
+```
+
+```python  
+# tests/test_telegram_notifications.py
+from __future__ import annotations
+import pytest
+from fastapi import FastAPI, HTTPException
+from fastapi.testclient import TestClient
+from unittest.mock import patch, AsyncMock
+from app.api.telegram_notifications import (
+    router, 
+    TelegramMessage, 
+    TelegramTemplateMessage,
+    send_telegram_message_async,
+    send_telegram_template_message_async
+)
+
+def test_send_message_endpoint_success():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data
+    message_data = {
+        "chat_id": "123456789",
+        "text": "Test message",
+        "parse_mode": "HTML"
+    }
+    
+    # Mock successful response from Telegram API
+    mock_response = {
+        "ok": True,
+        "result": {
+            "message_id": 1,
+            "from": {
+                "id": 1234567890,
+                "is_bot": True,
+                "first_name": "TestBot"
+            },
+            "chat": {
+                "id": 123456789,
+                "first_name": "Test",
+                "last_name": "User",
+                "type": "private"
+            },
+            "date": 1612345678,
+            "text": "Test message"
+        }
+    }
+    
+    with patch("app.api.telegram_notifications.send_telegram_message_async", new=AsyncMock(return_value=mock_response)):
+        response = client.post("/api/v1/telegram/send-message", json=message_data)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["ok"] is True
+        assert "result" in data
+
+def test_send_message_endpoint_validation_error():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data with missing required field
+    message_data = {
+        "text": "Test message"
+        # chat_id is missing
+    }
+    
+    response = client.post("/api/v1/telegram/send-message", json=message_data)
+    assert response.status_code == 422
+
+def test_send_message_endpoint_telegram_api_error():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data
+    message_data = {
+        "chat_id": "123456789",
+        "text": "Test message"
+    }
+    
+    # Mock HTTPException from Telegram API error
+    with patch("app.api.telegram_notifications.send_telegram_message_async", new=AsyncMock(side_effect=HTTPException(status_code=502, detail="Telegram API error: 400"))):
+        response = client.post("/api/v1/telegram/send-message", json=message_data)
+        assert response.status_code == 502
+        assert "Telegram API error" in response.json()["detail"]
+
+def test_send_template_message_endpoint_success():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data
+    message_data = {
+        "chat_id": "123456789",
+        "template": "Hello {name}, your order #{order_id} is {status}",
+        "template_data": {
+            "name": "John",
+            "order_id": "12345",
+            "status": "shipped"
+        },
+        "parse_mode": "Markdown"
+    }
+    
+    # Mock successful response from Telegram API
+    mock_response = {
+        "ok": True,
+        "result": {
+            "message_id": 2,
+            "from": {
+                "id": 1234567890,
+                "is_bot": True,
+                "first_name": "TestBot"
+            },
+            "chat": {
+                "id": 123456789,
+                "first_name": "Test",
+                "last_name": "User",
+                "type": "private"
+            },
+            "date": 1612345679,
+            "text": "Hello John, your order #12345 is shipped"
+        }
+    }
+    
+    with patch("app.api.telegram_notifications.send_telegram_template_message_async", new=AsyncMock(return_value=mock_response)):
+        response = client.post("/api/v1/telegram/send-template-message", json=message_data)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["ok"] is True
+        assert "result" in data
+
+def test_send_template_message_endpoint_validation_error():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data with missing required field
+    message_data = {
+        "template": "Hello {name}",
+        "template_data": {"name": "John"}
+        # chat_id is missing
+    }
+    
+    response = client.post("/api/v1/telegram/send-template-message", json=message_data)
+    assert response.status_code == 422
+
+def test_send_template_message_endpoint_missing_template_param():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data with missing template parameter
+    message_data = {
+        "chat_id": "123456789",
+        "template": "Hello {name}, your order #{order_id} is {status}",
+        "template_data": {
+            "name": "John"
+            # order_id and status are missing
+        }
+    }
+    
+    response = client.post("/api/v1/telegram/send-template-message", json=message_data)
+    assert response.status_code == 400
+    assert "Missing template parameter" in response.json()["detail"]
+
+def test_send_template_message_endpoint_telegram_api_error():
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    
+    # Test data
+    message_data = {
+        "chat_id": "123456789",
+        "template": "Hello {name}",
+        "template_data": {"name": "John"}
+    }
+    
+    # Mock HTTPException from Telegram API error
+    with patch("app.api.telegram_notifications.send_telegram_template_message_async", new=AsyncMock(side_effect=HTTPException(status_code=502, detail="Telegram API error: 400"))):
+        response = client.post("/api/v1/telegram/send-template-message", json=message_data)
+        assert response.status_code == 502
+        assert "Telegram API error" in response.json()["detail"]
+```

@@ -14,6 +14,8 @@ class GraphState(TypedDict, total=False):
     watchdog_failures: List[Dict[str, Any]]
     escalation_context: str
     watchdog_decision: str
+    watchdog_escalations: int
+    next_provider_index: int
     run_id: str
     task_id: str
     correlation_id: str
@@ -93,14 +95,28 @@ def watchdog_check_node(state: GraphState) -> Dict[str, Any]:
             escalation_context_str += f"{i}. Инструмент: {err.get('tool_name', 'N/A')}, Ошибка: {err.get('error_message', 'N/A')}\n"
 
         updated_state["escalation_context"] = escalation_context_str
-        updated_state["watchdog_decision"] = "ESCALATE_L1"
+
+        # Определим уровень эскалации: L1/L2/L3 по кратности порога
+        failure_count = len(all_failures)
+        level = 1 if failure_count >= threshold else 0
+        if failure_count >= threshold * 2:
+            level = 2
+        if failure_count >= threshold * 3:
+            level = 3
+
+        if level >= 2:
+            # Эскалация на следующий провайдер для Dev: сдвигаем индекс
+            next_idx = int(state.get("next_provider_index", 0) or 0) + 1
+            updated_state["next_provider_index"] = next_idx
+
+        updated_state["watchdog_decision"] = f"ESCALATE_L{level}"
 
         log.info(
             event="task_escalated",
             run_id=state.get("run_id"),
             task_id=state.get("task_id"),
             correlation_id=state.get("correlation_id"),
-            kv={"level": 1, "action": "retry_with_error_context"}
+            kv={"level": level, "action": "retry_with_error_context" if level == 1 else "escalate_to_next_provider"}
         )
     else:
         updated_state["watchdog_decision"] = "CONTINUE"

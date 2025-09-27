@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "yclients.sync",
+  "type": "object",
+  "properties": {
+    "type": {"const": "yclients.sync"},
+    "company_id": {"type": "string"},
+    "operation": {"type": "string"},
+    "schedule": {"type": "string"},
+    "destination": {
+      "type": "object",
+      "properties": {"kind": {"type": "string"}, "target": {"type": "string"}},
+      "required": ["kind", "target"],
+      "additionalProperties": true
+    }
+  },
+  "required": ["type", "company_id", "operation", "destination"],
+  "additionalProperties": true
+}
+

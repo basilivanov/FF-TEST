@@ -8,9 +8,9 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/opt/feature-factory
-Environment=ENV=prod
+Environment=ENV=PROD
 Environment=DRY_RUN=false
-Environment=DATABASE_URL=sqlite:///./feature.prod.db
+Environment=DATABASE_URL=sqlite:////opt/feature-factory/data/prod.db
 ExecStart=/opt/feature-factory/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8080 --workers 2
 Restart=always
 RestartSec=3

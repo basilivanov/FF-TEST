@@ -34,21 +34,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   // Navigation items
   const navItems = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Agents', href: '/agents', icon: Bot },
-    { name: 'Now', href: '/now', icon: Play },
-    { name: 'Queue', href: '/queue', icon: Layers },
-    { name: 'Errors', href: '/errors', icon: AlertTriangle },
-    { name: 'Budget', href: '/budget', icon: Coins },
-    { name: 'Features', href: '/features', icon: Library },
-    { name: 'Tasks', href: '/tasks', icon: Library },
-    { name: 'Runs', href: '/runs', icon: Play },
-    { name: 'Logs', href: '/logs', icon: FileText },
-    { name: 'Tokens', href: '/tokens', icon: Coins },
-    { name: 'Граф', href: '/call-graph', icon: GitBranch },
-    { name: 'Docs', href: '/docs', icon: BookOpen },
-    { name: 'Settings', href: '/settings', icon: Settings },
-    { name: 'Chat', href: '/chat', icon: MessageCircle },
+    { name: 'Dashboard', href: '/', icon: LayoutDashboard, testid: 'nav-dashboard' },
+    { name: 'Agents', href: '/agents', icon: Bot, testid: 'nav-agents' },
+    { name: 'Features', href: '/features', icon: Library, testid: 'nav-features' },
+    { name: 'Logs & Events', href: '/logs', icon: FileText, testid: 'nav-logs' },
+    { name: 'Tokens', href: '/tokens', icon: Coins, testid: 'nav-tokens' },
+    { name: 'Call Graph', href: '/call-graph', icon: GitBranch, testid: 'nav-callgraph' },
+    { name: 'Docs', href: '/docs', icon: BookOpen, testid: 'nav-docs' },
+    { name: 'Settings', href: '/settings', icon: Settings, testid: 'nav-settings' },
+    { name: 'Chat', href: '/chat', icon: MessageCircle, testid: 'nav-chat' },
   ]
 
   return (
@@ -88,6 +82,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <li key={item.name}>
                   <Link
                     to={item.href}
+                    data-testid={item.testid}
                     className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
                       isActive
                         ? 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300'

@@ -1,19 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/shadcn/ui/button'
 import { Textarea } from '@/shadcn/ui/textarea'
+import { cn } from '@/lib/utils'
 import { 
   Send, 
   Sparkles,
   Play,
   FileText,
-  AlertCircle,
   CheckCircle,
   XCircle,
   Loader
 } from 'lucide-react'
-import { formatRole, formatDate, formatFeatureStatus } from '@/lib/format'
-import { MaintainerIntent, MaintainerPlan, Feature } from '@/lib/types'
-import { CodeBlock } from '@/shadcn/ui/code-block'
+import { formatDate } from '@/lib/format'
 import { StatusPill } from '@/shadcn/ui/status-pill'
 
 interface ChatMessage {

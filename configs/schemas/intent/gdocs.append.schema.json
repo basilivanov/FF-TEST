@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "gdocs.append",
+  "type": "object",
+  "properties": {
+    "type": {"const": "gdocs.append"},
+    "spreadsheet": {
+      "type": "object",
+      "properties": {"sheet": {"type": "string"}},
+      "required": ["sheet"],
+      "additionalProperties": true
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {"columns": {"type": "array", "items": {"type": "string"}}},
+      "required": ["columns"],
+      "additionalProperties": true
+    }
+  },
+  "required": ["type", "spreadsheet", "mapping"],
+  "additionalProperties": true
+}
+

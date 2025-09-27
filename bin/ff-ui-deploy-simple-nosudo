@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[ff-ui-deploy-simple-nosudo] Деплой UI без sudo..."
+
+# Проверяем что билд существует
+UI_DIST="/opt/feature-factory/app/ui/dist"
+if [[ ! -d "$UI_DIST" ]]; then
+    echo "❌ Нет папки $UI_DIST - сначала запустите: make ui-build"
+    exit 1
+fi
+
+# Пробуем разные варианты деплоя
+TARGET_DIR="/var/www/etl-tst.chococraft.ru"
+
+echo "🔄 Пробуем скопировать билд в $TARGET_DIR..."
+
+# Вариант 1: попробуем прямое копирование
+if cp -r "$UI_DIST"/* "$TARGET_DIR/" 2>/dev/null; then
+    echo "✅ Деплой успешен через прямое копирование"
+    exit 0
+fi
+
+# Вариант 2: через rsync
+if command -v rsync >/dev/null; then
+    echo "🔄 Пробуем через rsync..."
+    if rsync -av "$UI_DIST"/ "$TARGET_DIR/" 2>/dev/null; then
+        echo "✅ Деплой успешен через rsync"
+        exit 0
+    fi
+fi
+
+# Вариант 3: проверим sudoers
+echo "🔄 Пробуем через sudo..."
+if sudo cp -r "$UI_DIST"/* "$TARGET_DIR/" 2>/dev/null; then
+    echo "✅ Деплой успешен через sudo"
+    exit 0
+fi
+
+echo "❌ Все варианты деплоя не сработали"
+echo "📝 Попробуйте под root: make ui-deploy"
+exit 1

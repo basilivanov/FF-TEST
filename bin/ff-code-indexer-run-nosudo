@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Non-sudo wrapper for code indexer
+# Invariants: run as current user, respect INDEX_DATABASE_URL if provided
+
+REPO_ROOT="/opt/feature-factory"
+PYTHON_BIN="${REPO_ROOT}/.venv/bin/python3"
+SCRIPT="${REPO_ROOT}/scripts/update_code_registry.py"
+
+if [[ ! -x "$PYTHON_BIN" ]]; then
+  PYTHON_BIN="python3"
+fi
+
+exec "$PYTHON_BIN" "$SCRIPT"
+

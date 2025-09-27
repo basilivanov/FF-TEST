@@ -37,16 +37,13 @@ const RunHistory: React.FC<RunHistoryProps> = ({ onRefresh }) => {
 
   const fetchData = async () => {
     try {
-      // Мок данные для быстрой загрузки
-      setRuns([
-        { run_id: 'run_001', feature_id: 1, feature_title: 'User Authentication', graph_name: 'feature_graph', thread_id: 'thread_123', state_json: '{}', status: 'RUNNING', last_checkpoint_at: new Date().toISOString() },
-        { run_id: 'run_002', feature_id: 2, feature_title: 'Payment System', graph_name: 'feature_graph', thread_id: 'thread_124', state_json: '{}', status: 'COMPLETED', last_checkpoint_at: new Date(Date.now() - 3600000).toISOString() },
-        { run_id: 'run_003', feature_id: 3, feature_title: 'User Profile', graph_name: 'feature_graph', thread_id: 'thread_125', state_json: '{}', status: 'FAILED', last_checkpoint_at: new Date(Date.now() - 7200000).toISOString() }
-      ])
+      const resp = await get<GraphRun[]>(`/orchestrator/runs`)
+      setRuns(Array.isArray(resp.data) ? resp.data : [])
       setError(null)
     } catch (err) {
-      console.error('Error fetching data:', err)
-      setError('Failed to fetch data')
+      console.error('Error fetching runs:', err)
+      setError('Не удалось загрузить историю запусков')
+      setRuns([])
     } finally {
       setLoading(false)
     }

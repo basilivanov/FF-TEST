@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+WD_DIR="/opt/feature-factory/artifacts/watchdog"
+echo "Artifacts in $WD_DIR"
+ls -la "$WD_DIR" || true
+for pf in sse.pid ticker.pid watchdog.pid; do
+  if [ -f "$WD_DIR/$pf" ]; then
+    pid=$(cat "$WD_DIR/$pf")
+    if kill -0 "$pid" 2>/dev/null; then
+      echo "$pf alive (PID $pid)"
+    else
+      echo "$pf not running"
+    fi
+  else
+    echo "$pf missing"
+  fi
+done
+echo "--- tail watchdog.log"
+tail -n 40 "$WD_DIR/watchdog.log" 2>/dev/null || true

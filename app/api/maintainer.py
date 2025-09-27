@@ -24,6 +24,7 @@ from app.api.schemas.maintainer_schemas import (
 
 # Импортируем logging_helpers
 from app.logging_helpers import log, get_env, generate_correlation_id
+from app.orchestrator.gates import ManifestValidator
 
 # Создаем роутер
 router = APIRouter(prefix="/api/v1/maintainer")
@@ -239,6 +240,25 @@ async def generate_plan(
                 headers={"error": "EMPTY_INTENT_JSON"}
             )
         
+        # Валидируем intent_json по JSON‑схеме (если схема доступна)
+        try:
+            mv = ManifestValidator()
+            if not mv.validate_intent(plan_request.intent_json):
+                duration_ms = (time.time() - start_time) * 1000
+                log_api_call_end(
+                    request,
+                    correlation_id,
+                    status_code=400,
+                    duration_ms=duration_ms,
+                    error="INVALID_INTENT_SCHEMA"
+                )
+                raise HTTPException(status_code=400, detail="Invalid intent JSON by schema")
+        except HTTPException:
+            raise
+        except Exception:
+            # Мягкий фолбэк — если схема недоступна, продолжаем
+            pass
+
         # В реальной реализации здесь будет вызов Architect для генерации плана
         # Для демонстрации создаем простой план
         

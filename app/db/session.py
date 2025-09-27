@@ -3,12 +3,11 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
 from typing import Generator
-import os
 
-# Получаем DATABASE_URL из переменных окружения или завершаем работу с ошибкой
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required")
+from app.db.guard import get_db_connection_string
+
+# Получаем DATABASE_URL с поддержкой безопасного дефолта для тестов
+DATABASE_URL = get_db_connection_string() or "sqlite:////opt/feature-factory/data/test.db"
 
 # Функция для настройки SQLite PRAGMA
 @event.listens_for(Engine, "connect")

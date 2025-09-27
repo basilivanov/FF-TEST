@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+unit="feature-factory-runner.service"
+/usr/bin/systemctl status "$unit" --no-pager
+

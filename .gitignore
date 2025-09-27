@@ -24,3 +24,33 @@ Thumbs.db
 # Env/Secrets (в Cortex у нас отдельные правила)
 .env
 *.env
+
+# Python envs
+.venv/
+
+# Local runtime artefacts
+logs/
+tmp/
+data/
+photo/
+artifacts/ff-*/
+artifacts/watchdog/
+artifacts/ui/
+*.db
+*.db-shm
+*.db-wal
+*.pid
+*.log
+# Tooling caches
+.claude/
+.codex/config.toml
+.codex/feature_request.json
+.codex/internal_storage.json
+.codex/log/
+.codex/sessions/
+.config/
+.gemini/
+.npm/
+.nvm/
+.pki/
+.qwen/

@@ -4,7 +4,7 @@ LLM status endpoints: OAuth/auth readiness and CLI probes based on declarative c
 """
 
 from __future__ import annotations
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from typing import Any, Dict, List
 import os
 import time
@@ -20,6 +20,8 @@ try:
     from app.db.session import SessionLocal
 except Exception:
     SessionLocal = None
+import yaml
+from app.llm.router import completion
 
 router = APIRouter(prefix="/api/v1/llm")
 
@@ -107,3 +109,60 @@ def llm_status() -> Dict[str, Any]:
 
     return {"status": "ok", "providers": statuses, "ts": int(time.time())}
 
+
+@router.get("/roles-check")
+def roles_check(
+    roles: str | None = Query(None, description="Comma-separated role names to check; defaults to all in llm_routing.yaml"),
+    timeout_s: int = Query(10, ge=1, le=120),
+    max_tokens: int = Query(64, ge=1, le=4096),
+) -> Dict[str, Any]:
+    """Checks that each configured role can respond to a small prompt.
+
+    Returns per-role status with provider/model info when available.
+    """
+    # Load roles from routing config
+    routing = {}
+    try:
+        with open("/opt/feature-factory/configs/llm_routing.yaml", "r") as f:
+            routing = yaml.safe_load(f) or {}
+    except Exception:
+        routing = {}
+    configured_roles = sorted((routing.get("roles") or {}).keys())
+    target_roles = [r.strip() for r in roles.split(",")] if roles else configured_roles
+
+    results: List[Dict[str, Any]] = []
+    for role in target_roles:
+        start = time.time()
+        try:
+            out = completion(
+                role=role,
+                messages=[
+                    {"role": "system", "content": f"You are {role}."},
+                    {"role": "user", "content": "Return a short acknowledgement."},
+                ],
+                max_tokens=max_tokens,
+                temperature=0,
+                timeout_s=timeout_s,
+            )
+            # Try to normalize
+            text = out.get("text") or (out.get("choices", [{}])[0].get("message", {}).get("content"))
+            latency_ms = int((time.time() - start) * 1000)
+            results.append({
+                "role": role,
+                "ok": bool(text),
+                "latency_ms": latency_ms,
+                "model": out.get("model") or "",
+                "provider": out.get("provider") or routing.get("roles", {}).get(role, {}).get("providers", [None])[0],
+                "text_len": len(str(text or "")),
+            })
+        except Exception as e:
+            latency_ms = int((time.time() - start) * 1000)
+            results.append({
+                "role": role,
+                "ok": False,
+                "latency_ms": latency_ms,
+                "error": str(e),
+            })
+
+    overall_ok = all(r.get("ok") for r in results) if results else False
+    return {"status": "ok" if overall_ok else "partial", "results": results, "ts": int(time.time())}
