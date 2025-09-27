@@ -236,51 +236,59 @@ async def get_system_coverage() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Failed to get coverage: {str(e)}")
 
 def format_health_response(report_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Форматирует данные отчёта для UI"""
+    """Форматирует данные отчёта для UI."""
 
-    # Если report_data - это объект отчёта, конвертируем в dict
-    if hasattr(report_data, '__dict__'):
-        report_data = report_data.__dict__
+    def to_plain(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {k: to_plain(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [to_plain(v) for v in value]
+        if hasattr(value, "__dict__"):
+            return {k: to_plain(v) for k, v in value.__dict__.items()}
+        return value
 
-    roles = report_data.get("roles", [])
+    report_dict = to_plain(report_data)
+    roles = report_dict.get("roles", []) or []
 
-    # Форматируем роли для UI
     formatted_roles = []
-    for role in roles:
-        # Если role - это объект, конвертируем в dict
-        if hasattr(role, '__dict__'):
-            role_dict = role.__dict__
-        else:
-            role_dict = role
+    role_icons = {
+        "architect": "Users",
+        "dev": "Code",
+        "qa": "TestTube",
+        "scribe": "BookOpen",
+        "maintainer": "Wrench",
+    }
 
-        # Определяем иконку для роли
-        role_icons = {
-            "architect": "Users",
-            "dev": "Code",
-            "qa": "TestTube",
-            "scribe": "BookOpen",
-            "maintainer": "Wrench"
-        }
+    for role in roles:
+        role_dict = to_plain(role) if not isinstance(role, dict) else {k: to_plain(v) for k, v in role.items()}
+
+        cortex_files = role_dict.get("cortex_files", []) or []
+        prompt_files = role_dict.get("prompt_files", []) or []
+        last_updated_candidates = [item.get("last_modified") for item in cortex_files + prompt_files if isinstance(item, dict)]
+        last_updated = (
+            max(last_updated_candidates)
+            if last_updated_candidates
+            else datetime.now(timezone.utc).isoformat()
+        )
 
         formatted_role = {
-            "role": role_dict["role"].capitalize(),
-            "context_quality": round(role_dict.get("overall_score", 0)),
-            "docs_count": len(role_dict.get("cortex_files", [])) + len(role_dict.get("prompt_files", [])),
-            "last_updated": max(
-                [f.get("last_modified", "") for f in role_dict.get("cortex_files", []) + role_dict.get("prompt_files", [])]
-                or [datetime.now(timezone.utc).isoformat()]
-            ),
-            "issues": role_dict.get("issues", []),
-            "icon": role_icons.get(role_dict["role"], "FileText")
+            "role": (role_dict.get("role") or "unknown").capitalize(),
+            "context_quality": round(role_dict.get("overall_score", 0) or 0),
+            "docs_count": len(cortex_files) + len(prompt_files),
+            "last_updated": last_updated,
+            "issues": role_dict.get("issues", []) or [],
+            "icon": role_icons.get(role_dict.get("role"), "FileText"),
         }
         formatted_roles.append(formatted_role)
 
+    overall_score = round(report_dict.get("overall_score", 0) or 0)
+
     return {
-        "overall_score": round(report_data.get("overall_score", 0)),
-        "context_freshness": round(report_data.get("overall_score", 0)),  # Упрощённо используем общий балл
+        "overall_score": overall_score,
+        "context_freshness": overall_score,
         "role_coverage": len([r for r in formatted_roles if r["context_quality"] > 70]),
-        "knowledge_completeness": round(report_data.get("overall_score", 0)),  # Упрощённо
-        "last_updated": report_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+        "knowledge_completeness": overall_score,
+        "last_updated": report_dict.get("timestamp", datetime.now(timezone.utc).isoformat()),
         "roles": formatted_roles,
-        "recommendations": report_data.get("recommendations", [])
+        "recommendations": report_dict.get("recommendations", []) or [],
     }

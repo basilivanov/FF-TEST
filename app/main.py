@@ -32,6 +32,7 @@ from app.api.tasks import router as tasks_router
 from app.api.notifications import router as notifications_router
 from app.api.runner_endpoints import router as runner_router
 from app.api.client_logs import router as client_logs_router, router2 as client_logs_router2
+from app.api.ci_endpoints import router as ci_router
 from app.api.cortex_health import router as cortex_health_router
 
 # Импортируем модуль защиты БД
@@ -124,6 +125,7 @@ app.include_router(runner_router, tags=["Runner"])
 # Ингест клиентских логов UI
 app.include_router(client_logs_router, tags=["ClientLogs"])
 app.include_router(client_logs_router2, tags=["ClientLogs"])
+app.include_router(ci_router)
 
 # Подключаем маршруты трассировки
 from app.api.trace import router as trace_router
