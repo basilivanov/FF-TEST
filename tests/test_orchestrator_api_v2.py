@@ -15,11 +15,6 @@ def validate_response_schema(response_data, schema_path):
         schema = json.load(f)
     jsonschema.validate(instance=response_data, schema=schema)
 import jsonschema
-from app.api.schemas.orchestrator.R0_FeatureCreated_schema import schema as feature_created_schema
-from app.api.schemas.orchestrator.R1_Plan_schema import schema as plan_schema
-from app.api.schemas.orchestrator.R2_Run_schema import schema as run_schema
-from app.api.schemas.orchestrator.R3_GraphStatus_schema import schema as graph_status_schema
-
 
 class TestOrchestratorAPIV2(unittest.TestCase):
     """Тесты для новой версии API оркестратора, соответствующей спецификации API-Orchestrator-001.md."""

@@ -11,14 +11,19 @@ sys.path.append('/opt/feature-factory')
 
 from fastapi import FastAPI
 from app.api.tasks import router as tasks_router
-from app.api.simple_test import router as simple_test_router
+
+try:
+    from app.api.simple_test import router as simple_test_router  # type: ignore
+except ImportError:
+    simple_test_router = None
 
 app = FastAPI()
 
 # Подключаем маршруты tasks
 app.include_router(tasks_router, prefix="/api/v1/tasks", tags=["Tasks"])
-# Подключаем простой тестовый роутер
-app.include_router(simple_test_router, prefix="/api/v1/test", tags=["Test"])
+# Подключаем простой тестовый роутер, если доступен
+if simple_test_router is not None:
+    app.include_router(simple_test_router, prefix="/api/v1/test", tags=["Test"])
 
 @app.get("/")
 def root():

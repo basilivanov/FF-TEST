@@ -7,7 +7,10 @@ import os
 import uuid
 import structlog
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.checkpoint.sqlite import SqliteSaver
+try:
+    from langgraph.checkpoint.sqlite import SqliteSaver
+except (ImportError, ModuleNotFoundError):
+    SqliteSaver = None  # type: ignore
 from app.logging_helpers import get_env
 
 # Настройка логгера
@@ -33,13 +36,20 @@ class GraphManager:
                 os.makedirs(data_dir, exist_ok=True)
             
             # Инициализируем чекпоинтер
-            self.checkpointer = SqliteSaver.from_conn_string(CHECKPOINTS_DB_PATH)
-            
-            logger.info(
-                "checkpointer_initialized",
-                component="graph",
-                db_path=CHECKPOINTS_DB_PATH
-            )
+            if SqliteSaver is not None:
+                self.checkpointer = SqliteSaver.from_conn_string(CHECKPOINTS_DB_PATH)
+                logger.info(
+                    "checkpointer_initialized",
+                    component="graph",
+                    db_path=CHECKPOINTS_DB_PATH
+                )
+            else:
+                self.checkpointer = MemorySaver()
+                logger.warning(
+                    "checkpointer_fallback_memory",
+                    component="graph",
+                    reason="sqlite_backend_missing"
+                )
         except Exception as e:
             logger.error(
                 "checkpointer_init_failed",
