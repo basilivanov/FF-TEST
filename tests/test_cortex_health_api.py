@@ -13,6 +13,7 @@ from app.services.cortex_analyzer import CortexHealthReport, RoleAnalysis, FileA
 
 
 client = TestClient(app)
+BASE_PATH = "/api/v1/cortex"
 
 
 def _make_report() -> CortexHealthReport:
@@ -99,7 +100,7 @@ def test_cortex_health_endpoint(monkeypatch, tmp_path):
     monkeypatch.setattr("app.api.cortex_health.get_db_path", lambda: str(db_path))
     monkeypatch.setattr("app.api.cortex_health.CortexAnalyzer", fake_analyzer_factory)
 
-    response = client.get("/cortex/health")
+    response = client.get(f"{BASE_PATH}/health")
     assert response.status_code == 200
     payload = response.json()
     assert payload["overall_score"] == 88
@@ -107,7 +108,7 @@ def test_cortex_health_endpoint(monkeypatch, tmp_path):
 
     # повторный вызов должен читать сохранённый отчёт без запуска анализатора
     monkeypatch.setattr("app.api.cortex_health.CortexAnalyzer", lambda: None)
-    second = client.get("/cortex/health")
+    second = client.get(f"{BASE_PATH}/health")
     assert second.status_code == 200
     assert second.json()["overall_score"] == 88
 
@@ -119,13 +120,13 @@ def test_cortex_history_and_role_endpoints(monkeypatch, tmp_path):
 
     monkeypatch.setattr("app.api.cortex_health.get_db_path", lambda: str(db_path))
 
-    history = client.get("/cortex/history", params={"days": 1})
+    history = client.get(f"{BASE_PATH}/history", params={"days": 1})
     assert history.status_code == 200
     hist_payload = history.json()
     assert hist_payload["period_days"] == 1
     assert hist_payload["overall_trend"]
 
-    role = client.get("/cortex/roles/dev")
+    role = client.get(f"{BASE_PATH}/roles/dev")
     assert role.status_code == 200
     role_payload = role.json()
     assert role_payload["role"] == "dev"
